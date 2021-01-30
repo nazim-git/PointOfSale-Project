@@ -19,7 +19,6 @@ public class DbConnection {
 	public static Connection getInstance() {
 		if (connection == null)
 			new DbConnection();
-		System.out.println("DataBase connected Successfully!!!");
 		return connection;
 	}
 
