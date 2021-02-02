@@ -1,46 +1,81 @@
 package dataModels;
 
+import java.util.Date;
+
 public class ProductModel {
-	private int ID;
-	private String Name;
-	private float Price;
-	private String Unit;
+	private int id;
+	private String title;
+	private String description;
+	private String category;
+	private String unit;
+	private float salePrice;
+	private float purchasePrice;
+	private int createdBy;
+	private Date createdDate;
+	private boolean status;
 	
-	public ProductModel(String Name) {
-		this.Name = Name;
+	public int getId() {
+		return id;
 	}
-	
-	public ProductModel() {
+	public void setId(int id) {
+		this.id = id;
 	}
-
-	public int getID() {
-		return ID;
+	public String getTitle() {
+		return title;
 	}
-	public void setID(int id) {
-		ID = id;
+	public void setTitle(String title) {
+		this.title = title;
 	}
-	public String getName() {
-		return Name;
+	public String getDescription() {
+		return description;
 	}
-	public void setName(String name) {
-		Name = name;
+	public void setDescription(String description) {
+		this.description = description;
 	}
-
-	public float getPrice() {
-		return Price;
+	public String getCategory() {
+		return category;
 	}
-
-	public void setPrice(float price) {
-		Price = price;
+	public void setCategory(String category) {
+		this.category = category;
 	}
-
 	public String getUnit() {
-		return Unit;
+		return unit;
 	}
-
 	public void setUnit(String unit) {
-		Unit = unit;
+		this.unit = unit;
 	}
+	public float getSalePrice() {
+		return salePrice;
+	}
+	public void setSalePrice(float salePrice) {
+		this.salePrice = salePrice;
+	}
+	public float getPurchasePrice() {
+		return purchasePrice;
+	}
+	public void setPurchasePrice(float purchasePrice) {
+		this.purchasePrice = purchasePrice;
+	}
+	public int getCreatedBy() {
+		return createdBy;
+	}
+	public void setCreatedBy(int createdBy) {
+		this.createdBy = createdBy;
+	}
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+	public boolean getStatus() {
+		return status;
+	}
+	public void setStatus(boolean status) {
+		this.status = status;
+	}	
+	
+	
 	
 	
 }
