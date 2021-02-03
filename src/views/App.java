@@ -60,13 +60,12 @@ public class App extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		setLocationRelativeTo(null);
 
 		layeredPane = new JLayeredPane();
 		layeredPane.setBounds(10, 11, 674, 349);
 		contentPane.add(layeredPane);
 		layeredPane.setLayout(new CardLayout(0, 0));
-		
-		
 	}
 
 	public void HomeGUI() {
@@ -85,7 +84,6 @@ public class App extends JFrame {
 		btnSaleInvoiceHome = new JButton("Sale Invoice");
 		btnSaleInvoiceHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				dispose();
 				new SaleInvoice();
 			}
 		});

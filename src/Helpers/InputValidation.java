@@ -4,14 +4,14 @@ import java.util.regex.Pattern;
 
 public class InputValidation {
 	
-	public boolean validateAlphabets(String name) {
+	public static boolean validateAlphabets(String name) {
 		name = name.replace(" ", "");
 		boolean allLetters = name.chars().allMatch(Character::isLetter);
 		
 		return allLetters;
 	}
 	
-	public boolean validateEmail(String email) 
+	public static boolean validateEmail(String email) 
     { 
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+ 
                             "[a-zA-Z0-9_+&*-]+)*@" + 
@@ -24,14 +24,14 @@ public class InputValidation {
         return pat.matcher(email).matches(); 
     } 
 	
-	public boolean validateNumbers(String phone) 
+	public static boolean validateNumbers(String input) 
     { 
 		String regex = "\\d+";
                               
         Pattern pat = Pattern.compile(regex); 
-        if (phone == null) 
+        if (input == null) 
             return false; 
-        return pat.matcher(phone).matches(); 
+        return pat.matcher(input).matches(); 
     } 
 
 }

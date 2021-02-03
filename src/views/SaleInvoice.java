@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Helpers.Frame;
+import Helpers.InputValidation;
 import controllers.InvoiceController;
 import dataAccess.ProductDao;
 import dataModels.InvoiceItemModel;
@@ -17,15 +18,22 @@ import dataModels.ProductModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.Toolkit;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
+
+import java.awt.Cursor;
 import java.awt.Dimension;
 import javax.swing.JTable;
 import net.proteanit.sql.DbUtils;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Window.Type;
+import javax.swing.SwingConstants;
 
 public class SaleInvoice extends JFrame {
 
@@ -52,13 +60,13 @@ public class SaleInvoice extends JFrame {
 
 	String header[] = { "#", "Product", "Unit", "Unit Price", "Quantity", "Sub-Total" };
 
-	private InvoiceController invoiceController = new InvoiceController();
 	private JTextField txtQuantity;
+	private JTextField txtCustomerMobile;
+	private JTextField txtCustomerName;
 
 	public SaleInvoice() {
 		setMaximizedBounds(Frame.getScreenBounds());
 		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
-		setResizable(false);
 		Initializations();
 		getData();
 		setUI();
@@ -70,27 +78,16 @@ public class SaleInvoice extends JFrame {
 	public void fillWithSelectedProduct(boolean initial) {
 		if (initial)
 			selectedProduct = products.get(0);
-
-		txtMeasuringUnit.setText(selectedProduct.getUnit());
 		txtUnitPrice.setText(String.valueOf(selectedProduct.getSalePrice()));
-
-//		System.out.println("---------------------------------");
-//		System.out.println(selectedProduct.getId());
-//		System.out.println(selectedProduct.getTitle());
-//		System.out.println(selectedProduct.getDescription());
-//		System.out.println(selectedProduct.getCategory());
-//		System.out.println(selectedProduct.getUnit());
-//		System.out.println(selectedProduct.getSalePrice());
-//		System.out.println(selectedProduct.getPurchasePrice());
-//		System.out.println(selectedProduct.getCreatedBy());
-//		System.out.println(selectedProduct.getCreatedDate());
-//		System.out.println(selectedProduct.getStatus());
+		txtMeasuringUnit.setText(selectedProduct.getUnit());
 	}
 
 	public void setUI() {
 		setTitle("Sale Invoice");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setLocationRelativeTo(null);
 		contentPane = new JPanel();
+		setVisible(true);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds(0, 0, screenSize.width, screenSize.height);
@@ -98,7 +95,6 @@ public class SaleInvoice extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		this.setVisible(true);
 
 		lblSaleInvoice = new JLabel("Sale Invoice");
 		lblSaleInvoice.setFont(new Font("Times New Roman", Font.BOLD, 30));
@@ -106,15 +102,17 @@ public class SaleInvoice extends JFrame {
 		contentPane.add(lblSaleInvoice);
 
 		lblProductName = new JLabel("Product Name");
-		lblProductName.setBounds(140, 64, 102, 14);
+		lblProductName.setBounds(142, 65, 102, 14);
 		contentPane.add(lblProductName);
 
 		lblProductId = new JLabel("Product ID");
-		lblProductId.setBounds(10, 64, 86, 14);
+		lblProductId.setBounds(10, 65, 86, 14);
 		contentPane.add(lblProductId);
 
 		cmbProductName = new JComboBox();
-		cmbProductName.setBounds(140, 89, 147, 20);
+		cmbProductName.setMaximumRowCount(5);
+		cmbProductName.setToolTipText("Select Product By Name.....");
+		cmbProductName.setBounds(138, 78, 250, 30);
 		contentPane.add(cmbProductName);
 		for (int i = 0; i < products.size(); i++) {
 			cmbProductName.addItem(products.get(i).getTitle());
@@ -132,7 +130,9 @@ public class SaleInvoice extends JFrame {
 		});
 
 		cmbProductID = new JComboBox();
-		cmbProductID.setBounds(10, 89, 120, 20);
+		cmbProductID.setToolTipText("Select Product By Code");
+		cmbProductID.setMaximumRowCount(5);
+		cmbProductID.setBounds(6, 78, 120, 30);
 		contentPane.add(cmbProductID);
 		for (int i = 0; i < products.size(); i++) {
 			cmbProductID.addItem(products.get(i).getId());
@@ -155,27 +155,30 @@ public class SaleInvoice extends JFrame {
 			}
 		});
 
-		btnGoBackSaleInvoice.setBounds(1250, 17, 89, 30);
+		btnGoBackSaleInvoice.setBounds(1253, 11, 86, 68);
 		contentPane.add(btnGoBackSaleInvoice);
 
 		lblMeasuringUnit = new JLabel("Measuring Unit");
-		lblMeasuringUnit.setBounds(10, 120, 89, 14);
+		lblMeasuringUnit.setBounds(14, 175, 89, 14);
 		contentPane.add(lblMeasuringUnit);
 
 		txtMeasuringUnit = new JTextField();
+		txtMeasuringUnit.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtMeasuringUnit.setToolTipText("Measuring Unit of the Selected Product.....");
 		txtMeasuringUnit.setEditable(false);
-		txtMeasuringUnit.setBounds(10, 145, 120, 20);
+		txtMeasuringUnit.setBounds(10, 190, 120, 30);
 		contentPane.add(txtMeasuringUnit);
 		txtMeasuringUnit.setColumns(10);
 
 		lblUnitPrice = new JLabel("Unit Price");
-		lblUnitPrice.setBounds(10, 176, 89, 14);
+		lblUnitPrice.setBounds(14, 120, 89, 14);
 		contentPane.add(lblUnitPrice);
 
 		txtUnitPrice = new JTextField();
+		txtUnitPrice.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtUnitPrice.setEditable(false);
 		txtUnitPrice.setColumns(10);
-		txtUnitPrice.setBounds(10, 201, 120, 20);
+		txtUnitPrice.setBounds(10, 133, 120, 30);
 		contentPane.add(txtUnitPrice);
 
 		scrollPane = new JScrollPane();
@@ -186,26 +189,68 @@ public class SaleInvoice extends JFrame {
 		scrollPane.setViewportView(table);
 
 		JLabel lblQuantity = new JLabel("Quantity");
-		lblQuantity.setBounds(298, 64, 89, 14);
+		lblQuantity.setBounds(402, 65, 89, 14);
 		contentPane.add(lblQuantity);
 
 		txtQuantity = new JTextField();
+		txtQuantity.setToolTipText("Enter quantity of the item here....");
 		txtQuantity.setText((String) null);
 		txtQuantity.setColumns(10);
-		txtQuantity.setBounds(297, 89, 120, 20);
+		txtQuantity.setBounds(400, 78, 120, 30);
 		contentPane.add(txtQuantity);
 
 		JButton btnAddItem = new JButton("Add Item!");
 		btnAddItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Object[] item = invoiceController.addItemToInvoice(selectedProduct,
-						Integer.parseInt(txtQuantity.getText()), invoice);
+				if (InvoiceController.validateQuantity(txtQuantity)) {
+					Object[] item = InvoiceController.addItemToInvoice(selectedProduct,
+							Integer.parseInt(txtQuantity.getText()), invoice);
+					if (item.length == 3) {
+						System.out.println();
+						tableModel.setValueAt(item[0], Integer.parseInt(item[1].toString()), 4);
+						tableModel.setValueAt(item[2], Integer.parseInt(item[1].toString()), 5);
+					} else {
+						tableModel.addRow(item);
+					}
+				}
 
-				tableModel.addRow(item);
+				for (InvoiceItemModel item : invoice.getInvoiceItems()) {
+					System.out.println(
+							" ID:" + item.getId() + 
+							" InvoiceId:" + item.getInvoiceId() + 
+							" ProductId:"+ item.getProductId() + 
+							" Title:" + item.getTitle() + 
+							" SalePrice:"+ item.getSalePrice() + 
+							" Quantity:" + item.getQuantity() + 
+							" InvoiceId:"+ item.getSubTotal());
+				}
 			}
 		});
-		btnAddItem.setBounds(427, 88, 89, 23);
+		btnAddItem.setBounds(10, 232, 120, 30);
 		contentPane.add(btnAddItem);
+		
+		txtCustomerMobile = new JTextField();
+		txtCustomerMobile.setToolTipText("Enter Customer Mobile Here.....");
+		txtCustomerMobile.setText((String) null);
+		txtCustomerMobile.setEditable(false);
+		txtCustomerMobile.setColumns(10);
+		txtCustomerMobile.setBounds(744, 78, 150, 30);
+		contentPane.add(txtCustomerMobile);
+		
+		JLabel lblCustomerMobile = new JLabel("Customer Mobile");
+		lblCustomerMobile.setBounds(748, 65, 120, 14);
+		contentPane.add(lblCustomerMobile);
+		
+		JLabel lblCustomerName = new JLabel("Customer Name");
+		lblCustomerName.setBounds(535, 65, 117, 14);
+		contentPane.add(lblCustomerName);
+		
+		txtCustomerName = new JTextField();
+		txtCustomerName.setToolTipText("Enter Customer Name Here....");
+		txtCustomerName.setEditable(false);
+		txtCustomerName.setColumns(10);
+		txtCustomerName.setBounds(532, 78, 200, 30);
+		contentPane.add(txtCustomerName);
 
 	}
 

@@ -1,5 +1,9 @@
 package controllers;
 
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import Helpers.InputValidation;
 import dataAccess.RunningNumberDao;
 import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
@@ -9,7 +13,7 @@ import dataModels.RunningNumber;
 public class InvoiceController {
 	
 	
-	public String generateInvoiceNumber() {
+	public static String generateInvoiceNumber() {
 		RunningNumberDao runningNumberDao = new RunningNumberDao();
 		
 		String invoiceType = "SaleInvoice";
@@ -43,20 +47,59 @@ public class InvoiceController {
 	}
 
 	
-	public Object[] addItemToInvoice(ProductModel product, int quantity, InvoiceModel invoice) {
-		InvoiceItemModel item = new InvoiceItemModel();
-		Object[] object = {product.getTitle(),quantity,product.getUnit(),product.getSalePrice(),product.getPurchasePrice(),(product.getSalePrice()*quantity)};
+	public static Object[] addItemToInvoice(ProductModel product, int quantity, InvoiceModel invoice) {
+		boolean alreadyInInvoice = false;
+		int index = 0;
 		
-		item.setProductId(product.getId());
-		item.setTitle(product.getTitle());
-		item.setQuantity(quantity);
-		item.setUnit(product.getUnit());
-		item.setSalePrice(product.getSalePrice());
-		item.setPurchasePrice(product.getPurchasePrice());
-		item.setSubTotal(product.getSalePrice()*quantity);
+		for (InvoiceItemModel item : invoice.getInvoiceItems()) {
+			if(item.getTitle().equals(product.getTitle())) {
+				alreadyInInvoice = true;
+				break;
+			}
+			index++;
+		}
 		
-		invoice.getInvoiceItems().add(item);
+		if(!alreadyInInvoice) {
+			InvoiceItemModel item = new InvoiceItemModel();
+			
+			Object[] object = {"",product.getTitle(),product.getUnit(),product.getSalePrice(),quantity,(product.getSalePrice()*quantity)};
+			
+			item.setProductId(product.getId());
+			item.setTitle(product.getTitle());
+			item.setQuantity(quantity);
+			item.setUnit(product.getUnit());
+			item.setSalePrice(product.getSalePrice());
+			item.setPurchasePrice(product.getPurchasePrice());
+			item.setSubTotal(product.getSalePrice()*quantity);
+			
+			invoice.getInvoiceItems().add(item);
+			
+			return object;
+		}
+		else {
+			invoice.getInvoiceItems().get(index).setQuantity(quantity);
+			invoice.getInvoiceItems().get(index).setSubTotal(product.getSalePrice()*quantity);
+			Object[] object = {quantity,index,product.getSalePrice()*quantity};
+			return object;
+		}
 		
-		return object;
 	}
+	
+	public static Boolean validateQuantity(JTextField quantity) {
+		if (!quantity.getText().isEmpty()) {
+			if(InputValidation.validateNumbers(quantity.getText()) && Integer.parseInt(quantity.getText()) != 0) {
+				return true;
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Quantity must be a valid positive Number!");
+				quantity.requestFocus();
+				return false;
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Enter Quantity of the product!");
+			quantity.requestFocus();
+			return false;
+		}
+	}
+	
 }
