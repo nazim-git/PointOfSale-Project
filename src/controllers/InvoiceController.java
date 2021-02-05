@@ -2,6 +2,7 @@ package controllers;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 import Helpers.InputValidation;
 import dataAccess.RunningNumberDao;
@@ -9,6 +10,7 @@ import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
 import dataModels.ProductModel;
 import dataModels.RunningNumber;
+import viewModels.AddItemVM;
 
 public class InvoiceController {
 	
@@ -47,12 +49,12 @@ public class InvoiceController {
 	}
 
 	
-	public static Object[] addItemToInvoice(ProductModel product, int quantity, InvoiceModel invoice) {
+	public static void addItemToInvoice(AddItemVM model) {
 		boolean alreadyInInvoice = false;
 		int index = 0;
 		
-		for (InvoiceItemModel item : invoice.getInvoiceItems()) {
-			if(item.getTitle().equals(product.getTitle())) {
+		for (InvoiceItemModel item : model.getInvoice().getInvoiceItems()) {
+			if(item.getTitle().equals(model.getProduct().getTitle())) {
 				alreadyInInvoice = true;
 				break;
 			}
@@ -62,25 +64,31 @@ public class InvoiceController {
 		if(!alreadyInInvoice) {
 			InvoiceItemModel item = new InvoiceItemModel();
 			
-			Object[] object = {"",product.getTitle(),product.getUnit(),product.getSalePrice(),quantity,(product.getSalePrice()*quantity)};
+			item.setProductId(model.getProduct().getId());
+			item.setTitle(model.getProduct().getTitle());
+			item.setQuantity(model.getQuantity());
+			item.setUnit(model.getProduct().getUnit());
+			item.setSalePrice(model.getProduct().getSalePrice());
+			item.setPurchasePrice(model.getProduct().getPurchasePrice());
+			item.setSubTotal(model.getProduct().getSalePrice()*model.getQuantity());
 			
-			item.setProductId(product.getId());
-			item.setTitle(product.getTitle());
-			item.setQuantity(quantity);
-			item.setUnit(product.getUnit());
-			item.setSalePrice(product.getSalePrice());
-			item.setPurchasePrice(product.getPurchasePrice());
-			item.setSubTotal(product.getSalePrice()*quantity);
+			model.getInvoice().getInvoiceItems().add(item);
 			
-			invoice.getInvoiceItems().add(item);
-			
-			return object;
 		}
 		else {
-			invoice.getInvoiceItems().get(index).setQuantity(quantity);
-			invoice.getInvoiceItems().get(index).setSubTotal(product.getSalePrice()*quantity);
-			Object[] object = {quantity,index,product.getSalePrice()*quantity};
-			return object;
+			model.getInvoice().getInvoiceItems().get(index).setQuantity(model.getQuantity());
+			model.getInvoice().getInvoiceItems().get(index).setSubTotal(model.getProduct().getSalePrice()*model.getQuantity());
+		}
+		
+		model.getTableModel().setRowCount(0);
+		
+		for (int i = 0; i < model.getInvoice().getInvoiceItems().size(); i++) {
+
+			Object[] object = { "", model.getInvoice().getInvoiceItems().get(i).getTitle(),
+					model.getInvoice().getInvoiceItems().get(i).getUnit(),
+					model.getInvoice().getInvoiceItems().get(i).getSalePrice(), model.getInvoice().getInvoiceItems().get(i).getQuantity(),
+					(model.getInvoice().getInvoiceItems().get(i).getSubTotal()) };
+			model.getTableModel().addRow(object);
 		}
 		
 	}

@@ -31,6 +31,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import javax.swing.JTable;
 import net.proteanit.sql.DbUtils;
+import viewModels.AddItemVM;
+
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Window.Type;
 import javax.swing.SwingConstants;
@@ -54,7 +56,6 @@ public class SaleInvoice extends JFrame {
 	private ArrayList<ProductModel> products;
 
 	private ProductModel selectedProduct;
-	private int quantity;
 	private InvoiceModel invoice;
 	private ArrayList<InvoiceItemModel> items;
 
@@ -203,32 +204,20 @@ public class SaleInvoice extends JFrame {
 		btnAddItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (InvoiceController.validateQuantity(txtQuantity)) {
-					Object[] item = InvoiceController.addItemToInvoice(selectedProduct,
-							Integer.parseInt(txtQuantity.getText()), invoice);
-					if (item.length == 3) {
-						System.out.println();
-						tableModel.setValueAt(item[0], Integer.parseInt(item[1].toString()), 4);
-						tableModel.setValueAt(item[2], Integer.parseInt(item[1].toString()), 5);
-					} else {
-						tableModel.addRow(item);
-					}
+					InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct, Integer.parseInt(txtQuantity.getText()), invoice, tableModel));
 				}
 
 				for (InvoiceItemModel item : invoice.getInvoiceItems()) {
-					System.out.println(
-							" ID:" + item.getId() + 
-							" InvoiceId:" + item.getInvoiceId() + 
-							" ProductId:"+ item.getProductId() + 
-							" Title:" + item.getTitle() + 
-							" SalePrice:"+ item.getSalePrice() + 
-							" Quantity:" + item.getQuantity() + 
-							" InvoiceId:"+ item.getSubTotal());
+					System.out.println(" ID:" + item.getId() + " InvoiceId:" + item.getInvoiceId() + " ProductId:"
+							+ item.getProductId() + " Title:" + item.getTitle() + " SalePrice:" + item.getSalePrice()
+							+ " Quantity:" + item.getQuantity() + " InvoiceId:" + item.getSubTotal());
 				}
 			}
+
 		});
 		btnAddItem.setBounds(10, 232, 120, 30);
 		contentPane.add(btnAddItem);
-		
+
 		txtCustomerMobile = new JTextField();
 		txtCustomerMobile.setToolTipText("Enter Customer Mobile Here.....");
 		txtCustomerMobile.setText((String) null);
@@ -236,15 +225,15 @@ public class SaleInvoice extends JFrame {
 		txtCustomerMobile.setColumns(10);
 		txtCustomerMobile.setBounds(744, 78, 150, 30);
 		contentPane.add(txtCustomerMobile);
-		
+
 		JLabel lblCustomerMobile = new JLabel("Customer Mobile");
 		lblCustomerMobile.setBounds(748, 65, 120, 14);
 		contentPane.add(lblCustomerMobile);
-		
+
 		JLabel lblCustomerName = new JLabel("Customer Name");
 		lblCustomerName.setBounds(535, 65, 117, 14);
 		contentPane.add(lblCustomerName);
-		
+
 		txtCustomerName = new JTextField();
 		txtCustomerName.setToolTipText("Enter Customer Name Here....");
 		txtCustomerName.setEditable(false);
