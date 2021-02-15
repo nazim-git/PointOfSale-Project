@@ -44,14 +44,13 @@ public class SaleInvoice extends JFrame {
 	private JLabel lblSaleInvoice, lblProductName, lblProductId, lblMeasuringUnit, lblUnitPrice;
 	private JComboBox cmbProductName, cmbProductID;
 	private JTextField txtMeasuringUnit, txtUnitPrice;
-	private JButton btnGoBackSaleInvoice;
 
 	private JScrollPane scrollPane;
 	private JTable table;
 
 	private DefaultTableModel tableModel;
 
-	private ProductDao saleInvoiceDao;
+	private ProductDao productDao;
 
 	private ArrayList<ProductModel> products;
 
@@ -148,17 +147,6 @@ public class SaleInvoice extends JFrame {
 			}
 		});
 
-		btnGoBackSaleInvoice = new JButton("Go Back!");
-		btnGoBackSaleInvoice.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				dispose();
-				new App();
-			}
-		});
-
-		btnGoBackSaleInvoice.setBounds(1253, 11, 86, 68);
-		contentPane.add(btnGoBackSaleInvoice);
-
 		lblMeasuringUnit = new JLabel("Measuring Unit");
 		lblMeasuringUnit.setBounds(14, 175, 89, 14);
 		contentPane.add(lblMeasuringUnit);
@@ -244,7 +232,7 @@ public class SaleInvoice extends JFrame {
 	}
 
 	public void Initializations() {
-		saleInvoiceDao = new ProductDao();
+		productDao = new ProductDao();
 		products = new ArrayList<ProductModel>();
 		selectedProduct = new ProductModel();
 		invoice = new InvoiceModel();
@@ -257,7 +245,7 @@ public class SaleInvoice extends JFrame {
 
 	public void getData() {
 		try {
-			ResultSet rs = saleInvoiceDao.getProducts();
+			ResultSet rs = productDao.getProducts();
 
 			ProductModel product = new ProductModel();
 
