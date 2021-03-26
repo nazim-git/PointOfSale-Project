@@ -68,18 +68,22 @@ public class SaleInvoice extends JFrame {
 		setMaximizedBounds(Frame.getScreenBounds());
 		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		Initializations();
-		getData();
 		setUI();
 		fillWithSelectedProduct(true);
 		repaint();
 		revalidate();
 	}
 
-	public void fillWithSelectedProduct(boolean initial) {
-		if (initial)
-			selectedProduct = products.get(0);
-		txtUnitPrice.setText(String.valueOf(selectedProduct.getSalePrice()));
-		txtMeasuringUnit.setText(selectedProduct.getUnit());
+	public void Initializations() {
+		productDao = new ProductDao();
+		products = new ArrayList<ProductModel>();
+		selectedProduct = new ProductModel();
+		invoice = new InvoiceModel();
+		items = new ArrayList<InvoiceItemModel>();
+		products = productDao.getProducts();
+		invoice.setInvoiceItems(items);
+
+		tableModel = new DefaultTableModel(header, 0);
 	}
 
 	public void setUI() {
@@ -192,7 +196,8 @@ public class SaleInvoice extends JFrame {
 		btnAddItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (InvoiceController.validateQuantity(txtQuantity)) {
-					InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct, Integer.parseInt(txtQuantity.getText()), invoice, tableModel));
+					InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct,
+							Integer.parseInt(txtQuantity.getText()), invoice, tableModel));
 				}
 
 				for (InvoiceItemModel item : invoice.getInvoiceItems()) {
@@ -231,42 +236,11 @@ public class SaleInvoice extends JFrame {
 
 	}
 
-	public void Initializations() {
-		productDao = new ProductDao();
-		products = new ArrayList<ProductModel>();
-		selectedProduct = new ProductModel();
-		invoice = new InvoiceModel();
-		items = new ArrayList<InvoiceItemModel>();
-
-		invoice.setInvoiceItems(items);
-
-		tableModel = new DefaultTableModel(header, 0);
+	public void fillWithSelectedProduct(boolean initial) {
+		if (initial)
+			selectedProduct = products.get(0);
+		txtUnitPrice.setText(String.valueOf(selectedProduct.getSalePrice()));
+		txtMeasuringUnit.setText(selectedProduct.getUnit());
 	}
 
-	public void getData() {
-		try {
-			ResultSet rs = productDao.getProducts();
-
-			ProductModel product = new ProductModel();
-
-			while (rs.next()) {
-
-				product.setId(Integer.parseInt(rs.getString("id")));
-				product.setTitle(rs.getString("title"));
-				product.setDescription(rs.getString("description"));
-				product.setCategory(rs.getString("category"));
-				product.setUnit(rs.getString("unit"));
-				product.setSalePrice(Float.parseFloat(rs.getString("salePrice")));
-				product.setPurchasePrice(Float.parseFloat(rs.getString("purchasePrice")));
-				product.setCreatedBy(Integer.parseInt(rs.getString("createdBy")));
-				product.setCreatedDate(Timestamp.valueOf(rs.getString("createdDate")));
-				product.setStatus(rs.getBoolean("status"));
-
-				products.add(product);
-				product = new ProductModel();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }

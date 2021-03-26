@@ -3,6 +3,8 @@ package views;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import dataModels.ProductModel;
 import dataModels.UserModel;
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -10,9 +12,15 @@ import javax.swing.JLayeredPane;
 import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
+
+import dataAccess.ProductDao;
+
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
@@ -24,6 +32,12 @@ public class App extends JFrame {
 	private JPanel contentPane;
 
 	private JLayeredPane layeredPane;
+
+	// Data Access
+	private ProductDao productDao;
+
+	// Models
+	private ArrayList<ProductModel> products;
 
 	// Home
 	private JPanel Home, UserDetailsPanelHome, LogoPanelHome, Header, Navigation;
@@ -37,7 +51,8 @@ public class App extends JFrame {
 	private JLabel lblID, lblAllProducts, lblSelectedProduct;
 	private JTable table;
 	private DefaultTableModel tableModel;
-	
+	private ProductModel selectedProduct;
+
 	String header[] = { "#", "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock", "Status" };
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -50,6 +65,7 @@ public class App extends JFrame {
 	}
 
 	public void InstanciateApp() {
+
 		setTitle("Home-Point Of Sale");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1050, 550);
@@ -116,8 +132,27 @@ public class App extends JFrame {
 		lblActiveUserNameHome.setBounds(116, 11, 149, 22);
 		UserDetailsPanelHome.add(lblActiveUserNameHome);
 		lblActiveUserNameHome.setText(UserModel.Name);
-		
-		tableModel = new DefaultTableModel(header, 0);
+
+		products = new ArrayList<ProductModel>();
+		productDao = new ProductDao();
+
+		products = productDao.getProducts();
+
+		tableModel = new DefaultTableModel(header, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+
+		for (int i = 0; i < products.size(); i++) {
+
+			Object[] object = { "", products.get(i).getTitle(), products.get(i).getCategory(),
+					products.get(i).getPurchasePrice(), products.get(i).getSalePrice(), products.get(i).getUnit(),
+					products.get(i).getStock(), products.get(i).getStatus() };
+			tableModel.addRow(object);
+		}
+
 	}
 
 	public void HomeGUI() {
@@ -244,28 +279,28 @@ public class App extends JFrame {
 		txtCategory.setColumns(10);
 		txtCategory.setBounds(172, 92, 150, 20);
 		ProducDetails.add(txtCategory);
-		
+
 		JCheckBox cbStatus = new JCheckBox("Active");
 		cbStatus.setBounds(172, 284, 150, 23);
 		ProducDetails.add(cbStatus);
-		
+
 		JLabel lblStatus = new JLabel("Status");
 		lblStatus.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStatus.setBounds(12, 288, 150, 14);
 		ProducDetails.add(lblStatus);
-		
+
 		JButton btnUpdate = new JButton("Update!");
 		btnUpdate.setBounds(172, 11, 150, 23);
 		ProducDetails.add(btnUpdate);
-		
+
 		btnDelete = new JButton("Delete!");
 		btnDelete.setBounds(172, 45, 150, 23);
 		ProducDetails.add(btnDelete);
-		
+
 		lblID = new JLabel("ID");
 		lblID.setBounds(12, 33, 150, 14);
 		ProducDetails.add(lblID);
-		
+
 		txtID = new JTextField();
 		txtID.setEditable(false);
 		txtID.setColumns(10);
@@ -288,6 +323,53 @@ public class App extends JFrame {
 
 		table = new JTable(tableModel);
 		scrollPane.setViewportView(table);
+
+		table.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				selectedProduct = products.get(table.getSelectedRow());
+				txtID.setText(String.valueOf(selectedProduct.getId()));
+				txtTitle.setText(selectedProduct.getTitle());
+				txtCategory.setText(selectedProduct.getCategory());
+				txtPurchasePrice.setText(String.valueOf(selectedProduct.getPurchasePrice()));
+				txtSalePrice.setText(String.valueOf(selectedProduct.getSalePrice()));
+				txtUnit.setText(selectedProduct.getUnit());
+				txtStock.setText(String.valueOf(selectedProduct.getStock()));
+				txtDescription.setText(selectedProduct.getDescription());
+				if(selectedProduct.getStatus()) {
+					cbStatus.setSelected(true);
+				}else {
+					cbStatus.setSelected(false);
+				}
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 	}
 
 	public App() {

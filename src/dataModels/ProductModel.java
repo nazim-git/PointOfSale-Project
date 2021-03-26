@@ -13,6 +13,7 @@ public class ProductModel {
 	private int createdBy;
 	private Date createdDate;
 	private boolean status;
+	private int stock;
 	
 	public int getId() {
 		return id;
@@ -64,6 +65,12 @@ public class ProductModel {
 	}
 	public Date getCreatedDate() {
 		return createdDate;
+	}
+	public int getStock() {
+		return stock;
+	}
+	public void setStock(int stock) {
+		this.stock = stock;
 	}
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;
