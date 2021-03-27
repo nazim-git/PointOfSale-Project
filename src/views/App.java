@@ -9,6 +9,7 @@ import dataModels.UserModel;
 import java.awt.CardLayout;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.event.ActionListener;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
 
+import controllers.ProductController;
 import dataAccess.ProductDao;
 
 import javax.swing.SwingConstants;
@@ -33,27 +35,18 @@ public class App extends JFrame {
 
 	private JLayeredPane layeredPane;
 
-	// Data Access
-	private ProductDao productDao;
-
 	// Models
 	private ArrayList<ProductModel> products;
 
 	// Home
-	private JPanel Home, UserDetailsPanelHome, LogoPanelHome, Header, Navigation;
-	private JLabel lblHome, lblActiveUserHome, lblActiveUserNameHome, lblLogoNameHome, lblLogoCityNameHome;
-	private JButton btnSaleInvoiceHome, btnLogoutHome, btnAddProduct, btnAddCustomer;
-
+	JPanel Home;
 	// Add Product
-	private JPanel AddProduct, ProducDetails;
-	private JButton btnHome, btnDelete;
-	private JTextField txtID, txtTitle, txtUnit, txtPurchasePrice, txtDescription, txtSalePrice, txtStock, txtCategory;
-	private JLabel lblID, lblAllProducts, lblSelectedProduct;
-	private JTable table;
+	private JPanel AddProduct;
+	JTextField txtID, txtTitle, txtCategory, txtPurchasePrice, txtSalePrice, txtUnit, txtStock, txtDescription;
+	JCheckBox cbStatus;
+
 	private DefaultTableModel tableModel;
 	private ProductModel selectedProduct;
-
-	String header[] = { "#", "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock", "Status" };
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -83,34 +76,34 @@ public class App extends JFrame {
 		contentPane.add(layeredPane);
 		layeredPane.setLayout(new CardLayout(0, 0));
 
-		Header = new JPanel();
+		JPanel Header = new JPanel();
 		Header.setBounds(10, 11, 1024, 66);
 		contentPane.add(Header);
 		Header.setLayout(null);
 
-		LogoPanelHome = new JPanel();
+		JPanel LogoPanelHome = new JPanel();
 		LogoPanelHome.setBounds(0, 0, 334, 67);
 		Header.add(LogoPanelHome);
 		LogoPanelHome.setBorder(null);
 		LogoPanelHome.setLayout(null);
 
-		lblLogoNameHome = new JLabel("Point Of Sale");
+		JLabel lblLogoNameHome = new JLabel("Point Of Sale");
 		lblLogoNameHome.setBounds(6, 16, 220, 49);
 		LogoPanelHome.add(lblLogoNameHome);
 		lblLogoNameHome.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLogoNameHome.setFont(new Font("Segoe Script", Font.BOLD, 30));
 
-		lblLogoCityNameHome = new JLabel("Dublin.");
+		JLabel lblLogoCityNameHome = new JLabel("Dublin.");
 		lblLogoCityNameHome.setBounds(236, 16, 49, 26);
 		LogoPanelHome.add(lblLogoCityNameHome);
 		lblLogoCityNameHome.setFont(new Font("Segoe Print", Font.PLAIN, 14));
 
-		UserDetailsPanelHome = new JPanel();
+		JPanel UserDetailsPanelHome = new JPanel();
 		UserDetailsPanelHome.setBounds(669, 0, 355, 67);
 		Header.add(UserDetailsPanelHome);
 		UserDetailsPanelHome.setLayout(null);
 
-		btnLogoutHome = new JButton("Logout!");
+		JButton btnLogoutHome = new JButton("Logout!");
 		btnLogoutHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				UserModel.logout();
@@ -121,22 +114,20 @@ public class App extends JFrame {
 		btnLogoutHome.setBounds(245, 33, 100, 23);
 		UserDetailsPanelHome.add(btnLogoutHome);
 
-		lblActiveUserHome = new JLabel("Active User");
+		JLabel lblActiveUserHome = new JLabel("Active User");
 		lblActiveUserHome.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		lblActiveUserHome.setBounds(275, 19, 70, 14);
 		UserDetailsPanelHome.add(lblActiveUserHome);
 
-		lblActiveUserNameHome = new JLabel("User Not Found!");
+		JLabel lblActiveUserNameHome = new JLabel("User Not Found!");
 		lblActiveUserNameHome.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblActiveUserNameHome.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 		lblActiveUserNameHome.setBounds(116, 11, 149, 22);
 		UserDetailsPanelHome.add(lblActiveUserNameHome);
 		lblActiveUserNameHome.setText(UserModel.Name);
 
-		products = new ArrayList<ProductModel>();
-		productDao = new ProductDao();
-
-		products = productDao.getProducts();
+		String header[] = { "#", "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock",
+				"Status" };
 
 		tableModel = new DefaultTableModel(header, 0) {
 			public boolean isCellEditable(int row, int column) {
@@ -145,13 +136,7 @@ public class App extends JFrame {
 			}
 		};
 
-		for (int i = 0; i < products.size(); i++) {
-
-			Object[] object = { "", products.get(i).getTitle(), products.get(i).getCategory(),
-					products.get(i).getPurchasePrice(), products.get(i).getSalePrice(), products.get(i).getUnit(),
-					products.get(i).getStock(), products.get(i).getStatus() };
-			tableModel.addRow(object);
-		}
+		products = ProductController.fillTableWithProducts(products, tableModel);
 
 	}
 
@@ -161,12 +146,12 @@ public class App extends JFrame {
 		layeredPane.add(Home, "name_2178593783278100");
 		Home.setLayout(null);
 
-		Navigation = new JPanel();
+		JPanel Navigation = new JPanel();
 		Navigation.setBounds(10, 11, 200, 411);
 		Home.add(Navigation);
 		Navigation.setLayout(null);
 
-		btnSaleInvoiceHome = new JButton("Sale Invoice");
+		JButton btnSaleInvoiceHome = new JButton("Sale Invoice");
 		btnSaleInvoiceHome.setBounds(0, 0, 200, 50);
 		Navigation.add(btnSaleInvoiceHome);
 		btnSaleInvoiceHome.addActionListener(new ActionListener() {
@@ -175,7 +160,7 @@ public class App extends JFrame {
 			}
 		});
 
-		btnAddProduct = new JButton("Add New Product");
+		JButton btnAddProduct = new JButton("Add New Product");
 		btnAddProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				switchPanels(AddProduct);
@@ -184,11 +169,11 @@ public class App extends JFrame {
 		btnAddProduct.setBounds(0, 49, 200, 50);
 		Navigation.add(btnAddProduct);
 
-		btnAddCustomer = new JButton("Add New Customer");
+		JButton btnAddCustomer = new JButton("Add New Customer");
 		btnAddCustomer.setBounds(0, 98, 200, 50);
 		Navigation.add(btnAddCustomer);
 
-		lblHome = new JLabel("Home");
+		JLabel lblHome = new JLabel("Home");
 		lblHome.setBounds(935, 11, 79, 31);
 		Home.add(lblHome);
 		lblHome.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -203,19 +188,64 @@ public class App extends JFrame {
 		layeredPane.add(AddProduct, "name_4853073551000");
 		AddProduct.setLayout(null);
 
-		btnHome = new JButton("Home");
+		JButton btnHome = new JButton("Home");
 		btnHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				switchPanels(Home);
 			}
 		});
+
+		JLabel lblSelectedProduct = new JLabel("Selected Product");
+		lblSelectedProduct.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblSelectedProduct.setBounds(22, 11, 180, 32);
+		AddProduct.add(lblSelectedProduct);
+
+		JLabel lblAllProducts = new JLabel("All Products");
+		lblAllProducts.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblAllProducts.setBounds(352, 3, 135, 32);
+		AddProduct.add(lblAllProducts);
 		btnHome.setBounds(925, 11, 89, 23);
 		AddProduct.add(btnHome);
 
-		ProducDetails = new JPanel();
+		JPanel ProducDetails = new JPanel();
 		ProducDetails.setBounds(10, 53, 332, 369);
 		AddProduct.add(ProducDetails);
 		ProducDetails.setLayout(null);
+
+		JButton btnUpdate = new JButton("Update!");
+		btnUpdate.setBounds(172, 11, 150, 23);
+		ProducDetails.add(btnUpdate);
+
+		JButton btnDelete = new JButton("Delete!");
+		btnDelete.setBounds(172, 45, 150, 23);
+		ProducDetails.add(btnDelete);
+
+		JButton btnAdd = new JButton("Add!");
+		btnAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (ProductController.validateAddProductInput(txtTitle, txtCategory,
+						txtUnit, txtPurchasePrice, txtSalePrice,txtStock)) {
+					ProductController.addNewProduct(new ProductModel(txtTitle.getText(), txtDescription.getText(),
+							txtCategory.getText(), txtUnit.getText(), Float.parseFloat(txtSalePrice.getText()),
+							Float.parseFloat(txtPurchasePrice.getText()), cbStatus.isSelected(),
+							Integer.parseInt(txtStock.getText())));
+					JOptionPane.showMessageDialog(null, "Product Added Successfully!");
+				}
+			}
+		});
+		btnAdd.setBounds(10, 11, 152, 23);
+		ProducDetails.add(btnAdd);
+
+		JLabel lblID = new JLabel("ID");
+		lblID.setBounds(12, 33, 150, 14);
+		ProducDetails.add(lblID);
+
+		txtID = new JTextField();
+		txtID.setEditable(false);
+		txtID.setColumns(10);
+		txtID.setBounds(12, 47, 150, 20);
+		ProducDetails.add(txtID);
 
 		JLabel lblTitle = new JLabel("Product Title");
 		lblTitle.setBounds(12, 78, 150, 14);
@@ -226,14 +256,14 @@ public class App extends JFrame {
 		ProducDetails.add(txtTitle);
 		txtTitle.setColumns(10);
 
-		JLabel lblUnit = new JLabel("Measuring Unit");
-		lblUnit.setBounds(12, 168, 150, 14);
-		ProducDetails.add(lblUnit);
+		JLabel lblCategory = new JLabel("Poduct Category");
+		lblCategory.setBounds(172, 78, 150, 14);
+		ProducDetails.add(lblCategory);
 
-		txtUnit = new JTextField();
-		txtUnit.setColumns(10);
-		txtUnit.setBounds(12, 182, 150, 20);
-		ProducDetails.add(txtUnit);
+		txtCategory = new JTextField();
+		txtCategory.setColumns(10);
+		txtCategory.setBounds(172, 92, 150, 20);
+		ProducDetails.add(txtCategory);
 
 		JLabel lblPurchasePrice = new JLabel("Purchase Price");
 		lblPurchasePrice.setBounds(12, 123, 150, 14);
@@ -244,15 +274,6 @@ public class App extends JFrame {
 		txtPurchasePrice.setBounds(12, 137, 150, 20);
 		ProducDetails.add(txtPurchasePrice);
 
-		JLabel lblDescription = new JLabel("Description");
-		lblDescription.setBounds(12, 213, 150, 14);
-		ProducDetails.add(lblDescription);
-
-		txtDescription = new JTextField();
-		txtDescription.setColumns(10);
-		txtDescription.setBounds(12, 227, 310, 50);
-		ProducDetails.add(txtDescription);
-
 		JLabel lblSalePrice = new JLabel("Sale Price");
 		lblSalePrice.setBounds(172, 123, 150, 14);
 		ProducDetails.add(lblSalePrice);
@@ -261,6 +282,15 @@ public class App extends JFrame {
 		txtSalePrice.setColumns(10);
 		txtSalePrice.setBounds(172, 137, 150, 20);
 		ProducDetails.add(txtSalePrice);
+
+		JLabel lblUnit = new JLabel("Measuring Unit");
+		lblUnit.setBounds(12, 168, 150, 14);
+		ProducDetails.add(lblUnit);
+
+		txtUnit = new JTextField();
+		txtUnit.setColumns(10);
+		txtUnit.setBounds(12, 182, 150, 20);
+		ProducDetails.add(txtUnit);
 
 		JLabel lblStock = new JLabel("Product Stock");
 		lblStock.setBounds(172, 168, 150, 14);
@@ -271,57 +301,30 @@ public class App extends JFrame {
 		txtStock.setBounds(172, 182, 150, 20);
 		ProducDetails.add(txtStock);
 
-		JLabel lblCategory = new JLabel("Poduct Category");
-		lblCategory.setBounds(172, 78, 150, 14);
-		ProducDetails.add(lblCategory);
+		JLabel lblDescription = new JLabel("Description");
+		lblDescription.setBounds(12, 213, 150, 14);
+		ProducDetails.add(lblDescription);
 
-		txtCategory = new JTextField();
-		txtCategory.setColumns(10);
-		txtCategory.setBounds(172, 92, 150, 20);
-		ProducDetails.add(txtCategory);
+		txtDescription = new JTextField();
+		txtDescription.setColumns(10);
+		txtDescription.setBounds(12, 227, 310, 50);
+		ProducDetails.add(txtDescription);
 
-		JCheckBox cbStatus = new JCheckBox("Active");
+		cbStatus = new JCheckBox("Active");
 		cbStatus.setBounds(172, 284, 150, 23);
 		ProducDetails.add(cbStatus);
+		cbStatus.setSelected(true);
 
 		JLabel lblStatus = new JLabel("Status");
 		lblStatus.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblStatus.setBounds(12, 288, 150, 14);
 		ProducDetails.add(lblStatus);
 
-		JButton btnUpdate = new JButton("Update!");
-		btnUpdate.setBounds(172, 11, 150, 23);
-		ProducDetails.add(btnUpdate);
-
-		btnDelete = new JButton("Delete!");
-		btnDelete.setBounds(172, 45, 150, 23);
-		ProducDetails.add(btnDelete);
-
-		lblID = new JLabel("ID");
-		lblID.setBounds(12, 33, 150, 14);
-		ProducDetails.add(lblID);
-
-		txtID = new JTextField();
-		txtID.setEditable(false);
-		txtID.setColumns(10);
-		txtID.setBounds(12, 47, 150, 20);
-		ProducDetails.add(txtID);
-
-		lblAllProducts = new JLabel("All Products");
-		lblAllProducts.setFont(new Font("Calibri", Font.PLAIN, 25));
-		lblAllProducts.setBounds(352, 3, 135, 32);
-		AddProduct.add(lblAllProducts);
-
-		lblSelectedProduct = new JLabel("Selected Product");
-		lblSelectedProduct.setFont(new Font("Calibri", Font.PLAIN, 25));
-		lblSelectedProduct.setBounds(22, 11, 180, 32);
-		AddProduct.add(lblSelectedProduct);
-
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(352, 53, 662, 369);
 		AddProduct.add(scrollPane);
 
-		table = new JTable(tableModel);
+		JTable table = new JTable(tableModel);
 		scrollPane.setViewportView(table);
 
 		table.addMouseListener(new MouseListener() {
@@ -343,9 +346,9 @@ public class App extends JFrame {
 				txtUnit.setText(selectedProduct.getUnit());
 				txtStock.setText(String.valueOf(selectedProduct.getStock()));
 				txtDescription.setText(selectedProduct.getDescription());
-				if(selectedProduct.getStatus()) {
+				if (selectedProduct.getStatus()) {
 					cbStatus.setSelected(true);
-				}else {
+				} else {
 					cbStatus.setSelected(false);
 				}
 
@@ -377,5 +380,4 @@ public class App extends JFrame {
 		HomeGUI();
 		AddProductGUI();
 	}
-
 }
