@@ -6,6 +6,8 @@ import javax.swing.border.EmptyBorder;
 
 import dataModels.ProductModel;
 import dataModels.UserModel;
+import viewModels.AddCustomerVM;
+
 import java.awt.CardLayout;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -20,14 +22,15 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
 
+import controllers.CustomerController;
 import controllers.ProductController;
-import dataAccess.ProductDao;
 
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JCheckBox;
+import javax.swing.table.TableModel;
 
 public class App extends JFrame {
 
@@ -40,17 +43,23 @@ public class App extends JFrame {
 
 	// Home
 	JPanel Home;
+
 	// Add Product
-	private JPanel AddProduct;
+	private JPanel Product, Customer;
 	JTextField txtID, txtTitle, txtCategory, txtPurchasePrice, txtSalePrice, txtUnit, txtStock, txtDescription;
 	JCheckBox cbStatus;
-
-	private DefaultTableModel tableModel;
 	private ProductModel selectedProduct;
 
-	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	// Add Customer
+	private JTextField txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity;
+	private JTable tableCustomers;
+
+	// Other
+	private DefaultTableModel tableModel;
+
 
 	public void switchPanels(JPanel panel) {
+		System.out.println(layeredPane.highestLayer());
 		layeredPane.removeAll();
 		layeredPane.add(panel);
 		layeredPane.repaint();
@@ -70,11 +79,6 @@ public class App extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		setLocationRelativeTo(null);
-
-		layeredPane = new JLayeredPane();
-		layeredPane.setBounds(10, 77, 1024, 433);
-		contentPane.add(layeredPane);
-		layeredPane.setLayout(new CardLayout(0, 0));
 
 		JPanel Header = new JPanel();
 		Header.setBounds(10, 11, 1024, 66);
@@ -103,6 +107,15 @@ public class App extends JFrame {
 		Header.add(UserDetailsPanelHome);
 		UserDetailsPanelHome.setLayout(null);
 
+		JButton btnHome = new JButton("Home");
+		btnHome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switchPanels(Home);
+			}
+		});
+		btnHome.setBounds(135, 33, 100, 23);
+		UserDetailsPanelHome.add(btnHome);
+
 		JButton btnLogoutHome = new JButton("Logout!");
 		btnLogoutHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -114,17 +127,17 @@ public class App extends JFrame {
 		btnLogoutHome.setBounds(245, 33, 100, 23);
 		UserDetailsPanelHome.add(btnLogoutHome);
 
-		JLabel lblActiveUserHome = new JLabel("Active User");
-		lblActiveUserHome.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		lblActiveUserHome.setBounds(275, 19, 70, 14);
-		UserDetailsPanelHome.add(lblActiveUserHome);
-
 		JLabel lblActiveUserNameHome = new JLabel("User Not Found!");
 		lblActiveUserNameHome.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblActiveUserNameHome.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		lblActiveUserNameHome.setBounds(116, 11, 149, 22);
+		lblActiveUserNameHome.setBounds(135, 11, 210, 22);
 		UserDetailsPanelHome.add(lblActiveUserNameHome);
 		lblActiveUserNameHome.setText(UserModel.Name);
+
+		layeredPane = new JLayeredPane();
+		layeredPane.setBounds(10, 77, 1024, 433);
+		contentPane.add(layeredPane);
+		layeredPane.setLayout(new CardLayout(0, 0));
 
 		String header[] = { "#", "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock",
 				"Status" };
@@ -163,13 +176,18 @@ public class App extends JFrame {
 		JButton btnAddProduct = new JButton("Add New Product");
 		btnAddProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				switchPanels(AddProduct);
+				switchPanels(Product);
 			}
 		});
 		btnAddProduct.setBounds(0, 49, 200, 50);
 		Navigation.add(btnAddProduct);
 
 		JButton btnAddCustomer = new JButton("Add New Customer");
+		btnAddCustomer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				switchPanels(Customer);
+			}
+		});
 		btnAddCustomer.setBounds(0, 98, 200, 50);
 		Navigation.add(btnAddCustomer);
 
@@ -184,32 +202,23 @@ public class App extends JFrame {
 	}
 
 	public void AddProductGUI() {
-		AddProduct = new JPanel();
-		layeredPane.add(AddProduct, "name_4853073551000");
-		AddProduct.setLayout(null);
-
-		JButton btnHome = new JButton("Home");
-		btnHome.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				switchPanels(Home);
-			}
-		});
+		Product = new JPanel();
+		layeredPane.add(Product, "name_4853073551000");
+		Product.setLayout(null);
 
 		JLabel lblSelectedProduct = new JLabel("Selected Product");
 		lblSelectedProduct.setFont(new Font("Calibri", Font.PLAIN, 25));
-		lblSelectedProduct.setBounds(22, 11, 180, 32);
-		AddProduct.add(lblSelectedProduct);
+		lblSelectedProduct.setBounds(10, 10, 180, 32);
+		Product.add(lblSelectedProduct);
 
 		JLabel lblAllProducts = new JLabel("All Products");
 		lblAllProducts.setFont(new Font("Calibri", Font.PLAIN, 25));
-		lblAllProducts.setBounds(352, 3, 135, 32);
-		AddProduct.add(lblAllProducts);
-		btnHome.setBounds(925, 11, 89, 23);
-		AddProduct.add(btnHome);
+		lblAllProducts.setBounds(352, 10, 135, 32);
+		Product.add(lblAllProducts);
 
 		JPanel ProducDetails = new JPanel();
 		ProducDetails.setBounds(10, 53, 332, 369);
-		AddProduct.add(ProducDetails);
+		Product.add(ProducDetails);
 		ProducDetails.setLayout(null);
 
 		JButton btnUpdate = new JButton("Update!");
@@ -224,13 +233,15 @@ public class App extends JFrame {
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				if (ProductController.validateAddProductInput(txtTitle, txtCategory,
-						txtUnit, txtPurchasePrice, txtSalePrice,txtStock)) {
+				if (ProductController.validateAddProductInput(txtTitle, txtCategory, txtUnit, txtPurchasePrice,
+						txtSalePrice, txtStock)) {
 					ProductController.addNewProduct(new ProductModel(txtTitle.getText(), txtDescription.getText(),
 							txtCategory.getText(), txtUnit.getText(), Float.parseFloat(txtSalePrice.getText()),
 							Float.parseFloat(txtPurchasePrice.getText()), cbStatus.isSelected(),
 							Integer.parseInt(txtStock.getText())));
 					JOptionPane.showMessageDialog(null, "Product Added Successfully!");
+					ProductController.resetFields(txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
+							txtStock, cbStatus);
 				}
 			}
 		});
@@ -322,12 +333,12 @@ public class App extends JFrame {
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(352, 53, 662, 369);
-		AddProduct.add(scrollPane);
+		Product.add(scrollPane);
 
-		JTable table = new JTable(tableModel);
-		scrollPane.setViewportView(table);
+		JTable tableProducts = new JTable(tableModel);
+		scrollPane.setViewportView(tableProducts);
 
-		table.addMouseListener(new MouseListener() {
+		tableProducts.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
@@ -337,7 +348,7 @@ public class App extends JFrame {
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				selectedProduct = products.get(table.getSelectedRow());
+				selectedProduct = products.get(tableProducts.getSelectedRow());
 				txtID.setText(String.valueOf(selectedProduct.getId()));
 				txtTitle.setText(selectedProduct.getTitle());
 				txtCategory.setText(selectedProduct.getCategory());
@@ -375,9 +386,118 @@ public class App extends JFrame {
 
 	}
 
+	public void CustomerGUI() {
+		Customer = new JPanel();
+		layeredPane.add(Customer, "name_2883570159100");
+		Customer.setLayout(null);
+
+		JLabel lblSelectedCustomer = new JLabel("Selected Customer");
+		lblSelectedCustomer.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblSelectedCustomer.setBounds(10, 10, 200, 32);
+		Customer.add(lblSelectedCustomer);
+
+		JLabel lblAllCustomers = new JLabel("All Customers");
+		lblAllCustomers.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblAllCustomers.setBounds(352, 10, 160, 32);
+		Customer.add(lblAllCustomers);
+
+		JPanel CustomerDetails = new JPanel();
+		CustomerDetails.setLayout(null);
+		CustomerDetails.setBounds(10, 53, 332, 369);
+		Customer.add(CustomerDetails);
+
+		JButton btnUpdateCustomer = new JButton("Update!");
+		btnUpdateCustomer.setBounds(172, 97, 150, 23);
+		CustomerDetails.add(btnUpdateCustomer);
+
+		JButton btnDeleteCustomer = new JButton("Delete!");
+		btnDeleteCustomer.setBounds(172, 48, 150, 23);
+		CustomerDetails.add(btnDeleteCustomer);
+
+		JButton btnAddCustomer = new JButton("Add!");
+		btnAddCustomer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				AddCustomerVM customerForm = new AddCustomerVM(txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
+						txtCity);
+				
+				if (CustomerController.validateAddCustomerInput(customerForm)) {
+					CustomerController.addNewCustomer(customerForm);
+					JOptionPane.showMessageDialog(null, "Customer Added Successfully!");
+					CustomerController.resetFields(customerForm);
+				}
+			}
+		});
+		btnAddCustomer.setBounds(14, 48, 152, 23);
+		CustomerDetails.add(btnAddCustomer);
+
+		JLabel lblIdCustomer = new JLabel("ID");
+		lblIdCustomer.setBounds(14, 82, 150, 14);
+		CustomerDetails.add(lblIdCustomer);
+
+		txtIdCustomer = new JTextField();
+		txtIdCustomer.setEditable(false);
+		txtIdCustomer.setColumns(10);
+		txtIdCustomer.setBounds(14, 98, 150, 20);
+		CustomerDetails.add(txtIdCustomer);
+
+		JLabel lblCustomerName = new JLabel("Customer Name");
+		lblCustomerName.setBounds(14, 129, 150, 14);
+		CustomerDetails.add(lblCustomerName);
+
+		txtCustomerName = new JTextField();
+		txtCustomerName.setColumns(10);
+		txtCustomerName.setBounds(14, 143, 150, 20);
+		CustomerDetails.add(txtCustomerName);
+
+		JLabel lblCustomerPhone = new JLabel("Customer Phone");
+		lblCustomerPhone.setBounds(174, 129, 150, 14);
+		CustomerDetails.add(lblCustomerPhone);
+
+		txtCustomerPhone = new JTextField();
+		txtCustomerPhone.setColumns(10);
+		txtCustomerPhone.setBounds(174, 143, 150, 20);
+		CustomerDetails.add(txtCustomerPhone);
+
+		JLabel lblStreet = new JLabel("Street");
+		lblStreet.setBounds(14, 174, 150, 14);
+		CustomerDetails.add(lblStreet);
+
+		txtStreet = new JTextField();
+		txtStreet.setColumns(10);
+		txtStreet.setBounds(14, 188, 310, 20);
+		CustomerDetails.add(txtStreet);
+
+		JLabel lblArea = new JLabel("Area");
+		lblArea.setBounds(14, 219, 150, 14);
+		CustomerDetails.add(lblArea);
+
+		txtArea = new JTextField();
+		txtArea.setColumns(10);
+		txtArea.setBounds(14, 233, 310, 20);
+		CustomerDetails.add(txtArea);
+
+		JLabel lblCity = new JLabel("City");
+		lblCity.setBounds(94, 264, 150, 14);
+		CustomerDetails.add(lblCity);
+
+		txtCity = new JTextField();
+		txtCity.setColumns(10);
+		txtCity.setBounds(94, 278, 150, 20);
+		CustomerDetails.add(txtCity);
+
+		JScrollPane scrollPaneCustomers = new JScrollPane();
+		scrollPaneCustomers.setBounds(352, 53, 662, 369);
+		Customer.add(scrollPaneCustomers);
+
+		tableCustomers = new JTable((TableModel) null);
+		scrollPaneCustomers.setViewportView(tableCustomers);
+	}
+
 	public App() {
 		InstanciateApp();
 		HomeGUI();
 		AddProductGUI();
+		CustomerGUI();
 	}
 }

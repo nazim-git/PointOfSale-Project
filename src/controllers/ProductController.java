@@ -2,11 +2,10 @@ package controllers;
 
 import java.util.ArrayList;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
-
 import dataAccess.ProductDao;
 import dataModels.ProductModel;
 
@@ -59,6 +58,17 @@ public class ProductController {
 		}
 	}
 
+	public static void resetFields(JTextField txtTitle, JTextField txtCategory, JTextField txtUnit,
+			JTextField txtPurchasePrice, JTextField txtSalePrice, JTextField txtStock, JCheckBox cbStatus) {
+		txtTitle.setText(null);
+		txtCategory.setText(null);
+		txtUnit.setText(null);
+		txtPurchasePrice.setText(null);
+		txtSalePrice.setText(null);
+		txtStock.setText(null);
+		cbStatus.setSelected(true);
+	}
+
 	public static void addNewProduct(ProductModel product) {
 		System.out.println(product.getTitle());
 		System.out.println(product.getCategory());
@@ -69,7 +79,4 @@ public class ProductController {
 		System.out.println(product.getStock());
 	}
 
-
-
-	
 }

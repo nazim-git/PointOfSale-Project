@@ -17,7 +17,7 @@ public static void main(String[] args) {
 	        System.out.println("Current Date: "+currentDate);  
 	        
 	        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-	        System.out.println(formatter.format(currentDate));;
+	        System.out.println(formatter.format(currentDate));
 			
 			Login l = new Login();
 			//SaleInvoice l = new SaleInvoice();
