@@ -4,9 +4,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import dataModels.CustomerModel;
 import dataModels.ProductModel;
 import dataModels.UserModel;
 import viewModels.AddCustomerVM;
+import viewModels.AddProductVM;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -40,6 +42,7 @@ public class App extends JFrame {
 
 	// Models
 	private ArrayList<ProductModel> products;
+	private ArrayList<CustomerModel> customers;
 
 	// Home
 	JPanel Home;
@@ -49,17 +52,19 @@ public class App extends JFrame {
 	JTextField txtID, txtTitle, txtCategory, txtPurchasePrice, txtSalePrice, txtUnit, txtStock, txtDescription;
 	JCheckBox cbStatus;
 	private ProductModel selectedProduct;
+	private JTable productTable;
+	private AddProductVM productForm;
 
 	// Add Customer
 	private JTextField txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity;
-	private JTable tableCustomers;
+	private CustomerModel selectedCustomer;
+	private JTable customerTable;
+	private AddCustomerVM customerForm;
 
 	// Other
-	private DefaultTableModel tableModel;
-
+	private DefaultTableModel productsTableModel, customersTableModel;
 
 	public void switchPanels(JPanel panel) {
-		System.out.println(layeredPane.highestLayer());
 		layeredPane.removeAll();
 		layeredPane.add(panel);
 		layeredPane.repaint();
@@ -110,6 +115,7 @@ public class App extends JFrame {
 		JButton btnHome = new JButton("Home");
 		btnHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				homeButtonClicked();
 				switchPanels(Home);
 			}
 		});
@@ -139,17 +145,27 @@ public class App extends JFrame {
 		contentPane.add(layeredPane);
 		layeredPane.setLayout(new CardLayout(0, 0));
 
-		String header[] = { "#", "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock",
+		String productsHeader[] = { "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock",
 				"Status" };
 
-		tableModel = new DefaultTableModel(header, 0) {
+		productsTableModel = new DefaultTableModel(productsHeader, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		products = ProductController.fillTableWithProducts(products, productsTableModel);
+
+		String customersHeader[] = { "Name", "Phone", "Street", "Area", "City" };
+
+		customersTableModel = new DefaultTableModel(customersHeader, 0) {
 			public boolean isCellEditable(int row, int column) {
 				// all cells false
 				return false;
 			}
 		};
 
-		products = ProductController.fillTableWithProducts(products, tableModel);
+		customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
 
 	}
 
@@ -232,16 +248,12 @@ public class App extends JFrame {
 		JButton btnAdd = new JButton("Add!");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
-				if (ProductController.validateAddProductInput(txtTitle, txtCategory, txtUnit, txtPurchasePrice,
-						txtSalePrice, txtStock)) {
-					ProductController.addNewProduct(new ProductModel(txtTitle.getText(), txtDescription.getText(),
-							txtCategory.getText(), txtUnit.getText(), Float.parseFloat(txtSalePrice.getText()),
-							Float.parseFloat(txtPurchasePrice.getText()), cbStatus.isSelected(),
-							Integer.parseInt(txtStock.getText())));
+				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
+						txtStock, cbStatus, txtDescription);
+				if (ProductController.validateAddProductInput(productForm)) {
+					ProductController.addNewProduct(productForm);
 					JOptionPane.showMessageDialog(null, "Product Added Successfully!");
-					ProductController.resetFields(txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
-							txtStock, cbStatus);
+					ProductController.resetFields(productForm);
 				}
 			}
 		});
@@ -335,10 +347,10 @@ public class App extends JFrame {
 		scrollPane.setBounds(352, 53, 662, 369);
 		Product.add(scrollPane);
 
-		JTable tableProducts = new JTable(tableModel);
-		scrollPane.setViewportView(tableProducts);
+		productTable = new JTable(productsTableModel);
+		scrollPane.setViewportView(productTable);
 
-		tableProducts.addMouseListener(new MouseListener() {
+		productTable.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
@@ -348,7 +360,7 @@ public class App extends JFrame {
 
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				selectedProduct = products.get(tableProducts.getSelectedRow());
+				selectedProduct = products.get(productTable.getSelectedRow());
 				txtID.setText(String.valueOf(selectedProduct.getId()));
 				txtTitle.setText(selectedProduct.getTitle());
 				txtCategory.setText(selectedProduct.getCategory());
@@ -411,20 +423,37 @@ public class App extends JFrame {
 		CustomerDetails.add(btnUpdateCustomer);
 
 		JButton btnDeleteCustomer = new JButton("Delete!");
+		btnDeleteCustomer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
+						txtCity);
+
+				if (selectedCustomer == null && customerTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No Customer selected to delete!");
+				} else {
+					boolean isDeleted = CustomerController.deleteCustomer(selectedCustomer);
+					if (isDeleted) {
+						JOptionPane.showMessageDialog(null,
+								"Customer '" + selectedCustomer.getName() + "' deleted successfully!");
+						customerDefaults();
+						customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
+					}
+
+				}
+
+			}
+		});
 		btnDeleteCustomer.setBounds(172, 48, 150, 23);
 		CustomerDetails.add(btnDeleteCustomer);
 
 		JButton btnAddCustomer = new JButton("Add!");
 		btnAddCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
-				AddCustomerVM customerForm = new AddCustomerVM(txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
+				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
 						txtCity);
-				
 				if (CustomerController.validateAddCustomerInput(customerForm)) {
 					CustomerController.addNewCustomer(customerForm);
-					JOptionPane.showMessageDialog(null, "Customer Added Successfully!");
-					CustomerController.resetFields(customerForm);
+					customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
 				}
 			}
 		});
@@ -490,8 +519,47 @@ public class App extends JFrame {
 		scrollPaneCustomers.setBounds(352, 53, 662, 369);
 		Customer.add(scrollPaneCustomers);
 
-		tableCustomers = new JTable((TableModel) null);
-		scrollPaneCustomers.setViewportView(tableCustomers);
+		customerTable = new JTable(customersTableModel);
+		scrollPaneCustomers.setViewportView(customerTable);
+
+		customerTable.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				selectedCustomer = customers.get(customerTable.getSelectedRow());
+
+				txtIdCustomer.setText(String.valueOf(selectedCustomer.getId()));
+				txtCustomerName.setText(selectedCustomer.getName());
+				txtCustomerPhone.setText(selectedCustomer.getPhone());
+				txtStreet.setText(selectedCustomer.getStreet());
+				txtArea.setText(selectedCustomer.getArea());
+				txtCity.setText(selectedCustomer.getCity());
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 	}
 
 	public App() {
@@ -499,5 +567,26 @@ public class App extends JFrame {
 		HomeGUI();
 		AddProductGUI();
 		CustomerGUI();
+	}
+
+	public void homeButtonClicked() {
+
+		productDefaults();
+		customerDefaults();
+	}
+
+	public void productDefaults() {
+		productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice, txtStock,
+				cbStatus, txtDescription);
+		ProductController.resetFields(productForm);
+		selectedProduct = null;
+		productTable.clearSelection();
+	}
+
+	public void customerDefaults() {
+		customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity);
+		CustomerController.resetFields(customerForm);
+		selectedCustomer = null;
+		customerTable.clearSelection();
 	}
 }

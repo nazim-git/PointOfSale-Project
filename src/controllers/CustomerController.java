@@ -1,9 +1,11 @@
 package controllers;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 import dataAccess.CustomerDao;
 import dataModels.CustomerModel;
@@ -28,6 +30,7 @@ public class CustomerController {
 	}
 
 	public static void resetFields(AddCustomerVM customerForm) {
+		customerForm.txtIdCustomer.setText(null);
 		customerForm.txtCustomerName.setText(null);
 		customerForm.txtCustomerPhone.setText(null);
 		customerForm.txtStreet.setText(null);
@@ -36,12 +39,54 @@ public class CustomerController {
 	}
 
 	public static void addNewCustomer(AddCustomerVM customerForm) {
-		CustomerModel customer = new CustomerModel(customerForm.txtCustomerName.getText(),
-				customerForm.txtCustomerPhone.getText(), customerForm.txtStreet.getText(),
-				customerForm.txtArea.getText(), customerForm.txtCity.getText(), UserModel.Name,
-				new Timestamp(new Date().getTime()));
+		if (validateCustomer(customerForm)) {
+			CustomerModel customer = new CustomerModel(customerForm.txtCustomerName.getText(),
+					customerForm.txtCustomerPhone.getText(), customerForm.txtStreet.getText(),
+					customerForm.txtArea.getText(), customerForm.txtCity.getText(), UserModel.Name,
+					new Timestamp(new Date().getTime()));
+
+			customerDao.insertCustomer(customer);
+
+			JOptionPane.showMessageDialog(null, "Customer Added Successfully!");
+			resetFields(customerForm);
+		} else {
+			JOptionPane.showMessageDialog(null, "Customer with given Phone already exists!");
+			customerForm.txtCustomerPhone.requestFocus();
+		}
+	}
+
+	private static boolean validateCustomer(AddCustomerVM customerForm) {
+		CustomerModel customer = customerDao.getCustomer(customerForm.txtCustomerPhone.getText());
+		if (customer == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static ArrayList<CustomerModel> fillTableWithCustomers(ArrayList<CustomerModel> customers,
+			DefaultTableModel customersTableModel) {
+		customersTableModel.setRowCount(0);
+		customers = customerDao.getCustomers();
+
+		for (int i = 0; i < customers.size(); i++) {
+
+			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone(),
+					customers.get(i).getStreet(), customers.get(i).getArea(), customers.get(i).getCity() };
+			customersTableModel.addRow(object);
+		}
+		return customers;
+	}
+
+	public static boolean deleteCustomer(CustomerModel customer) {
+		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
+		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			customerDao.deleteCustomer(customer.getId(),new Timestamp(new Date().getTime()));
+			return true;
+		} else {
+		    return false;
+		}
 		
-		customerDao.insertCustomer(customer);
 	}
 
 }

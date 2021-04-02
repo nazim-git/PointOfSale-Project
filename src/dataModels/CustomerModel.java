@@ -23,6 +23,9 @@ public class CustomerModel {
 		this.createdAt = createdAt;
 	}
 
+	public CustomerModel() {
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -109,6 +112,13 @@ public class CustomerModel {
 
 	public void setDeletedAt(Timestamp deletedAt) {
 		this.deletedAt = deletedAt;
+	}
+
+	@Override
+	public String toString() {
+		return "CustomerModel [id=" + id + ", name=" + name + ", phone=" + phone + ", street=" + street + ", area="
+				+ area + ", city=" + city + ", createdBy=" + createdBy + ", createdAt=" + createdAt + ", isDeleted="
+				+ isDeleted + ", deletedBy=" + deletedBy + ", deletedAt=" + deletedAt + "]";
 	}
 
 }

@@ -15,13 +15,13 @@ public class ProductDao {
 	ResultSet rs;
 	
 	public ArrayList<ProductModel> getProducts() {
+		ArrayList<ProductModel> products = null;
 		try {
 			String query = "select * from Products";
 			pst = con.prepareStatement(query);
 			rs = pst.executeQuery();
 			
-
-			ArrayList<ProductModel> products = new ArrayList<ProductModel>();
+			products = new ArrayList<ProductModel>();
 			ProductModel product = new ProductModel();
 
 			while (rs.next()) {
@@ -40,11 +40,10 @@ public class ProductDao {
 				products.add(product);
 				product = new ProductModel();
 			}
-			return products;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
 		}
+		return products;
 	}
 	
 	public ResultSet ProductByIdOrName(String id) {

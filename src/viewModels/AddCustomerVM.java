@@ -3,11 +3,12 @@ package viewModels;
 import javax.swing.JTextField;
 
 public class AddCustomerVM {
-	public JTextField txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity;
+	public JTextField txtIdCustomer,txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity;
 
-	public AddCustomerVM(JTextField txtCustomerName, JTextField txtCustomerPhone, JTextField txtStreet,
+	public AddCustomerVM(JTextField txtIdCustomer,JTextField txtCustomerName, JTextField txtCustomerPhone, JTextField txtStreet,
 			JTextField txtArea, JTextField txtCity) {
 		super();
+		this.txtIdCustomer = txtIdCustomer;
 		this.txtCustomerName = txtCustomerName;
 		this.txtCustomerPhone = txtCustomerPhone;
 		this.txtStreet = txtStreet;
