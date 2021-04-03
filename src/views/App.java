@@ -237,28 +237,64 @@ public class App extends JFrame {
 		Product.add(ProducDetails);
 		ProducDetails.setLayout(null);
 
-		JButton btnUpdate = new JButton("Update!");
-		btnUpdate.setBounds(172, 11, 150, 23);
-		ProducDetails.add(btnUpdate);
+		JButton btnUpdateProduct = new JButton("Update!");
+		btnUpdateProduct.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
+						txtStock, cbStatus, txtDescription);
+				if (selectedProduct == null && productTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No Product is selected to update!");
+				} else {
+					boolean isUpdated = ProductController.updateCustomer(selectedProduct, productForm);
+					if (isUpdated) {
+						JOptionPane.showMessageDialog(null,
+								"Product '" + selectedProduct.getTitle() + "' updated successfully!");
+						productDefaults();
+						products = ProductController.fillTableWithProducts(products, productsTableModel);
+					}
+				}
+			}
+		});
+		btnUpdateProduct.setBounds(172, 11, 150, 23);
+		ProducDetails.add(btnUpdateProduct);
 
-		JButton btnDelete = new JButton("Delete!");
-		btnDelete.setBounds(172, 45, 150, 23);
-		ProducDetails.add(btnDelete);
+		JButton btnDeleteProduct = new JButton("Delete!");
+		btnDeleteProduct.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
+						txtStock, cbStatus, txtDescription);
 
-		JButton btnAdd = new JButton("Add!");
-		btnAdd.addActionListener(new ActionListener() {
+				if (selectedProduct == null && productTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No Product is selected to delete!");
+				} else {
+					boolean isDeleted = ProductController.deleteCustomer(selectedProduct);
+					if (isDeleted) {
+						JOptionPane.showMessageDialog(null,
+								"Product '" + selectedProduct.getTitle() + "' deleted successfully!");
+						productDefaults();
+						products = ProductController.fillTableWithProducts(products, productsTableModel);
+					}
+
+				}
+			}
+		});
+		btnDeleteProduct.setBounds(172, 45, 150, 23);
+		ProducDetails.add(btnDeleteProduct);
+
+		JButton btnAddProduct = new JButton("Add!");
+		btnAddProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
 						txtStock, cbStatus, txtDescription);
 				if (ProductController.validateAddProductInput(productForm)) {
 					ProductController.addNewProduct(productForm);
-					JOptionPane.showMessageDialog(null, "Product Added Successfully!");
-					ProductController.resetFields(productForm);
+					products = ProductController.fillTableWithProducts(products, productsTableModel);
 				}
 			}
 		});
-		btnAdd.setBounds(10, 11, 152, 23);
-		ProducDetails.add(btnAdd);
+
+		btnAddProduct.setBounds(10, 11, 152, 23);
+		ProducDetails.add(btnAddProduct);
 
 		JLabel lblID = new JLabel("ID");
 		lblID.setBounds(12, 33, 150, 14);
@@ -457,7 +493,6 @@ public class App extends JFrame {
 					}
 
 				}
-
 			}
 		});
 		btnDeleteCustomer.setBounds(172, 48, 150, 23);

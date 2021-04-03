@@ -1,13 +1,14 @@
 package controllers;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 
-import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import dataAccess.ProductDao;
 import dataModels.ProductModel;
+import dataModels.UserModel;
 import viewModels.AddProductVM;
 
 public class ProductController {
@@ -21,7 +22,7 @@ public class ProductController {
 
 		for (int i = 0; i < products.size(); i++) {
 
-			Object[] object = { "", products.get(i).getTitle(), products.get(i).getCategory(),
+			Object[] object = { products.get(i).getTitle(), products.get(i).getCategory(),
 					products.get(i).getPurchasePrice(), products.get(i).getSalePrice(), products.get(i).getUnit(),
 					products.get(i).getStock(), products.get(i).getStatus() };
 			productsTableModel.addRow(object);
@@ -72,7 +73,63 @@ public class ProductController {
 	}
 
 	public static void addNewProduct(AddProductVM productForm) {
-		
+		if (validateProduct(productForm)) {
+			ProductModel product = new ProductModel(productForm.txtTitle.getText(),
+					productForm.txtDescription.getText(), productForm.txtCategory.getText(),
+					productForm.txtUnit.getText(), Float.parseFloat(productForm.txtSalePrice.getText()),
+					Float.parseFloat(productForm.txtPurchasePrice.getText()),
+					Integer.parseInt(productForm.txtStock.getText()), UserModel.Name,
+					new Timestamp(new Date().getTime()), productForm.cbStatus.isSelected());
+			productDao.insertProduct(product);
+			JOptionPane.showMessageDialog(null, "Product Added Successfully!");
+			resetFields(productForm);
+		} else {
+			JOptionPane.showMessageDialog(null, "Product with given name already exists!");
+		}
+	}
+
+	private static boolean validateProduct(AddProductVM productForm) {
+		ProductModel product = productDao.getProduct(productForm.txtTitle.getText());
+		if (product == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean deleteCustomer(ProductModel selectedProduct) {
+		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			productDao.deleteCustomer(selectedProduct.getId(), new Timestamp(new Date().getTime()));
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	public static boolean updateCustomer(ProductModel selectedProduct, AddProductVM productForm) {
+		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (validateProduct(productForm) || selectedProduct.getTitle().equals(productForm.txtTitle.getText())) {
+				ProductModel newDetails = new ProductModel(productForm.txtTitle.getText(),
+														   productForm.txtDescription.getText(),
+														   productForm.txtCategory.getText(),
+														   productForm.txtUnit.getText(),
+														   Float.parseFloat(productForm.txtSalePrice.getText()),
+														   Float.parseFloat(productForm.txtPurchasePrice.getText()),
+														   productForm.cbStatus.isSelected(),
+														   Integer.parseInt(productForm.txtStock.getText()));
+				productDao.updateProduct(selectedProduct.getId(), newDetails);
+				return true;
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Product with given title already exists!");
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 
 }

@@ -1,5 +1,6 @@
 package dataModels;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class ProductModel {
@@ -10,10 +11,14 @@ public class ProductModel {
 	private String unit;
 	private float salePrice;
 	private float purchasePrice;
-	private int createdBy;
-	private Date createdDate;
-	private boolean status;
 	private int stock;
+	private String createdBy;
+	private Timestamp createdAt;
+	private boolean status;
+	private boolean isDeleted;
+	private String deletedBy;
+	private Timestamp deletedAt;
+	
 
 	public ProductModel() {
 		super();
@@ -30,6 +35,21 @@ public class ProductModel {
 		this.purchasePrice = purchasePrice;
 		this.status = status;
 		this.stock = stock;
+	}
+
+	public ProductModel(String title, String description, String category, String unit, float salePrice, float purchasePrice, int stock,
+			String createdBy, Timestamp createdAt, boolean status) {
+		super();
+		this.title = title;
+		this.description = description;
+		this.category = category;
+		this.unit = unit;
+		this.salePrice = salePrice;
+		this.purchasePrice = purchasePrice;
+		this.stock = stock;
+		this.createdBy = createdBy;
+		this.createdAt = createdAt;
+		this.status = status;
 	}
 
 	public int getId() {
@@ -88,16 +108,16 @@ public class ProductModel {
 		this.purchasePrice = purchasePrice;
 	}
 
-	public int getCreatedBy() {
+	public String getCreatedBy() {
 		return createdBy;
 	}
 
-	public void setCreatedBy(int createdBy) {
+	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
 
 	public Date getCreatedDate() {
-		return createdDate;
+		return createdAt;
 	}
 
 	public int getStock() {
@@ -108,8 +128,8 @@ public class ProductModel {
 		this.stock = stock;
 	}
 
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
+	public void setCreatedDate(Timestamp createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	public boolean getStatus() {
@@ -118,6 +138,38 @@ public class ProductModel {
 
 	public void setStatus(boolean status) {
 		this.status = status;
+	}
+
+	public Timestamp getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Timestamp createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public String getDeletedBy() {
+		return deletedBy;
+	}
+
+	public void setDeletedBy(String deletedBy) {
+		this.deletedBy = deletedBy;
+	}
+
+	public Date getDeletedAt() {
+		return deletedAt;
+	}
+
+	public void setDeletedAt(Timestamp deletedAt) {
+		this.deletedAt = deletedAt;
 	}
 
 }
