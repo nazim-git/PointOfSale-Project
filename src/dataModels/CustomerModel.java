@@ -22,6 +22,15 @@ public class CustomerModel {
 		this.createdBy = createdBy;
 		this.createdAt = createdAt;
 	}
+	
+	public CustomerModel(String name, String phone, String street, String area, String city) {
+		super();
+		this.name = name;
+		this.phone = phone;
+		this.street = street;
+		this.area = area;
+		this.city = city;
+	}
 
 	public CustomerModel() {
 	}

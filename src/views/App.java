@@ -419,6 +419,23 @@ public class App extends JFrame {
 		Customer.add(CustomerDetails);
 
 		JButton btnUpdateCustomer = new JButton("Update!");
+		btnUpdateCustomer.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
+						txtCity);
+				if (selectedCustomer == null && customerTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No Customer selected to update!");
+				} else {
+					boolean isUpdated = CustomerController.updateCustomer(selectedCustomer, customerForm);
+					if (isUpdated) {
+						JOptionPane.showMessageDialog(null,
+								"Customer '" + selectedCustomer.getName() + "' updated successfully!");
+						customerDefaults();
+						customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
+					}
+				}
+			}
+		});
 		btnUpdateCustomer.setBounds(172, 97, 150, 23);
 		CustomerDetails.add(btnUpdateCustomer);
 

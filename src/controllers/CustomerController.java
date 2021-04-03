@@ -71,8 +71,8 @@ public class CustomerController {
 
 		for (int i = 0; i < customers.size(); i++) {
 
-			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone(),
-					customers.get(i).getStreet(), customers.get(i).getArea(), customers.get(i).getCity() };
+			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone(), customers.get(i).getStreet(),
+					customers.get(i).getArea(), customers.get(i).getCity() };
 			customersTableModel.addRow(object);
 		}
 		return customers;
@@ -80,13 +80,32 @@ public class CustomerController {
 
 	public static boolean deleteCustomer(CustomerModel customer) {
 		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
-		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			customerDao.deleteCustomer(customer.getId(),new Timestamp(new Date().getTime()));
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			customerDao.deleteCustomer(customer.getId(), new Timestamp(new Date().getTime()));
 			return true;
 		} else {
-		    return false;
+			return false;
 		}
-		
+
+	}
+
+	public static boolean updateCustomer(CustomerModel selectedCustomer, AddCustomerVM customerForm) {
+		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (validateCustomer(customerForm) || selectedCustomer.getPhone().equals(customerForm.txtCustomerPhone.getText())) {
+				CustomerModel newDetails = new CustomerModel(customerForm.txtCustomerName.getText(),
+						customerForm.txtCustomerPhone.getText(), customerForm.txtStreet.getText(),
+						customerForm.txtArea.getText(), customerForm.txtCity.getText());
+				customerDao.updateCustomer(selectedCustomer.getId(), newDetails);
+				return true;
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "Customer with given Phone already exists!");
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 
 }

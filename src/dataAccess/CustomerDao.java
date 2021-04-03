@@ -102,10 +102,22 @@ public class CustomerDao {
 	}
 
 	public void deleteCustomer(int id, Timestamp deletedAt) {
-		System.out.println(deletedAt);
 		try {
 			String query = "UPDATE Customers SET isDeleted = 1, deletedBy ='" + UserModel.Name + "', deletedAt = '"
 					+ deletedAt + "' WHERE id = " + id;
+			pst = con.prepareStatement(query);
+
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateCustomer(int id, CustomerModel newDetails) {
+		try {
+			String query = "UPDATE Customers SET name ='" + newDetails.getName() + "',phone ='" + newDetails.getPhone()
+					+ "',street ='" + newDetails.getStreet() + "',area ='" + newDetails.getArea() + "',city ='"
+					+ newDetails.getCity() + "' WHERE id = " + id;
 			pst = con.prepareStatement(query);
 
 			pst.execute();
