@@ -11,7 +11,9 @@ import javax.swing.table.DefaultTableModel;
 import Helpers.Frame;
 import Helpers.InputValidation;
 import controllers.InvoiceController;
+import dataAccess.CustomerDao;
 import dataAccess.ProductDao;
+import dataModels.CustomerModel;
 import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
 import dataModels.ProductModel;
@@ -42,7 +44,7 @@ public class SaleInvoice extends JFrame {
 	// UI
 	private JPanel contentPane;
 	private JLabel lblSaleInvoice, lblProductName, lblProductId, lblMeasuringUnit, lblUnitPrice;
-	private JComboBox cmbProductName, cmbProductID;
+	private JComboBox cmbProductName, cmbProductID, cmbCustomerName;
 	private JTextField txtMeasuringUnit, txtUnitPrice;
 
 	private JScrollPane scrollPane;
@@ -51,10 +53,14 @@ public class SaleInvoice extends JFrame {
 	private DefaultTableModel tableModel;
 
 	private ProductDao productDao;
+	private CustomerDao customerDao;
 
 	private ArrayList<ProductModel> products;
+	private ArrayList<CustomerModel> customers;
 
 	private ProductModel selectedProduct;
+	private CustomerModel selectedCustomer;
+
 	private InvoiceModel invoice;
 	private ArrayList<InvoiceItemModel> items;
 
@@ -62,7 +68,6 @@ public class SaleInvoice extends JFrame {
 
 	private JTextField txtQuantity;
 	private JTextField txtCustomerMobile;
-	private JTextField txtCustomerName;
 
 	public SaleInvoice() {
 		setMaximizedBounds(Frame.getScreenBounds());
@@ -76,11 +81,20 @@ public class SaleInvoice extends JFrame {
 
 	public void Initializations() {
 		productDao = new ProductDao();
+		customerDao = new CustomerDao();
+
 		products = new ArrayList<ProductModel>();
+		customers = new ArrayList<CustomerModel>();
+
 		selectedProduct = new ProductModel();
+		selectedCustomer = new CustomerModel();
+
 		invoice = new InvoiceModel();
 		items = new ArrayList<InvoiceItemModel>();
+
 		products = productDao.getProducts();
+		customers = customerDao.getCustomers();
+
 		invoice.setInvoiceItems(items);
 
 		tableModel = new DefaultTableModel(header, 0);
@@ -216,23 +230,36 @@ public class SaleInvoice extends JFrame {
 		txtCustomerMobile.setText((String) null);
 		txtCustomerMobile.setEditable(false);
 		txtCustomerMobile.setColumns(10);
-		txtCustomerMobile.setBounds(744, 78, 150, 30);
+		txtCustomerMobile.setBounds(781, 78, 150, 30);
 		contentPane.add(txtCustomerMobile);
+		txtCustomerMobile.setText(customers.get(0).getPhone());
 
 		JLabel lblCustomerMobile = new JLabel("Customer Mobile");
-		lblCustomerMobile.setBounds(748, 65, 120, 14);
+		lblCustomerMobile.setBounds(785, 65, 120, 14);
 		contentPane.add(lblCustomerMobile);
 
 		JLabel lblCustomerName = new JLabel("Customer Name");
 		lblCustomerName.setBounds(535, 65, 117, 14);
 		contentPane.add(lblCustomerName);
 
-		txtCustomerName = new JTextField();
-		txtCustomerName.setToolTipText("Enter Customer Name Here....");
-		txtCustomerName.setEditable(false);
-		txtCustomerName.setColumns(10);
-		txtCustomerName.setBounds(532, 78, 200, 30);
-		contentPane.add(txtCustomerName);
+		cmbCustomerName = new JComboBox();
+		cmbCustomerName.setToolTipText("Select Product By Name.....");
+		cmbCustomerName.setMaximumRowCount(5);
+		cmbCustomerName.setBounds(530, 78, 241, 30);
+		contentPane.add(cmbCustomerName);
+		for (int i = 0; i < customers.size(); i++) {
+			cmbCustomerName.addItem(customers.get(i).getName());
+		}
+		cmbCustomerName.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				cmbProductName.setSelectedIndex(cmbProductID.getSelectedIndex());
+
+				selectedCustomer = customers.get(cmbCustomerName.getSelectedIndex());
+				txtCustomerMobile.setText(selectedCustomer.getPhone());
+			}
+		});
 
 	}
 
@@ -242,5 +269,4 @@ public class SaleInvoice extends JFrame {
 		txtUnitPrice.setText(String.valueOf(selectedProduct.getSalePrice()));
 		txtMeasuringUnit.setText(selectedProduct.getUnit());
 	}
-
 }
