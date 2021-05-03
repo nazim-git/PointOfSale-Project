@@ -6,9 +6,11 @@ import javax.swing.border.EmptyBorder;
 
 import dataModels.CustomerModel;
 import dataModels.ProductModel;
+import dataModels.PurchasesModel;
 import dataModels.UserModel;
 import viewModels.AddCustomerVM;
 import viewModels.AddProductVM;
+import viewModels.AddPurchaseVM;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -26,6 +28,7 @@ import javax.swing.table.DefaultTableModel;
 
 import controllers.CustomerController;
 import controllers.ProductController;
+import controllers.PurchasesController;
 
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
@@ -33,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JCheckBox;
 import javax.swing.table.TableModel;
+import javax.swing.JComboBox;
 
 public class App extends JFrame {
 
@@ -43,26 +47,35 @@ public class App extends JFrame {
 	// Models
 	private ArrayList<ProductModel> products;
 	private ArrayList<CustomerModel> customers;
+	private ArrayList<PurchasesModel> purchases;
 
 	// Home
 	JPanel Home;
 
 	// Add Product
 	private JPanel Product, Customer;
-	JTextField txtID, txtTitle, txtCategory, txtPurchasePrice, txtSalePrice, txtUnit, txtStock, txtDescription;
+	JTextField txtID, txtTitle, txtUnit, txtDescription;
 	JCheckBox cbStatus;
 	private ProductModel selectedProduct;
 	private JTable productTable;
 	private AddProductVM productForm;
 
 	// Add Customer
-	private JTextField txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity;
+	private JTextField txtIdCustomer, txtCustomerName, txtCustomerPhone;
 	private CustomerModel selectedCustomer;
 	private JTable customerTable;
 	private AddCustomerVM customerForm;
 
+	// Purchases
+	private JPanel Purchases;
+	private JTextField txtSupplierPurchase, txtPurchasePricePurchase, txtSalePricePurchase, txtUnitPurchase,
+			txtQuantityPurchase;
+	private JTable purchasesTable;
+	private AddPurchaseVM purchaseForm;
+	private JComboBox cmbProductsPurchases;
+
 	// Other
-	private DefaultTableModel productsTableModel, customersTableModel;
+	private DefaultTableModel productsTableModel, customersTableModel, purchasesTableModel;
 
 	public void switchPanels(JPanel panel) {
 		layeredPane.removeAll();
@@ -145,8 +158,7 @@ public class App extends JFrame {
 		contentPane.add(layeredPane);
 		layeredPane.setLayout(new CardLayout(0, 0));
 
-		String productsHeader[] = { "Product Title", "Category", "Purchase Price", "Sale Price", "Unit", "Stock",
-				"Status" };
+		String productsHeader[] = { "Product Title", "Purchase Price", "Sale Price", "Unit", "Stock", "Status" };
 
 		productsTableModel = new DefaultTableModel(productsHeader, 0) {
 			public boolean isCellEditable(int row, int column) {
@@ -156,7 +168,7 @@ public class App extends JFrame {
 		};
 		products = ProductController.fillTableWithProducts(products, productsTableModel);
 
-		String customersHeader[] = { "Name", "Phone", "Street", "Area", "City" };
+		String customersHeader[] = { "Name", "Phone" };
 
 		customersTableModel = new DefaultTableModel(customersHeader, 0) {
 			public boolean isCellEditable(int row, int column) {
@@ -167,6 +179,15 @@ public class App extends JFrame {
 
 		customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
 
+		String purchasesHeader[] = { "Title", "PurchasePrice", "Sale Price", "Quantity", "Unit", "Supplier", "By" };
+
+		purchasesTableModel = new DefaultTableModel(purchasesHeader, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
 	}
 
 	public void HomeGUI() {
@@ -189,23 +210,36 @@ public class App extends JFrame {
 			}
 		});
 
-		JButton btnAddProduct = new JButton("Add New Product");
-		btnAddProduct.addActionListener(new ActionListener() {
+		JButton btnProducts = new JButton("Products");
+		btnProducts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				switchPanels(Product);
 			}
 		});
-		btnAddProduct.setBounds(0, 49, 200, 50);
-		Navigation.add(btnAddProduct);
+		btnProducts.setBounds(0, 48, 200, 50);
+		Navigation.add(btnProducts);
 
-		JButton btnAddCustomer = new JButton("Add New Customer");
-		btnAddCustomer.addActionListener(new ActionListener() {
+		JButton btnCustomers = new JButton("Customers");
+		btnCustomers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				switchPanels(Customer);
 			}
 		});
-		btnAddCustomer.setBounds(0, 98, 200, 50);
-		Navigation.add(btnAddCustomer);
+		btnCustomers.setBounds(0, 96, 200, 50);
+		Navigation.add(btnCustomers);
+
+		JButton btnPurchasesHome = new JButton("Purchases");
+		btnPurchasesHome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				switchPanels(Purchases);
+			}
+		});
+		btnPurchasesHome.setBounds(0, 144, 200, 50);
+		Navigation.add(btnPurchasesHome);
+		
+		JButton btnPurchasesHome_1 = new JButton("Purchases");
+		btnPurchasesHome_1.setBounds(0, 192, 200, 50);
+		Navigation.add(btnPurchasesHome_1);
 
 		JLabel lblHome = new JLabel("Home");
 		lblHome.setBounds(935, 11, 79, 31);
@@ -240,12 +274,11 @@ public class App extends JFrame {
 		JButton btnUpdateProduct = new JButton("Update!");
 		btnUpdateProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
-						txtStock, cbStatus, txtDescription);
+				productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
 				if (selectedProduct == null && productTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Product is selected to update!");
 				} else {
-					boolean isUpdated = ProductController.updateCustomer(selectedProduct, productForm);
+					boolean isUpdated = ProductController.updateProduct(selectedProduct, productForm);
 					if (isUpdated) {
 						JOptionPane.showMessageDialog(null,
 								"Product '" + selectedProduct.getTitle() + "' updated successfully!");
@@ -255,14 +288,13 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnUpdateProduct.setBounds(172, 11, 150, 23);
+		btnUpdateProduct.setBounds(172, 65, 150, 23);
 		ProducDetails.add(btnUpdateProduct);
 
 		JButton btnDeleteProduct = new JButton("Delete!");
 		btnDeleteProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
-						txtStock, cbStatus, txtDescription);
+				productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
 
 				if (selectedProduct == null && productTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Product is selected to delete!");
@@ -278,14 +310,13 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnDeleteProduct.setBounds(172, 45, 150, 23);
+		btnDeleteProduct.setBounds(172, 99, 150, 23);
 		ProducDetails.add(btnDeleteProduct);
 
 		JButton btnAddProduct = new JButton("Add!");
 		btnAddProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice,
-						txtStock, cbStatus, txtDescription);
+				productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
 				if (ProductController.validateAddProductInput(productForm)) {
 					ProductController.addNewProduct(productForm);
 					products = ProductController.fillTableWithProducts(products, productsTableModel);
@@ -293,90 +324,54 @@ public class App extends JFrame {
 			}
 		});
 
-		btnAddProduct.setBounds(10, 11, 152, 23);
+		btnAddProduct.setBounds(10, 65, 152, 23);
 		ProducDetails.add(btnAddProduct);
 
 		JLabel lblID = new JLabel("ID");
-		lblID.setBounds(12, 33, 150, 14);
+		lblID.setBounds(12, 87, 150, 14);
 		ProducDetails.add(lblID);
 
 		txtID = new JTextField();
 		txtID.setEditable(false);
 		txtID.setColumns(10);
-		txtID.setBounds(12, 47, 150, 20);
+		txtID.setBounds(12, 101, 150, 20);
 		ProducDetails.add(txtID);
 
 		JLabel lblTitle = new JLabel("Product Title");
-		lblTitle.setBounds(12, 78, 150, 14);
+		lblTitle.setBounds(12, 132, 150, 14);
 		ProducDetails.add(lblTitle);
 
 		txtTitle = new JTextField();
-		txtTitle.setBounds(12, 92, 150, 20);
+		txtTitle.setBounds(12, 146, 150, 20);
 		ProducDetails.add(txtTitle);
 		txtTitle.setColumns(10);
 
-		JLabel lblCategory = new JLabel("Poduct Category");
-		lblCategory.setBounds(172, 78, 150, 14);
-		ProducDetails.add(lblCategory);
-
-		txtCategory = new JTextField();
-		txtCategory.setColumns(10);
-		txtCategory.setBounds(172, 92, 150, 20);
-		ProducDetails.add(txtCategory);
-
-		JLabel lblPurchasePrice = new JLabel("Purchase Price");
-		lblPurchasePrice.setBounds(12, 123, 150, 14);
-		ProducDetails.add(lblPurchasePrice);
-
-		txtPurchasePrice = new JTextField();
-		txtPurchasePrice.setColumns(10);
-		txtPurchasePrice.setBounds(12, 137, 150, 20);
-		ProducDetails.add(txtPurchasePrice);
-
-		JLabel lblSalePrice = new JLabel("Sale Price");
-		lblSalePrice.setBounds(172, 123, 150, 14);
-		ProducDetails.add(lblSalePrice);
-
-		txtSalePrice = new JTextField();
-		txtSalePrice.setColumns(10);
-		txtSalePrice.setBounds(172, 137, 150, 20);
-		ProducDetails.add(txtSalePrice);
-
 		JLabel lblUnit = new JLabel("Measuring Unit");
-		lblUnit.setBounds(12, 168, 150, 14);
+		lblUnit.setBounds(172, 132, 150, 14);
 		ProducDetails.add(lblUnit);
 
 		txtUnit = new JTextField();
 		txtUnit.setColumns(10);
-		txtUnit.setBounds(12, 182, 150, 20);
+		txtUnit.setBounds(172, 146, 150, 20);
 		ProducDetails.add(txtUnit);
 
-		JLabel lblStock = new JLabel("Product Stock");
-		lblStock.setBounds(172, 168, 150, 14);
-		ProducDetails.add(lblStock);
-
-		txtStock = new JTextField();
-		txtStock.setColumns(10);
-		txtStock.setBounds(172, 182, 150, 20);
-		ProducDetails.add(txtStock);
-
 		JLabel lblDescription = new JLabel("Description");
-		lblDescription.setBounds(12, 213, 150, 14);
+		lblDescription.setBounds(10, 222, 150, 14);
 		ProducDetails.add(lblDescription);
 
 		txtDescription = new JTextField();
 		txtDescription.setColumns(10);
-		txtDescription.setBounds(12, 227, 310, 50);
+		txtDescription.setBounds(10, 236, 310, 50);
 		ProducDetails.add(txtDescription);
 
 		cbStatus = new JCheckBox("Active");
-		cbStatus.setBounds(172, 284, 150, 23);
+		cbStatus.setBounds(172, 173, 150, 23);
 		ProducDetails.add(cbStatus);
 		cbStatus.setSelected(true);
 
 		JLabel lblStatus = new JLabel("Status");
 		lblStatus.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblStatus.setBounds(12, 288, 150, 14);
+		lblStatus.setBounds(12, 177, 150, 14);
 		ProducDetails.add(lblStatus);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -399,11 +394,7 @@ public class App extends JFrame {
 				selectedProduct = products.get(productTable.getSelectedRow());
 				txtID.setText(String.valueOf(selectedProduct.getId()));
 				txtTitle.setText(selectedProduct.getTitle());
-				txtCategory.setText(selectedProduct.getCategory());
-				txtPurchasePrice.setText(String.valueOf(selectedProduct.getPurchasePrice()));
-				txtSalePrice.setText(String.valueOf(selectedProduct.getSalePrice()));
 				txtUnit.setText(selectedProduct.getUnit());
-				txtStock.setText(String.valueOf(selectedProduct.getStock()));
 				txtDescription.setText(selectedProduct.getDescription());
 				if (selectedProduct.getStatus()) {
 					cbStatus.setSelected(true);
@@ -457,8 +448,7 @@ public class App extends JFrame {
 		JButton btnUpdateCustomer = new JButton("Update!");
 		btnUpdateCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
-						txtCity);
+				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
 				if (selectedCustomer == null && customerTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Customer selected to update!");
 				} else {
@@ -472,14 +462,13 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnUpdateCustomer.setBounds(172, 97, 150, 23);
+		btnUpdateCustomer.setBounds(168, 143, 150, 23);
 		CustomerDetails.add(btnUpdateCustomer);
 
 		JButton btnDeleteCustomer = new JButton("Delete!");
 		btnDeleteCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
-						txtCity);
+				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
 
 				if (selectedCustomer == null && customerTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Customer selected to delete!");
@@ -495,77 +484,49 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnDeleteCustomer.setBounds(172, 48, 150, 23);
+		btnDeleteCustomer.setBounds(168, 94, 150, 23);
 		CustomerDetails.add(btnDeleteCustomer);
 
 		JButton btnAddCustomer = new JButton("Add!");
 		btnAddCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea,
-						txtCity);
+				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
 				if (CustomerController.validateAddCustomerInput(customerForm)) {
 					CustomerController.addNewCustomer(customerForm);
 					customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
 				}
 			}
 		});
-		btnAddCustomer.setBounds(14, 48, 152, 23);
+		btnAddCustomer.setBounds(10, 94, 152, 23);
 		CustomerDetails.add(btnAddCustomer);
 
 		JLabel lblIdCustomer = new JLabel("ID");
-		lblIdCustomer.setBounds(14, 82, 150, 14);
+		lblIdCustomer.setBounds(10, 128, 150, 14);
 		CustomerDetails.add(lblIdCustomer);
 
 		txtIdCustomer = new JTextField();
 		txtIdCustomer.setEditable(false);
 		txtIdCustomer.setColumns(10);
-		txtIdCustomer.setBounds(14, 98, 150, 20);
+		txtIdCustomer.setBounds(10, 144, 150, 20);
 		CustomerDetails.add(txtIdCustomer);
 
 		JLabel lblCustomerName = new JLabel("Customer Name");
-		lblCustomerName.setBounds(14, 129, 150, 14);
+		lblCustomerName.setBounds(10, 175, 150, 14);
 		CustomerDetails.add(lblCustomerName);
 
 		txtCustomerName = new JTextField();
 		txtCustomerName.setColumns(10);
-		txtCustomerName.setBounds(14, 143, 150, 20);
+		txtCustomerName.setBounds(10, 189, 150, 20);
 		CustomerDetails.add(txtCustomerName);
 
 		JLabel lblCustomerPhone = new JLabel("Customer Phone");
-		lblCustomerPhone.setBounds(174, 129, 150, 14);
+		lblCustomerPhone.setBounds(170, 175, 150, 14);
 		CustomerDetails.add(lblCustomerPhone);
 
 		txtCustomerPhone = new JTextField();
 		txtCustomerPhone.setColumns(10);
-		txtCustomerPhone.setBounds(174, 143, 150, 20);
+		txtCustomerPhone.setBounds(170, 189, 150, 20);
 		CustomerDetails.add(txtCustomerPhone);
-
-		JLabel lblStreet = new JLabel("Street");
-		lblStreet.setBounds(14, 174, 150, 14);
-		CustomerDetails.add(lblStreet);
-
-		txtStreet = new JTextField();
-		txtStreet.setColumns(10);
-		txtStreet.setBounds(14, 188, 310, 20);
-		CustomerDetails.add(txtStreet);
-
-		JLabel lblArea = new JLabel("Area");
-		lblArea.setBounds(14, 219, 150, 14);
-		CustomerDetails.add(lblArea);
-
-		txtArea = new JTextField();
-		txtArea.setColumns(10);
-		txtArea.setBounds(14, 233, 310, 20);
-		CustomerDetails.add(txtArea);
-
-		JLabel lblCity = new JLabel("City");
-		lblCity.setBounds(94, 264, 150, 14);
-		CustomerDetails.add(lblCity);
-
-		txtCity = new JTextField();
-		txtCity.setColumns(10);
-		txtCity.setBounds(94, 278, 150, 20);
-		CustomerDetails.add(txtCity);
 
 		JScrollPane scrollPaneCustomers = new JScrollPane();
 		scrollPaneCustomers.setBounds(352, 53, 662, 369);
@@ -589,9 +550,6 @@ public class App extends JFrame {
 				txtIdCustomer.setText(String.valueOf(selectedCustomer.getId()));
 				txtCustomerName.setText(selectedCustomer.getName());
 				txtCustomerPhone.setText(selectedCustomer.getPhone());
-				txtStreet.setText(selectedCustomer.getStreet());
-				txtArea.setText(selectedCustomer.getArea());
-				txtCity.setText(selectedCustomer.getCity());
 			}
 
 			@Override
@@ -614,11 +572,114 @@ public class App extends JFrame {
 		});
 	}
 
+	public void PurchasesGUI() {
+		Purchases = new JPanel();
+		Purchases.setLayout(null);
+		layeredPane.add(Purchases, "name_2418596197522100");
+
+		JLabel lblPurchaseHistory = new JLabel("Purchase History");
+		lblPurchaseHistory.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblPurchaseHistory.setBounds(352, 10, 199, 32);
+		Purchases.add(lblPurchaseHistory);
+
+		JPanel ProducDetails = new JPanel();
+		ProducDetails.setLayout(null);
+		ProducDetails.setBounds(10, 53, 332, 369);
+		Purchases.add(ProducDetails);
+
+		JButton btnPurchase = new JButton("Purchase");
+		btnPurchase.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				purchaseForm = new AddPurchaseVM(cmbProductsPurchases,txtSupplierPurchase, txtPurchasePricePurchase, txtSalePricePurchase, txtUnitPurchase,  txtQuantityPurchase);
+				if (PurchasesController.validateAddPurchaseInput(purchaseForm)) {
+					PurchasesController.addNewPurchase(purchaseForm);
+					purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
+					products = ProductController.fillTableWithProducts(products, productsTableModel);
+				}
+			}
+		});
+		btnPurchase.setBounds(90, 206, 152, 23);
+		ProducDetails.add(btnPurchase);
+
+		JLabel lblTitlePurchase = new JLabel("Product Title");
+		lblTitlePurchase.setBounds(10, 71, 150, 14);
+		ProducDetails.add(lblTitlePurchase);
+
+		JLabel lblSupplierPurchase = new JLabel("Supplier");
+		lblSupplierPurchase.setBounds(170, 71, 150, 14);
+		ProducDetails.add(lblSupplierPurchase);
+
+		txtSupplierPurchase = new JTextField();
+		txtSupplierPurchase.setColumns(10);
+		txtSupplierPurchase.setBounds(170, 85, 150, 20);
+		ProducDetails.add(txtSupplierPurchase);
+
+		JLabel lblPurchasePricePurchase = new JLabel("Purchase Price");
+		lblPurchasePricePurchase.setBounds(10, 116, 150, 14);
+		ProducDetails.add(lblPurchasePricePurchase);
+
+		txtPurchasePricePurchase = new JTextField();
+		txtPurchasePricePurchase.setColumns(10);
+		txtPurchasePricePurchase.setBounds(10, 130, 150, 20);
+		ProducDetails.add(txtPurchasePricePurchase);
+
+		JLabel lblSalePricePurchase = new JLabel("Sale Price");
+		lblSalePricePurchase.setBounds(170, 116, 150, 14);
+		ProducDetails.add(lblSalePricePurchase);
+
+		txtSalePricePurchase = new JTextField();
+		txtSalePricePurchase.setColumns(10);
+		txtSalePricePurchase.setBounds(170, 130, 150, 20);
+		ProducDetails.add(txtSalePricePurchase);
+
+		JLabel lblUnitPurchase = new JLabel("Measuring Unit");
+		lblUnitPurchase.setBounds(10, 161, 150, 14);
+		ProducDetails.add(lblUnitPurchase);
+
+		txtUnitPurchase = new JTextField();
+		txtUnitPurchase.setEditable(false);
+		txtUnitPurchase.setColumns(10);
+		txtUnitPurchase.setBounds(10, 175, 150, 20);
+		ProducDetails.add(txtUnitPurchase);
+		txtUnitPurchase.setText(products.get(0).getUnit());
+
+		JLabel lblQuantityPurchase = new JLabel("Quantity");
+		lblQuantityPurchase.setBounds(170, 161, 150, 14);
+		ProducDetails.add(lblQuantityPurchase);
+
+		txtQuantityPurchase = new JTextField();
+		txtQuantityPurchase.setColumns(10);
+		txtQuantityPurchase.setBounds(170, 175, 150, 20);
+		ProducDetails.add(txtQuantityPurchase);
+
+		cmbProductsPurchases = new JComboBox();
+		cmbProductsPurchases.setBounds(10, 85, 150, 20);
+		ProducDetails.add(cmbProductsPurchases);
+		for (int i = 0; i < products.size(); i++) {
+			cmbProductsPurchases.addItem(products.get(i).getTitle());
+		}
+		cmbProductsPurchases.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				txtUnitPurchase.setText(products.get(cmbProductsPurchases.getSelectedIndex()).getUnit());
+			}
+		});
+		
+		JScrollPane scrollPanePurchases = new JScrollPane();
+		scrollPanePurchases.setBounds(352, 53, 662, 369);
+		Purchases.add(scrollPanePurchases);
+
+		purchasesTable = new JTable(purchasesTableModel);
+		scrollPanePurchases.setViewportView(purchasesTable);
+	}
+
 	public App() {
 		InstanciateApp();
 		HomeGUI();
 		AddProductGUI();
 		CustomerGUI();
+		PurchasesGUI();
 	}
 
 	public void homeButtonClicked() {
@@ -628,15 +689,14 @@ public class App extends JFrame {
 	}
 
 	public void productDefaults() {
-		productForm = new AddProductVM(txtID, txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice, txtStock,
-				cbStatus, txtDescription);
+		productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
 		ProductController.resetFields(productForm);
 		selectedProduct = null;
 		productTable.clearSelection();
 	}
 
 	public void customerDefaults() {
-		customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone, txtStreet, txtArea, txtCity);
+		customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
 		CustomerController.resetFields(customerForm);
 		selectedCustomer = null;
 		customerTable.clearSelection();

@@ -18,17 +18,14 @@ public class CustomerDao {
 
 	public void insertCustomer(CustomerModel customer) {
 		try {
-			String query = "insert into Customers" + "(name,phone,street,area,city,createdBy,createdAt) values"
-					+ "(?,?,?,?,?,?,?)";
+			String query = "insert into Customers" + "(name,phone,createdBy,createdAt) values"
+					+ "(?,?,?,?)";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, customer.getName());
 			pst.setString(2, customer.getPhone());
-			pst.setString(3, customer.getStreet());
-			pst.setString(4, customer.getArea());
-			pst.setString(5, customer.getCity());
-			pst.setString(6, customer.getCreatedBy());
-			pst.setTimestamp(7, customer.getCreatedAt());
+			pst.setString(3, customer.getCreatedBy());
+			pst.setTimestamp(4, customer.getCreatedAt());
 
 			pst.execute();
 
@@ -52,14 +49,11 @@ public class CustomerDao {
 				customer.setId(rs.getInt(1));
 				customer.setName(rs.getString(2));
 				customer.setPhone(rs.getString(3));
-				customer.setStreet(rs.getString(4));
-				customer.setArea(rs.getString(5));
-				customer.setCity(rs.getString(6));
-				customer.setCreatedBy(rs.getString(7));
-				customer.setCreatedAt(rs.getTimestamp(8));
-				customer.setDeleted(rs.getBoolean(9));
-				customer.setDeletedBy(rs.getString(10));
-				customer.setDeletedAt(rs.getTimestamp(11));
+				customer.setCreatedBy(rs.getString(4));
+				customer.setCreatedAt(rs.getTimestamp(5));
+				customer.setDeleted(rs.getBoolean(6));
+				customer.setDeletedBy(rs.getString(7));
+				customer.setDeletedAt(rs.getTimestamp(8));
 			}
 
 		} catch (SQLException e) {
@@ -83,9 +77,6 @@ public class CustomerDao {
 				customer.setId(Integer.parseInt(rs.getString("id")));
 				customer.setName(rs.getString("name"));
 				customer.setPhone(rs.getString("phone"));
-				customer.setStreet(rs.getString("street"));
-				customer.setArea(rs.getString("area"));
-				customer.setCity(rs.getString("city"));
 				customer.setCreatedBy(rs.getString("createdBy"));
 				customer.setCreatedAt(rs.getTimestamp("createdAt"));
 				customer.setDeleted(Boolean.parseBoolean(rs.getString("isDeleted")));
@@ -116,8 +107,7 @@ public class CustomerDao {
 	public void updateCustomer(int id, CustomerModel newDetails) {
 		try {
 			String query = "UPDATE Customers SET name ='" + newDetails.getName() + "',phone ='" + newDetails.getPhone()
-					+ "',street ='" + newDetails.getStreet() + "',area ='" + newDetails.getArea() + "',city ='"
-					+ newDetails.getCity() + "' WHERE id = " + id;
+					+ "' WHERE id = " + id;
 			pst = con.prepareStatement(query);
 
 			pst.execute();

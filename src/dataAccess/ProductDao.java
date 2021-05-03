@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import dataModels.CustomerModel;
 import dataModels.ProductModel;
 import dataModels.UserModel;
+import viewModels.AddPurchaseVM;
 
 public class ProductDao {
 	Connection con = DbConnection.getInstance();
@@ -31,10 +32,10 @@ public class ProductDao {
 				product.setId(Integer.parseInt(rs.getString("id")));
 				product.setTitle(rs.getString("title"));
 				product.setDescription(rs.getString("description"));
-				product.setCategory(rs.getString("category"));
 				product.setUnit(rs.getString("unit"));
 				product.setSalePrice(Float.parseFloat(rs.getString("salePrice")));
 				product.setPurchasePrice(Float.parseFloat(rs.getString("purchasePrice")));
+				product.setStock(Integer.parseInt(rs.getString("stock")));
 				product.setCreatedBy(rs.getString("createdBy"));
 				product.setCreatedDate(Timestamp.valueOf(rs.getString("createdAt")));
 				product.setStatus(rs.getBoolean("status"));
@@ -76,17 +77,16 @@ public class ProductDao {
 				product.setId(rs.getInt(1));
 				product.setTitle(rs.getString(2));
 				product.setDescription(rs.getString(3));
-				product.setCategory(rs.getString(4));
-				product.setUnit(rs.getString(5));
-				product.setSalePrice(rs.getFloat(6));
-				product.setPurchasePrice(rs.getFloat(7));
-				product.setStock(rs.getInt(8));
-				product.setCreatedBy(rs.getString(9));
-				product.setCreatedAt(rs.getTimestamp(10));
-				product.setStatus(rs.getBoolean(11));
-				product.setDeleted(rs.getBoolean(12));
-				product.setDeletedBy(rs.getString(13));
-				product.setDeletedAt(rs.getTimestamp(14));
+				product.setUnit(rs.getString(4));
+				product.setSalePrice(rs.getFloat(5));
+				product.setPurchasePrice(rs.getFloat(6));
+				product.setStock(rs.getInt(7));
+				product.setCreatedBy(rs.getString(8));
+				product.setCreatedAt(rs.getTimestamp(9));
+				product.setStatus(rs.getBoolean(10));
+				product.setDeleted(rs.getBoolean(11));
+				product.setDeletedBy(rs.getString(12));
+				product.setDeletedAt(rs.getTimestamp(13));
 			}
 
 		} catch (SQLException e) {
@@ -98,20 +98,16 @@ public class ProductDao {
 	public void insertProduct(ProductModel product) {
 		try {
 			String query = "insert into Products"
-					+ "(title,description,category,unit,salePrice,purchasePrice,stock,createdBy,createdAt,status) values"
-					+ "(?,?,?,?,?,?,?,?,?,?)";
+					+ "(title,description,unit,createdBy,createdAt,status) values"
+					+ "(?,?,?,?,?,?)";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, product.getTitle());
 			pst.setString(2, product.getDescription());
-			pst.setString(3, product.getCategory());
-			pst.setString(4, product.getUnit());
-			pst.setFloat(5, product.getSalePrice());
-			pst.setFloat(6, product.getPurchasePrice());
-			pst.setInt(7, product.getStock());
-			pst.setString(8, product.getCreatedBy());
-			pst.setTimestamp(9, product.getCreatedAt());
-			pst.setBoolean(10, product.getStatus());
+			pst.setString(3, product.getUnit());
+			pst.setString(4, product.getCreatedBy());
+			pst.setTimestamp(5, product.getCreatedAt());
+			pst.setBoolean(6, product.getStatus());
 
 			pst.execute();
 
@@ -136,14 +132,26 @@ public class ProductDao {
 		try {
 			String query = "UPDATE Products SET title ='" + newDetails.getTitle() + 
 											 "',description ='" + newDetails.getDescription()+ 
-											 "',category ='" + newDetails.getCategory() + 
 											 "',unit ='" + newDetails.getUnit() + 
-											 "',salePrice ='"+ newDetails.getSalePrice() + 
-											 "',purchasePrice ='"+ newDetails.getPurchasePrice() +
-											 "',stock ='"+ newDetails.getStock() + 
 											 "',status ='"+ newDetails.getStatus() + 
 											 "' WHERE id = " + id;
 			pst = con.prepareStatement(query);
+
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateStock(AddPurchaseVM purchaseForm) {
+		try {
+			String query = "UPDATE Products SET stock = stock + ?,purchasePrice = ?, salePrice = ? where title = ?";
+
+			pst = con.prepareStatement(query);
+			pst.setInt(1, Integer.parseInt(purchaseForm.txtQuantityPurchases.getText()));
+			pst.setFloat(2, Float.parseFloat(purchaseForm.txtPurchasePricePurchases.getText()));
+			pst.setFloat(3, Float.parseFloat(purchaseForm.txtSalePricePurchases.getText()));
+			pst.setString(4, (String) purchaseForm.cmbProductsPurchases.getSelectedItem());
 
 			pst.execute();
 		} catch (SQLException e) {

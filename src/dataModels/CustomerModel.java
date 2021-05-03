@@ -5,31 +5,25 @@ import java.sql.Timestamp;
 public class CustomerModel {
 
 	private int id;
-	private String name, phone, street, area, city, createdBy;
+	private String name, phone, createdBy;
 	private Timestamp createdAt;
 	private boolean isDeleted;
 	private String deletedBy;
 	private Timestamp deletedAt;
 
-	public CustomerModel(String name, String phone, String street, String area, String city, String createdBy,
+	public CustomerModel(String name, String phone, String createdBy,
 			Timestamp createdAt) {
 		super();
 		this.name = name;
 		this.phone = phone;
-		this.street = street;
-		this.area = area;
-		this.city = city;
 		this.createdBy = createdBy;
 		this.createdAt = createdAt;
 	}
 	
-	public CustomerModel(String name, String phone, String street, String area, String city) {
+	public CustomerModel(String name, String phone) {
 		super();
 		this.name = name;
 		this.phone = phone;
-		this.street = street;
-		this.area = area;
-		this.city = city;
 	}
 
 	public CustomerModel() {
@@ -57,30 +51,6 @@ public class CustomerModel {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-
-	public String getStreet() {
-		return street;
-	}
-
-	public void setStreet(String street) {
-		this.street = street;
-	}
-
-	public String getArea() {
-		return area;
-	}
-
-	public void setArea(String area) {
-		this.area = area;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
 	}
 
 	public String getCreatedBy() {
@@ -123,11 +93,5 @@ public class CustomerModel {
 		this.deletedAt = deletedAt;
 	}
 
-	@Override
-	public String toString() {
-		return "CustomerModel [id=" + id + ", name=" + name + ", phone=" + phone + ", street=" + street + ", area="
-				+ area + ", city=" + city + ", createdBy=" + createdBy + ", createdAt=" + createdAt + ", isDeleted="
-				+ isDeleted + ", deletedBy=" + deletedBy + ", deletedAt=" + deletedAt + "]";
-	}
 
 }

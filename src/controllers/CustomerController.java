@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
+import Helpers.InputValidation;
 import dataAccess.CustomerDao;
 import dataModels.CustomerModel;
 import dataModels.UserModel;
@@ -24,6 +25,10 @@ public class CustomerController {
 			JOptionPane.showMessageDialog(null, "Customer Phone can't be Empty!");
 			customerForm.txtCustomerPhone.requestFocus();
 			return false;
+		} else if (!InputValidation.validateNumbers(customerForm.txtCustomerPhone.getText())) {
+			JOptionPane.showMessageDialog(null, "Customer Phone must be Numeric only!");
+			customerForm.txtCustomerPhone.requestFocus();
+			return false;
 		} else {
 			return true;
 		}
@@ -33,16 +38,12 @@ public class CustomerController {
 		customerForm.txtIdCustomer.setText(null);
 		customerForm.txtCustomerName.setText(null);
 		customerForm.txtCustomerPhone.setText(null);
-		customerForm.txtStreet.setText(null);
-		customerForm.txtArea.setText(null);
-		customerForm.txtCity.setText(null);
 	}
 
 	public static void addNewCustomer(AddCustomerVM customerForm) {
 		if (validateCustomer(customerForm)) {
 			CustomerModel customer = new CustomerModel(customerForm.txtCustomerName.getText(),
-					customerForm.txtCustomerPhone.getText(), customerForm.txtStreet.getText(),
-					customerForm.txtArea.getText(), customerForm.txtCity.getText(), UserModel.Name,
+					customerForm.txtCustomerPhone.getText(), UserModel.Name,
 					new Timestamp(new Date().getTime()));
 
 			customerDao.insertCustomer(customer);
@@ -71,8 +72,7 @@ public class CustomerController {
 
 		for (int i = 0; i < customers.size(); i++) {
 
-			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone(), customers.get(i).getStreet(),
-					customers.get(i).getArea(), customers.get(i).getCity() };
+			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone()};
 			customersTableModel.addRow(object);
 		}
 		return customers;
@@ -94,8 +94,7 @@ public class CustomerController {
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			if (validateCustomer(customerForm) || selectedCustomer.getPhone().equals(customerForm.txtCustomerPhone.getText())) {
 				CustomerModel newDetails = new CustomerModel(customerForm.txtCustomerName.getText(),
-						customerForm.txtCustomerPhone.getText(), customerForm.txtStreet.getText(),
-						customerForm.txtArea.getText(), customerForm.txtCity.getText());
+						customerForm.txtCustomerPhone.getText());
 				customerDao.updateCustomer(selectedCustomer.getId(), newDetails);
 				return true;
 			}

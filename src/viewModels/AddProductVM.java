@@ -5,19 +5,14 @@ import javax.swing.JTextField;
 
 public class AddProductVM {
 
-	public JTextField txtID,txtTitle, txtCategory, txtUnit, txtPurchasePrice, txtSalePrice, txtStock, txtDescription;
+	public JTextField txtId, txtTitle, txtUnit, txtSalePrice,  txtDescription;
 	public JCheckBox cbStatus;
 	
-	public AddProductVM(JTextField txtID,JTextField txtTitle, JTextField txtCategory, JTextField txtUnit, JTextField txtPurchasePrice,
-			JTextField txtSalePrice, JTextField txtStock,JCheckBox cbStatus,JTextField txtDescription) {
+	public AddProductVM(JTextField txtId, JTextField txtTitle, JTextField txtUnit, JCheckBox cbStatus, JTextField txtDescription) {
 		super();
-		this.txtID = txtID;
+		this.txtId = txtId;
 		this.txtTitle = txtTitle;
-		this.txtCategory = txtCategory;
 		this.txtUnit = txtUnit;
-		this.txtPurchasePrice = txtPurchasePrice;
-		this.txtSalePrice = txtSalePrice;
-		this.txtStock = txtStock;
 		this.cbStatus = cbStatus;
 		this.txtDescription = txtDescription;
 	}

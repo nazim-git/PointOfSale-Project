@@ -7,7 +7,6 @@ public class ProductModel {
 	private int id;
 	private String title;
 	private String description;
-	private String category;
 	private String unit;
 	private float salePrice;
 	private float purchasePrice;
@@ -18,38 +17,27 @@ public class ProductModel {
 	private boolean isDeleted;
 	private String deletedBy;
 	private Timestamp deletedAt;
-	
 
 	public ProductModel() {
 		super();
 	}
 
-	public ProductModel(String title, String description, String category, String unit, float salePrice,
-			float purchasePrice, boolean status, int stock) {
+	public ProductModel(String title, String description, String unit, String createdBy, Timestamp createdAt, boolean status) {
 		super();
-		this.title = title;
-		this.description = description;
-		this.category = category;
-		this.unit = unit;
-		this.salePrice = salePrice;
-		this.purchasePrice = purchasePrice;
-		this.status = status;
-		this.stock = stock;
+		this.title=title;
+		this.description=description;
+		this.unit=unit;
+		this.createdBy=createdBy;
+		this.createdAt=createdAt;
+		this.status=status;
 	}
 
-	public ProductModel(String title, String description, String category, String unit, float salePrice, float purchasePrice, int stock,
-			String createdBy, Timestamp createdAt, boolean status) {
+	public ProductModel(String title, String description, String unit, boolean status) {
 		super();
-		this.title = title;
-		this.description = description;
-		this.category = category;
-		this.unit = unit;
-		this.salePrice = salePrice;
-		this.purchasePrice = purchasePrice;
-		this.stock = stock;
-		this.createdBy = createdBy;
-		this.createdAt = createdAt;
-		this.status = status;
+		this.title=title;
+		this.description=description;
+		this.unit=unit;
+		this.status=status;
 	}
 
 	public int getId() {
@@ -74,14 +62,6 @@ public class ProductModel {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
 	}
 
 	public String getUnit() {

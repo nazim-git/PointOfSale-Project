@@ -22,8 +22,8 @@ public class ProductController {
 
 		for (int i = 0; i < products.size(); i++) {
 
-			Object[] object = { products.get(i).getTitle(), products.get(i).getCategory(),
-					products.get(i).getPurchasePrice(), products.get(i).getSalePrice(), products.get(i).getUnit(),
+			Object[] object = { products.get(i).getTitle(),	products.get(i).getPurchasePrice(), 
+					products.get(i).getSalePrice(), products.get(i).getUnit(),
 					products.get(i).getStock(), products.get(i).getStatus() };
 			productsTableModel.addRow(object);
 		}
@@ -35,25 +35,9 @@ public class ProductController {
 			JOptionPane.showMessageDialog(null, "Product Title can't be Empty!");
 			productForm.txtTitle.requestFocus();
 			return false;
-		} else if (productForm.txtCategory.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Product Category can't be Empty!");
-			productForm.txtCategory.requestFocus();
-			return false;
-		} else if (productForm.txtPurchasePrice.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Product Purchase Price can't be Empty!");
-			productForm.txtPurchasePrice.requestFocus();
-			return false;
-		} else if (productForm.txtSalePrice.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Product Sale Price can't be Empty!");
-			productForm.txtSalePrice.requestFocus();
-			return false;
 		} else if (productForm.txtUnit.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Product Unit can't be Empty!");
 			productForm.txtUnit.requestFocus();
-			return false;
-		} else if (productForm.txtStock.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Product Stock can't be Empty!");
-			productForm.txtStock.requestFocus();
 			return false;
 		} else {
 			return true;
@@ -61,24 +45,16 @@ public class ProductController {
 	}
 
 	public static void resetFields(AddProductVM productForm) {
-		productForm.txtID.setText(null);
+		productForm.txtId.setText(null);
 		productForm.txtTitle.setText(null);
-		productForm.txtCategory.setText(null);
 		productForm.txtUnit.setText(null);
-		productForm.txtPurchasePrice.setText(null);
-		productForm.txtSalePrice.setText(null);
-		productForm.txtStock.setText(null);
 		productForm.cbStatus.setSelected(true);
 		productForm.txtDescription.setText(null);
 	}
 
 	public static void addNewProduct(AddProductVM productForm) {
 		if (validateProduct(productForm)) {
-			ProductModel product = new ProductModel(productForm.txtTitle.getText(),
-					productForm.txtDescription.getText(), productForm.txtCategory.getText(),
-					productForm.txtUnit.getText(), Float.parseFloat(productForm.txtSalePrice.getText()),
-					Float.parseFloat(productForm.txtPurchasePrice.getText()),
-					Integer.parseInt(productForm.txtStock.getText()), UserModel.Name,
+			ProductModel product = new ProductModel(productForm.txtTitle.getText(),productForm.txtDescription.getText(),productForm.txtUnit.getText(), UserModel.Name,
 					new Timestamp(new Date().getTime()), productForm.cbStatus.isSelected());
 			productDao.insertProduct(product);
 			JOptionPane.showMessageDialog(null, "Product Added Successfully!");
@@ -107,19 +83,14 @@ public class ProductController {
 		}
 	}
 
-
-	public static boolean updateCustomer(ProductModel selectedProduct, AddProductVM productForm) {
+	public static boolean updateProduct(ProductModel selectedProduct, AddProductVM productForm) {
 		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			if (validateProduct(productForm) || selectedProduct.getTitle().equals(productForm.txtTitle.getText())) {
 				ProductModel newDetails = new ProductModel(productForm.txtTitle.getText(),
 														   productForm.txtDescription.getText(),
-														   productForm.txtCategory.getText(),
 														   productForm.txtUnit.getText(),
-														   Float.parseFloat(productForm.txtSalePrice.getText()),
-														   Float.parseFloat(productForm.txtPurchasePrice.getText()),
-														   productForm.cbStatus.isSelected(),
-														   Integer.parseInt(productForm.txtStock.getText()));
+														   productForm.cbStatus.isSelected());
 				productDao.updateProduct(selectedProduct.getId(), newDetails);
 				return true;
 			}
