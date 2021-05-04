@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import Helpers.InputValidation;
+import dataAccess.InvoiceDao;
 import dataAccess.RunningNumberDao;
 import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
@@ -17,6 +18,8 @@ import dataModels.UserModel;
 import viewModels.AddItemVM;
 
 public class InvoiceController {
+	
+	static InvoiceDao invoiceDao = new InvoiceDao();
 
 	public static String generateInvoiceNumber() {
 		RunningNumberDao runningNumberDao = new RunningNumberDao();
@@ -149,7 +152,12 @@ public class InvoiceController {
 		invoice.setCreatedBy(UserModel.Name);
 		invoice.setCreatedAt(new Timestamp(new Date().getTime()));
 		
-		System.out.println(invoice.toString());
+		invoiceDao.insertInvoice(invoice);
+		int invoiceId = invoiceDao.getInvoiceLastId(invoice.getCreatedAt());
+		invoiceDao.insertItems(invoiceId,invoice.getInvoiceItems());
+		
+		System.out.println(invoiceId);
+		
 	}
 
 }
