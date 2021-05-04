@@ -5,10 +5,12 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import dataModels.CustomerModel;
+import dataModels.ExpenseModel;
 import dataModels.ProductModel;
 import dataModels.PurchasesModel;
 import dataModels.UserModel;
 import viewModels.AddCustomerVM;
+import viewModels.AddExpenseVM;
 import viewModels.AddProductVM;
 import viewModels.AddPurchaseVM;
 
@@ -27,6 +29,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
 
 import controllers.CustomerController;
+import controllers.ExpenseController;
 import controllers.ProductController;
 import controllers.PurchasesController;
 
@@ -48,6 +51,7 @@ public class App extends JFrame {
 	private ArrayList<ProductModel> products;
 	private ArrayList<CustomerModel> customers;
 	private ArrayList<PurchasesModel> purchases;
+	private ArrayList<ExpenseModel> expenses;
 
 	// Home
 	JPanel Home;
@@ -74,8 +78,17 @@ public class App extends JFrame {
 	private AddPurchaseVM purchaseForm;
 	private JComboBox cmbProductsPurchases;
 
+	//Expenses
+	private JPanel Expenses;
+	private AddExpenseVM expenseForm;
+	private JTextField txtAmountExpense;
+	private JTextField txtDescriptionExpense;
+	private JTable expensesTable;
+	private ExpenseModel selectedExpense;
+	
 	// Other
-	private DefaultTableModel productsTableModel, customersTableModel, purchasesTableModel;
+	private DefaultTableModel productsTableModel, customersTableModel, purchasesTableModel,expensesTableModel;
+	
 
 	public void switchPanels(JPanel panel) {
 		layeredPane.removeAll();
@@ -188,6 +201,16 @@ public class App extends JFrame {
 			}
 		};
 		purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
+		
+		String expensesHeader[] = { "Amount", "Description", "By" };
+
+		expensesTableModel = new DefaultTableModel(expensesHeader, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		expenses = ExpenseController.fillTableWithExpenses(expenses, expensesTableModel);
 	}
 
 	public void HomeGUI() {
@@ -237,9 +260,14 @@ public class App extends JFrame {
 		btnPurchasesHome.setBounds(0, 144, 200, 50);
 		Navigation.add(btnPurchasesHome);
 		
-		JButton btnPurchasesHome_1 = new JButton("Purchases");
-		btnPurchasesHome_1.setBounds(0, 192, 200, 50);
-		Navigation.add(btnPurchasesHome_1);
+		JButton btnExpensesHome = new JButton("Expenses");
+		btnExpensesHome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switchPanels(Expenses);
+			}
+		});
+		btnExpensesHome.setBounds(0, 192, 200, 50);
+		Navigation.add(btnExpensesHome);
 
 		JLabel lblHome = new JLabel("Home");
 		lblHome.setBounds(935, 11, 79, 31);
@@ -673,6 +701,122 @@ public class App extends JFrame {
 		purchasesTable = new JTable(purchasesTableModel);
 		scrollPanePurchases.setViewportView(purchasesTable);
 	}
+	
+	public void ExpensesGUI() {
+		Expenses = new JPanel();
+		Expenses.setLayout(null);
+		layeredPane.add(Expenses, "name_2466418055850600");
+		
+		JLabel lblSelectedExpense = new JLabel("Selected Expense");
+		lblSelectedExpense.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblSelectedExpense.setBounds(10, 10, 180, 32);
+		Expenses.add(lblSelectedExpense);
+		
+		JLabel lblAllExpenses = new JLabel("All Expenses");
+		lblAllExpenses.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblAllExpenses.setBounds(352, 10, 135, 32);
+		Expenses.add(lblAllExpenses);
+		
+		JPanel ExpenseDetails = new JPanel();
+		ExpenseDetails.setLayout(null);
+		ExpenseDetails.setBounds(10, 53, 332, 369);
+		Expenses.add(ExpenseDetails);
+		
+		JButton btnDeleteExpense = new JButton("Delete!");
+		btnDeleteExpense.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				expenseForm = new AddExpenseVM(txtAmountExpense, txtDescriptionExpense);
+
+				if (selectedExpense == null && expensesTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No Expense selected to delete!");
+				} else {
+					boolean isDeleted = ExpenseController.deleteExpense(selectedExpense);
+					if (isDeleted) {
+						JOptionPane.showMessageDialog(null,
+								"Expense deleted successfully!");
+						expenseDefaults();
+						expenses = ExpenseController.fillTableWithExpenses(expenses, expensesTableModel);
+					}
+
+				}
+			}
+		});
+		btnDeleteExpense.setBounds(172, 98, 150, 23);
+		ExpenseDetails.add(btnDeleteExpense);
+		
+		JButton btnAddExpense = new JButton("Add!");
+		btnAddExpense.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				expenseForm = new AddExpenseVM(txtAmountExpense, txtDescriptionExpense);
+				
+				if (ExpenseController.validateAddExpenseInput(expenseForm)) {
+					ExpenseController.addNewExpense(expenseForm);
+					expenses = ExpenseController.fillTableWithExpenses(expenses, expensesTableModel);
+				}
+			}
+		});
+		btnAddExpense.setBounds(10, 98, 152, 23);
+		ExpenseDetails.add(btnAddExpense);
+		
+		JLabel lblAmountExpense = new JLabel("Amount");
+		lblAmountExpense.setBounds(10, 132, 150, 14);
+		ExpenseDetails.add(lblAmountExpense);
+		
+		txtAmountExpense = new JTextField();
+		txtAmountExpense.setColumns(10);
+		txtAmountExpense.setBounds(10, 146, 150, 20);
+		ExpenseDetails.add(txtAmountExpense);
+		
+		JLabel lblDescriptionExpense = new JLabel("Description");
+		lblDescriptionExpense.setBounds(10, 177, 150, 14);
+		ExpenseDetails.add(lblDescriptionExpense);
+		
+		txtDescriptionExpense = new JTextField();
+		txtDescriptionExpense.setColumns(10);
+		txtDescriptionExpense.setBounds(10, 191, 310, 50);
+		ExpenseDetails.add(txtDescriptionExpense);
+		
+		JScrollPane scrollPaneExpenses = new JScrollPane();
+		scrollPaneExpenses.setBounds(352, 53, 662, 369);
+		Expenses.add(scrollPaneExpenses);
+		
+		expensesTable = new JTable(expensesTableModel);
+		scrollPaneExpenses.setViewportView(expensesTable);
+		
+		expensesTable.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				selectedExpense = expenses.get(expensesTable.getSelectedRow());
+				txtAmountExpense.setText(String.valueOf(selectedExpense.getAmount()));
+				txtDescriptionExpense.setText(selectedExpense.getDescription());
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
 
 	public App() {
 		InstanciateApp();
@@ -680,6 +824,7 @@ public class App extends JFrame {
 		AddProductGUI();
 		CustomerGUI();
 		PurchasesGUI();
+		ExpensesGUI();
 	}
 
 	public void homeButtonClicked() {
@@ -700,5 +845,12 @@ public class App extends JFrame {
 		CustomerController.resetFields(customerForm);
 		selectedCustomer = null;
 		customerTable.clearSelection();
+	}
+	
+	public void expenseDefaults() {
+		expenseForm = new AddExpenseVM(txtAmountExpense, txtDescriptionExpense);
+		ExpenseController.resetFields(expenseForm);
+		selectedExpense = null;
+		expensesTable.clearSelection();
 	}
 }

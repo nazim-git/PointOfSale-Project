@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -20,12 +21,15 @@ import dataModels.ProductModel;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
 import java.awt.Toolkit;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 
@@ -46,7 +50,7 @@ public class SaleInvoice extends JFrame {
 	private JLabel lblSaleInvoice, lblProductName, lblProductId, lblMeasuringUnit, lblUnitPrice;
 	private JComboBox cmbProductName, cmbProductID, cmbCustomerName;
 	private JTextField txtMeasuringUnit, txtUnitPrice;
-
+	
 	private JScrollPane scrollPane;
 	private JTable table;
 
@@ -64,10 +68,17 @@ public class SaleInvoice extends JFrame {
 	private InvoiceModel invoice;
 	private ArrayList<InvoiceItemModel> items;
 
-	String header[] = { "#", "Product", "Unit", "Unit Price", "Quantity", "Sub-Total" };
+	String header[] = { "Product", "Unit", "Unit Price", "Quantity", "Sub-Total" };
 
 	private JTextField txtQuantity;
 	private JTextField txtCustomerMobile;
+	private JTextField txtTotal;
+	private JTextField txtDiscountPercent;
+	private JTextField txtDiscountAmount;
+	private JTextField txtTotalToPay;
+	private JTextField txtReceived;
+	private JTextField txtChange;
+	private JButton btnCash;
 
 	public SaleInvoice() {
 		setMaximizedBounds(Frame.getScreenBounds());
@@ -97,7 +108,16 @@ public class SaleInvoice extends JFrame {
 
 		invoice.setInvoiceItems(items);
 
-		tableModel = new DefaultTableModel(header, 0);
+		tableModel = new DefaultTableModel(header, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		
+		selectedCustomer = customers.get(0);
+		invoice.setCustomerId(selectedCustomer.getId());
+		invoice.setCustomer(selectedCustomer.getName());
 	}
 
 	public void setUI() {
@@ -194,6 +214,36 @@ public class SaleInvoice extends JFrame {
 
 		table = new JTable(tableModel);
 		scrollPane.setViewportView(table);
+		
+		table.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseReleased(MouseEvent e) {
+		        int r = table.rowAtPoint(e.getPoint());
+		        if (r >= 0 && r < table.getRowCount()) {
+		            table.setRowSelectionInterval(r, r);
+		        } else {
+		            table.clearSelection();
+		        }
+
+		        int rowindex = table.getSelectedRow();
+		        if (rowindex < 0)
+		            return;
+		        if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
+		            JPopupMenu popup = new JPopupMenu();
+		            JMenuItem menuItem = new JMenuItem("Delete");
+		            menuItem.addActionListener( new ActionListener() {
+						
+						@Override
+						public void actionPerformed(ActionEvent arg0) {
+							invoice.getInvoiceItems().remove(rowindex);
+							InvoiceController.fillTableWithInvoiceItems(new AddItemVM(selectedProduct, Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal, txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
+						}
+					} );
+		            popup.add( menuItem );
+		            popup.show(e.getComponent(), e.getX(), e.getY());
+		        }
+		    }
+		});
 
 		JLabel lblQuantity = new JLabel("Quantity");
 		lblQuantity.setBounds(402, 65, 89, 14);
@@ -211,7 +261,8 @@ public class SaleInvoice extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				if (InvoiceController.validateQuantity(txtQuantity)) {
 					InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct,
-							Integer.parseInt(txtQuantity.getText()), invoice, tableModel));
+							Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal, txtDiscountPercent,
+							txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
 				}
 
 				for (InvoiceItemModel item : invoice.getInvoiceItems()) {
@@ -247,6 +298,90 @@ public class SaleInvoice extends JFrame {
 		cmbCustomerName.setMaximumRowCount(5);
 		cmbCustomerName.setBounds(530, 78, 241, 30);
 		contentPane.add(cmbCustomerName);
+
+		JLabel lblTotalAmount = new JLabel("Total Amount");
+		lblTotalAmount.setBounds(142, 433, 86, 14);
+		contentPane.add(lblTotalAmount);
+
+		JLabel lblDiscount = new JLabel("Discount %");
+		lblDiscount.setBounds(142, 458, 86, 14);
+		contentPane.add(lblDiscount);
+
+		JLabel lblDiscountAmount = new JLabel("Discount Amount");
+		lblDiscountAmount.setBounds(142, 483, 86, 14);
+		contentPane.add(lblDiscountAmount);
+
+		JLabel lblTotalToPay = new JLabel("Total To Pay");
+		lblTotalToPay.setBounds(142, 508, 86, 14);
+		contentPane.add(lblTotalToPay);
+
+		JLabel lblReceived = new JLabel("Received");
+		lblReceived.setBounds(142, 533, 86, 14);
+		contentPane.add(lblReceived);
+
+		JLabel lblChange = new JLabel("Change");
+		lblChange.setBounds(142, 558, 86, 14);
+		contentPane.add(lblChange);
+
+		txtTotal = new JTextField();
+		txtTotal.setEditable(false);
+		txtTotal.setText("0");
+		txtTotal.setBounds(238, 430, 120, 20);
+		contentPane.add(txtTotal);
+		txtTotal.setColumns(10);
+
+		txtDiscountPercent = new JTextField();
+		txtDiscountPercent.setText("0");
+		txtDiscountPercent.setBounds(238, 455, 120, 20);
+		contentPane.add(txtDiscountPercent);
+		txtDiscountPercent.setColumns(10);
+
+		txtDiscountAmount = new JTextField();
+		txtDiscountAmount.setEditable(false);
+		txtDiscountAmount.setText("0");
+		txtDiscountAmount.setBounds(238, 480, 120, 20);
+		contentPane.add(txtDiscountAmount);
+		txtDiscountAmount.setColumns(10);
+
+		txtTotalToPay = new JTextField();
+		txtTotalToPay.setEditable(false);
+		txtTotalToPay.setText("0");
+		txtTotalToPay.setBounds(238, 505, 120, 20);
+		contentPane.add(txtTotalToPay);
+		txtTotalToPay.setColumns(10);
+
+		txtReceived = new JTextField();
+		txtReceived.setText("0");
+		txtReceived.setBounds(238, 530, 120, 20);
+		contentPane.add(txtReceived);
+		txtReceived.setColumns(10);
+
+		txtChange = new JTextField();
+		txtChange.setEditable(false);
+		txtChange.setText("0");
+		txtChange.setBounds(238, 555, 120, 20);
+		contentPane.add(txtChange);
+		txtChange.setColumns(10);
+
+		JButton btnCalculate = new JButton("Calculate");
+		btnCalculate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				InvoiceController.calculate(new AddItemVM(invoice, txtTotal, txtDiscountPercent, txtDiscountAmount,
+						txtTotalToPay, txtReceived, txtChange));
+			}
+		});
+		btnCalculate.setBounds(269, 586, 89, 23);
+		contentPane.add(btnCalculate);
+		
+		btnCash = new JButton("Cash!");
+		btnCash.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				InvoiceController.cash(invoice);
+			}
+		});
+		btnCash.setBounds(368, 586, 89, 23);
+		contentPane.add(btnCash);
 		for (int i = 0; i < customers.size(); i++) {
 			cmbCustomerName.addItem(customers.get(i).getName());
 		}
@@ -258,6 +393,9 @@ public class SaleInvoice extends JFrame {
 
 				selectedCustomer = customers.get(cmbCustomerName.getSelectedIndex());
 				txtCustomerMobile.setText(selectedCustomer.getPhone());
+				
+				invoice.setCustomerId(selectedCustomer.getId());
+				invoice.setCustomer(selectedCustomer.getName());
 			}
 		});
 
@@ -269,4 +407,5 @@ public class SaleInvoice extends JFrame {
 		txtUnitPrice.setText(String.valueOf(selectedProduct.getSalePrice()));
 		txtMeasuringUnit.setText(selectedProduct.getUnit());
 	}
+	
 }
