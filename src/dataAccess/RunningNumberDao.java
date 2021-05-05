@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import dataModels.RunningNumber;
-import dataModels.UserModel;
+import dataModels.User;
 
 public class RunningNumberDao {
 	Connection con = DbConnection.getInstance();

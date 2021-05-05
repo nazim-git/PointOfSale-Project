@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import dataModels.CustomerModel;
 import dataModels.ProductModel;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.AddPurchaseVM;
 
 public class ProductDao {
@@ -118,7 +118,7 @@ public class ProductDao {
 
 	public void deleteCustomer(int id, Timestamp deletedAt) {
 		try {
-			String query = "UPDATE Products SET isDeleted = 1, deletedBy ='" + UserModel.Name + "', deletedAt = '"
+			String query = "UPDATE Products SET isDeleted = 1, deletedBy ='" + User.Name + "', deletedAt = '"
 					+ deletedAt + "' WHERE id = " + id;
 			pst = con.prepareStatement(query);
 

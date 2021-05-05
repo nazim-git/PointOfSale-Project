@@ -11,7 +11,7 @@ import Helpers.InputValidation;
 import dataAccess.ExpenseDao;
 import dataModels.CustomerModel;
 import dataModels.ExpenseModel;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.AddExpenseVM;
 
 public class ExpenseController {
@@ -39,7 +39,7 @@ public class ExpenseController {
 	public static void addNewExpense(AddExpenseVM expenseForm) {
 
 		ExpenseModel expense = new ExpenseModel(Float.parseFloat(expenseForm.txtAmountExpense.getText()),
-				expenseForm.txtDescriptionExpense.getText(), UserModel.Name, new Timestamp(new Date().getTime()));
+				expenseForm.txtDescriptionExpense.getText(), User.Name, new Timestamp(new Date().getTime()));
 
 		expenseDao.insertExpense(expense);
 

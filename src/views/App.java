@@ -3,16 +3,21 @@ package views;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import dataModels.CustomerModel;
 import dataModels.ExpenseModel;
+import dataModels.InvoiceModel;
 import dataModels.ProductModel;
 import dataModels.PurchasesModel;
+import dataModels.User;
 import dataModels.UserModel;
 import viewModels.AddCustomerVM;
 import viewModels.AddExpenseVM;
 import viewModels.AddProductVM;
 import viewModels.AddPurchaseVM;
+import viewModels.AddUserVM;
 
 import java.awt.CardLayout;
 import javax.swing.JLabel;
@@ -32,6 +37,8 @@ import controllers.CustomerController;
 import controllers.ExpenseController;
 import controllers.ProductController;
 import controllers.PurchasesController;
+import controllers.SalesController;
+import controllers.UserController;
 
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
@@ -40,18 +47,21 @@ import javax.swing.JTable;
 import javax.swing.JCheckBox;
 import javax.swing.table.TableModel;
 import javax.swing.JComboBox;
+import javax.swing.JPasswordField;
 
 public class App extends JFrame {
 
 	private JPanel contentPane;
-
 	private JLayeredPane layeredPane;
 
 	// Models
+	ArrayList<JFrame> invoiceWindows = new ArrayList<JFrame>();
 	private ArrayList<ProductModel> products;
 	private ArrayList<CustomerModel> customers;
 	private ArrayList<PurchasesModel> purchases;
 	private ArrayList<ExpenseModel> expenses;
+	private ArrayList<UserModel> users;
+	private ArrayList<InvoiceModel> sales;
 
 	// Home
 	JPanel Home;
@@ -78,17 +88,33 @@ public class App extends JFrame {
 	private AddPurchaseVM purchaseForm;
 	private JComboBox cmbProductsPurchases;
 
-	//Expenses
+	// Expenses
 	private JPanel Expenses;
 	private AddExpenseVM expenseForm;
 	private JTextField txtAmountExpense;
 	private JTextField txtDescriptionExpense;
 	private JTable expensesTable;
 	private ExpenseModel selectedExpense;
-	
+
 	// Other
-	private DefaultTableModel productsTableModel, customersTableModel, purchasesTableModel,expensesTableModel;
+	private DefaultTableModel productsTableModel, customersTableModel, purchasesTableModel, expensesTableModel,
+			userTableModel,salesTableModel;
+
+	// Users
+	JPanel Users;
+	private JTextField txtUserId;
+	private JTextField txtNameUser;
+	private JTextField txtUsername;
+	private JPasswordField txtPassword;
+	private JTable usersTable;
+	private UserModel selectedUser;
+	private AddUserVM userForm;
+	private JCheckBox chkboxIsAdmin;
+	private JTable salesTable;
 	
+	//Sasles
+	JPanel Sales;
+	private JTextField txtSearchSales;
 
 	public void switchPanels(JPanel panel) {
 		layeredPane.removeAll();
@@ -151,8 +177,11 @@ public class App extends JFrame {
 		JButton btnLogoutHome = new JButton("Logout!");
 		btnLogoutHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				UserModel.logout();
+				User.logout();
 				dispose();
+				for (int i = 0; i < invoiceWindows.size(); i++) {
+					invoiceWindows.get(i).dispose();
+				}
 				new Login();
 			}
 		});
@@ -164,7 +193,19 @@ public class App extends JFrame {
 		lblActiveUserNameHome.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 		lblActiveUserNameHome.setBounds(135, 11, 210, 22);
 		UserDetailsPanelHome.add(lblActiveUserNameHome);
-		lblActiveUserNameHome.setText(UserModel.Name);
+		lblActiveUserNameHome.setText(User.Name);
+
+		JButton btnAddUser = new JButton("Users");
+		btnAddUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switchPanels(Users);
+			}
+		});
+		btnAddUser.setBounds(25, 33, 100, 23);
+		UserDetailsPanelHome.add(btnAddUser);
+		if (!User.IsAdmin) {
+			btnAddUser.setVisible(false);
+		}
 
 		layeredPane = new JLayeredPane();
 		layeredPane.setBounds(10, 77, 1024, 433);
@@ -201,7 +242,7 @@ public class App extends JFrame {
 			}
 		};
 		purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
-		
+
 		String expensesHeader[] = { "Amount", "Description", "By" };
 
 		expensesTableModel = new DefaultTableModel(expensesHeader, 0) {
@@ -211,6 +252,26 @@ public class App extends JFrame {
 			}
 		};
 		expenses = ExpenseController.fillTableWithExpenses(expenses, expensesTableModel);
+
+		String usersHeader[] = { "Name", "Username", "IsAdmin" };
+
+		userTableModel = new DefaultTableModel(usersHeader, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		users = UserController.fillTableWithUsers(users, userTableModel);
+		
+		String salesHeader[] = { "Invoice Number", "Customer", "Discount Percent", "Total" };
+
+		salesTableModel = new DefaultTableModel(salesHeader, 0) {
+			public boolean isCellEditable(int row, int column) {
+				// all cells false
+				return false;
+			}
+		};
+		sales = SalesController.fillTableWithSales(sales, salesTableModel);
 	}
 
 	public void HomeGUI() {
@@ -229,7 +290,8 @@ public class App extends JFrame {
 		Navigation.add(btnSaleInvoiceHome);
 		btnSaleInvoiceHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				new SaleInvoice();
+				JFrame frame = new SaleInvoice();
+				invoiceWindows.add(frame);
 			}
 		});
 
@@ -259,7 +321,7 @@ public class App extends JFrame {
 		});
 		btnPurchasesHome.setBounds(0, 144, 200, 50);
 		Navigation.add(btnPurchasesHome);
-		
+
 		JButton btnExpensesHome = new JButton("Expenses");
 		btnExpensesHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -268,6 +330,15 @@ public class App extends JFrame {
 		});
 		btnExpensesHome.setBounds(0, 192, 200, 50);
 		Navigation.add(btnExpensesHome);
+
+		JButton btnAllSalesHome = new JButton("All Sales");
+		btnAllSalesHome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switchPanels(Sales);
+			}
+		});
+		btnAllSalesHome.setBounds(0, 240, 200, 50);
+		Navigation.add(btnAllSalesHome);
 
 		JLabel lblHome = new JLabel("Home");
 		lblHome.setBounds(935, 11, 79, 31);
@@ -618,7 +689,8 @@ public class App extends JFrame {
 		JButton btnPurchase = new JButton("Purchase");
 		btnPurchase.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				purchaseForm = new AddPurchaseVM(cmbProductsPurchases,txtSupplierPurchase, txtPurchasePricePurchase, txtSalePricePurchase, txtUnitPurchase,  txtQuantityPurchase);
+				purchaseForm = new AddPurchaseVM(cmbProductsPurchases, txtSupplierPurchase, txtPurchasePricePurchase,
+						txtSalePricePurchase, txtUnitPurchase, txtQuantityPurchase);
 				if (PurchasesController.validateAddPurchaseInput(purchaseForm)) {
 					PurchasesController.addNewPurchase(purchaseForm);
 					purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
@@ -687,13 +759,13 @@ public class App extends JFrame {
 			cmbProductsPurchases.addItem(products.get(i).getTitle());
 		}
 		cmbProductsPurchases.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				txtUnitPurchase.setText(products.get(cmbProductsPurchases.getSelectedIndex()).getUnit());
 			}
 		});
-		
+
 		JScrollPane scrollPanePurchases = new JScrollPane();
 		scrollPanePurchases.setBounds(352, 53, 662, 369);
 		Purchases.add(scrollPanePurchases);
@@ -701,27 +773,27 @@ public class App extends JFrame {
 		purchasesTable = new JTable(purchasesTableModel);
 		scrollPanePurchases.setViewportView(purchasesTable);
 	}
-	
+
 	public void ExpensesGUI() {
 		Expenses = new JPanel();
 		Expenses.setLayout(null);
 		layeredPane.add(Expenses, "name_2466418055850600");
-		
+
 		JLabel lblSelectedExpense = new JLabel("Selected Expense");
 		lblSelectedExpense.setFont(new Font("Calibri", Font.PLAIN, 25));
 		lblSelectedExpense.setBounds(10, 10, 180, 32);
 		Expenses.add(lblSelectedExpense);
-		
+
 		JLabel lblAllExpenses = new JLabel("All Expenses");
 		lblAllExpenses.setFont(new Font("Calibri", Font.PLAIN, 25));
 		lblAllExpenses.setBounds(352, 10, 135, 32);
 		Expenses.add(lblAllExpenses);
-		
+
 		JPanel ExpenseDetails = new JPanel();
 		ExpenseDetails.setLayout(null);
 		ExpenseDetails.setBounds(10, 53, 332, 369);
 		Expenses.add(ExpenseDetails);
-		
+
 		JButton btnDeleteExpense = new JButton("Delete!");
 		btnDeleteExpense.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -732,8 +804,7 @@ public class App extends JFrame {
 				} else {
 					boolean isDeleted = ExpenseController.deleteExpense(selectedExpense);
 					if (isDeleted) {
-						JOptionPane.showMessageDialog(null,
-								"Expense deleted successfully!");
+						JOptionPane.showMessageDialog(null, "Expense deleted successfully!");
 						expenseDefaults();
 						expenses = ExpenseController.fillTableWithExpenses(expenses, expensesTableModel);
 					}
@@ -743,12 +814,12 @@ public class App extends JFrame {
 		});
 		btnDeleteExpense.setBounds(172, 98, 150, 23);
 		ExpenseDetails.add(btnDeleteExpense);
-		
+
 		JButton btnAddExpense = new JButton("Add!");
 		btnAddExpense.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				expenseForm = new AddExpenseVM(txtAmountExpense, txtDescriptionExpense);
-				
+
 				if (ExpenseController.validateAddExpenseInput(expenseForm)) {
 					ExpenseController.addNewExpense(expenseForm);
 					expenses = ExpenseController.fillTableWithExpenses(expenses, expensesTableModel);
@@ -757,63 +828,262 @@ public class App extends JFrame {
 		});
 		btnAddExpense.setBounds(10, 98, 152, 23);
 		ExpenseDetails.add(btnAddExpense);
-		
+
 		JLabel lblAmountExpense = new JLabel("Amount");
 		lblAmountExpense.setBounds(10, 132, 150, 14);
 		ExpenseDetails.add(lblAmountExpense);
-		
+
 		txtAmountExpense = new JTextField();
 		txtAmountExpense.setColumns(10);
 		txtAmountExpense.setBounds(10, 146, 150, 20);
 		ExpenseDetails.add(txtAmountExpense);
-		
+
 		JLabel lblDescriptionExpense = new JLabel("Description");
 		lblDescriptionExpense.setBounds(10, 177, 150, 14);
 		ExpenseDetails.add(lblDescriptionExpense);
-		
+
 		txtDescriptionExpense = new JTextField();
 		txtDescriptionExpense.setColumns(10);
 		txtDescriptionExpense.setBounds(10, 191, 310, 50);
 		ExpenseDetails.add(txtDescriptionExpense);
-		
+
 		JScrollPane scrollPaneExpenses = new JScrollPane();
 		scrollPaneExpenses.setBounds(352, 53, 662, 369);
 		Expenses.add(scrollPaneExpenses);
-		
+
 		expensesTable = new JTable(expensesTableModel);
 		scrollPaneExpenses.setViewportView(expensesTable);
-		
+
 		expensesTable.addMouseListener(new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mousePressed(MouseEvent e) {
 				selectedExpense = expenses.get(expensesTable.getSelectedRow());
 				txtAmountExpense.setText(String.valueOf(selectedExpense.getAmount()));
 				txtDescriptionExpense.setText(selectedExpense.getDescription());
 			}
-			
+
 			@Override
 			public void mouseExited(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
+			}
+		});
+	}
+
+	public void UsersGUI() {
+		Users = new JPanel();
+		Users.setLayout(null);
+		layeredPane.add(Users, "name_2603488046786400");
+
+		JLabel lblSelectedUser = new JLabel("Selected User");
+		lblSelectedUser.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblSelectedUser.setBounds(10, 10, 200, 32);
+		Users.add(lblSelectedUser);
+
+		JLabel lblAllUsers = new JLabel("All Users");
+		lblAllUsers.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblAllUsers.setBounds(352, 10, 160, 32);
+		Users.add(lblAllUsers);
+
+		JPanel UserDetails = new JPanel();
+		UserDetails.setLayout(null);
+		UserDetails.setBounds(10, 53, 332, 369);
+		Users.add(UserDetails);
+
+		JButton btnUpdateUser = new JButton("Update!");
+		btnUpdateUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				userForm = new AddUserVM(txtUserId, txtNameUser, txtUsername, txtPassword, chkboxIsAdmin);
+				if (selectedUser == null && usersTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No User selected to update!");
+				} else {
+					boolean isUpdated = UserController.updateUser(selectedUser, userForm);
+					if (isUpdated) {
+						JOptionPane.showMessageDialog(null,
+								"User '" + selectedUser.getName() + "' updated successfully!");
+						userDefaults();
+						users = UserController.fillTableWithUsers(users, userTableModel);
+					}
+				}
+			}
+		});
+		btnUpdateUser.setBounds(168, 143, 150, 23);
+		UserDetails.add(btnUpdateUser);
+
+		JButton btnDeleteUser = new JButton("Delete!");
+		btnDeleteUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				userForm = new AddUserVM(txtUserId, txtNameUser, txtUsername, txtPassword, chkboxIsAdmin);
+
+				if (selectedUser == null && usersTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No User selected to delete!");
+				} else {
+					boolean isDeleted = UserController.deleteUser(selectedUser);
+					if (isDeleted) {
+						JOptionPane.showMessageDialog(null, "User deleted successfully!");
+						userDefaults();
+						users = UserController.fillTableWithUsers(users, userTableModel);
+					}
+
+				}
+			}
+		});
+		btnDeleteUser.setBounds(168, 94, 150, 23);
+		UserDetails.add(btnDeleteUser);
+
+		JButton btnAddUser = new JButton("Add!");
+		btnAddUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				userForm = new AddUserVM(txtUserId, txtNameUser, txtUsername, txtPassword, chkboxIsAdmin);
+
+				if (UserController.validateAddUserInput(userForm)) {
+					UserController.addNewUser(userForm);
+					users = UserController.fillTableWithUsers(users, userTableModel);
+				}
+			}
+		});
+		btnAddUser.setBounds(10, 94, 152, 23);
+		UserDetails.add(btnAddUser);
+
+		JLabel lblIdCustomer = new JLabel("ID");
+		lblIdCustomer.setBounds(10, 128, 150, 14);
+		UserDetails.add(lblIdCustomer);
+
+		txtUserId = new JTextField();
+		txtUserId.setEditable(false);
+		txtUserId.setColumns(10);
+		txtUserId.setBounds(10, 144, 150, 20);
+		UserDetails.add(txtUserId);
+
+		JLabel lblUserName = new JLabel("Name");
+		lblUserName.setBounds(10, 175, 150, 14);
+		UserDetails.add(lblUserName);
+
+		txtNameUser = new JTextField();
+		txtNameUser.setColumns(10);
+		txtNameUser.setBounds(10, 189, 150, 20);
+		UserDetails.add(txtNameUser);
+
+		JLabel lblUsernameUser = new JLabel("Username");
+		lblUsernameUser.setBounds(170, 175, 150, 14);
+		UserDetails.add(lblUsernameUser);
+
+		txtUsername = new JTextField();
+		txtUsername.setColumns(10);
+		txtUsername.setBounds(170, 189, 150, 20);
+		UserDetails.add(txtUsername);
+
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setBounds(12, 220, 150, 14);
+		UserDetails.add(lblPassword);
+
+		txtPassword = new JPasswordField();
+		txtPassword.setBounds(10, 236, 150, 20);
+		UserDetails.add(txtPassword);
+
+		chkboxIsAdmin = new JCheckBox("IsAdmin");
+		chkboxIsAdmin.setBounds(168, 235, 97, 23);
+		UserDetails.add(chkboxIsAdmin);
+
+		JScrollPane scrollPaneUsers = new JScrollPane();
+		scrollPaneUsers.setBounds(352, 53, 662, 369);
+		Users.add(scrollPaneUsers);
+
+		usersTable = new JTable(userTableModel);
+		scrollPaneUsers.setViewportView(usersTable);
+
+		usersTable.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				selectedUser = users.get(usersTable.getSelectedRow());
+				txtUserId.setText(String.valueOf(selectedUser.getID()));
+				txtNameUser.setText(selectedUser.getName());
+				txtUsername.setText(selectedUser.getUsername());
+				chkboxIsAdmin.setSelected(selectedUser.isIsAdmin());
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+	}
+
+	public void SalesGUI() {
+		Sales = new JPanel();
+		Sales.setLayout(null);
+		layeredPane.add(Sales, "name_2635393860615400");
+		
+		JLabel lblSalesHistory = new JLabel("Sales History");
+		lblSalesHistory.setFont(new Font("Calibri", Font.PLAIN, 25));
+		lblSalesHistory.setBounds(10, 10, 199, 32);
+		Sales.add(lblSalesHistory);
+		
+		JScrollPane scrollPaneSales = new JScrollPane();
+		scrollPaneSales.setBounds(10, 53, 1004, 369);
+		Sales.add(scrollPaneSales);
+		
+		salesTable = new JTable(salesTableModel);
+		scrollPaneSales.setViewportView(salesTable);
+		
+		txtSearchSales = new JTextField();
+		txtSearchSales.setBounds(814, 19, 200, 20);
+		Sales.add(txtSearchSales);
+		txtSearchSales.setColumns(10);
+		
+		txtSearchSales.getDocument().addDocumentListener(new DocumentListener() {
+			
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				SalesController.filterSales(txtSearchSales, sales, salesTableModel);
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				SalesController.filterSales(txtSearchSales, sales, salesTableModel);
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
 			}
 		});
 	}
@@ -825,6 +1095,8 @@ public class App extends JFrame {
 		CustomerGUI();
 		PurchasesGUI();
 		ExpensesGUI();
+		UsersGUI();
+		SalesGUI();
 	}
 
 	public void homeButtonClicked() {
@@ -846,11 +1118,19 @@ public class App extends JFrame {
 		selectedCustomer = null;
 		customerTable.clearSelection();
 	}
-	
+
 	public void expenseDefaults() {
 		expenseForm = new AddExpenseVM(txtAmountExpense, txtDescriptionExpense);
 		ExpenseController.resetFields(expenseForm);
 		selectedExpense = null;
 		expensesTable.clearSelection();
 	}
+
+	public void userDefaults() {
+		userForm = new AddUserVM(txtUserId, txtNameUser, txtUsername, txtPassword, chkboxIsAdmin);
+		UserController.resetFields(userForm);
+		selectedUser = null;
+		usersTable.clearSelection();
+	}
+
 }

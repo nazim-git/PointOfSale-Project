@@ -16,7 +16,7 @@ import javax.swing.border.TitledBorder;
 import Helpers.Frame;
 import Helpers.InputValidation;
 import dataAccess.UserDao;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.Credentials;
 
 import javax.swing.UIManager;
@@ -42,7 +42,7 @@ public class Login extends JFrame {
 	public void UI() {
 		setTitle("Login-Point Of Sale");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(550,50,699,368);
+		setBounds(550,50,508,268);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -51,7 +51,7 @@ public class Login extends JFrame {
 
 		panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(10, 11, 664, 311);
+		panel.setBounds(10, 11, 482, 216);
 		contentPane.add(panel);
 
 		lblLogin = new JLabel("Login");
@@ -62,21 +62,21 @@ public class Login extends JFrame {
 
 		lblUsername = new JLabel("Username");
 		lblUsername.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		lblUsername.setBounds(206, 101, 90, 20);
+		lblUsername.setBounds(20, 54, 90, 20);
 		panel.add(lblUsername);
 
 		lblPassword = new JLabel("Password");
 		lblPassword.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		lblPassword.setBounds(206, 163, 90, 20);
+		lblPassword.setBounds(20, 116, 90, 20);
 		panel.add(lblPassword);
 
 		usernameField = new JTextField();
 		usernameField.setColumns(10);
-		usernameField.setBounds(206, 132, 200, 20);
+		usernameField.setBounds(30, 85, 200, 20);
 		panel.add(usernameField);
 
 		passwordField = new JPasswordField();
-		passwordField.setBounds(206, 194, 200, 20);
+		passwordField.setBounds(30, 147, 200, 20);
 		panel.add(passwordField);
 
 		btnLogin = new JButton("Login!");
@@ -85,12 +85,13 @@ public class Login extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(rootPane, "Fill all the Fields!!!");
+					usernameField.requestFocus();
 				} else {
 					Credentials credentials = new Credentials(usernameField.getText(), passwordField.getText());
 
 					userDao.login(credentials);
 
-					if (UserModel.ID != 0) {
+					if (User.ID != 0) {
 						dispose();
 						new App();
 					} else {
@@ -99,7 +100,7 @@ public class Login extends JFrame {
 				}
 			}
 		});
-		btnLogin.setBounds(270, 235, 90, 23);
+		btnLogin.setBounds(140, 178, 90, 23);
 		panel.add(btnLogin);
 
 		JPanel LogoPanel = new JPanel();
@@ -107,7 +108,7 @@ public class Login extends JFrame {
 		LogoPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "",
 
 				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		LogoPanel.setBounds(422, 11, 232, 95);
+		LogoPanel.setBounds(240, 11, 232, 95);
 		panel.add(LogoPanel);
 
 		JLabel lblPointOfSale = new JLabel("Point Of Sale");

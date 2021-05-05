@@ -11,7 +11,7 @@ import dataAccess.ProductDao;
 import dataAccess.PurchasesDao;
 import dataModels.ProductModel;
 import dataModels.PurchasesModel;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.AddProductVM;
 import viewModels.AddPurchaseVM;
 
@@ -67,7 +67,7 @@ public class PurchasesController {
 				purchaseForm.txtSupplierPurchases.getText(),
 				Float.parseFloat(purchaseForm.txtPurchasePricePurchases.getText()),
 				Float.parseFloat(purchaseForm.txtSalePricePurchases.getText()), purchaseForm.txtUnitPurchases.getText(),
-				Integer.parseInt(purchaseForm.txtQuantityPurchases.getText()), UserModel.Name,
+				Integer.parseInt(purchaseForm.txtQuantityPurchases.getText()), User.Name,
 				new Timestamp(new Date().getTime()));
 		purchasesDao.insertPurchase(purchase);
 		productDao.updateStock(purchaseForm);

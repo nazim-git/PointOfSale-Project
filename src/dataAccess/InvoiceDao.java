@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+
+import dataModels.CustomerModel;
 import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
 
@@ -83,5 +85,42 @@ public class InvoiceDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public ArrayList<InvoiceModel> getInvoices() {
+		ArrayList<InvoiceModel> sales = null;
+		try {
+			String query = "select * from Invoices where isDeleted = 0";
+			pst = con.prepareStatement(query);
+			rs = pst.executeQuery();
+
+			sales = new ArrayList<InvoiceModel>();
+			InvoiceModel sale = new InvoiceModel();
+
+			while (rs.next()) {
+
+				sale.setId(rs.getInt("id"));
+				sale.setInvoiceNumber(rs.getString("invoiceNumber"));
+				sale.setCustomerId(rs.getInt("customerId"));
+				sale.setCustomer(rs.getString("customer"));
+				sale.setTotal(rs.getFloat("total"));
+				sale.setDiscountPercent(rs.getFloat("discountPercent"));
+				sale.setDiscountAmount(rs.getFloat("discountAmount"));
+				sale.setTotalToPay(rs.getFloat("totalToPay"));
+				sale.setReceived(rs.getFloat("received"));
+				sale.setChange(rs.getFloat("change"));
+				sale.setCreatedBy(rs.getString("createdBy"));
+				sale.setCreatedAt(rs.getTimestamp("createdAt"));
+				sale.setDeleted(rs.getBoolean("isDeleted"));
+				sale.setDeletedBy(rs.getString("deletedBy"));
+				sale.setDeletedAt(rs.getTimestamp("deletedAt"));
+
+				sales.add(sale);
+				sale = new InvoiceModel();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return sales;
 	}
 }

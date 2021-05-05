@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import Helpers.InputValidation;
 import dataAccess.CustomerDao;
 import dataModels.CustomerModel;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.AddCustomerVM;
 
 public class CustomerController {
@@ -43,7 +43,7 @@ public class CustomerController {
 	public static void addNewCustomer(AddCustomerVM customerForm) {
 		if (validateCustomer(customerForm)) {
 			CustomerModel customer = new CustomerModel(customerForm.txtCustomerName.getText(),
-					customerForm.txtCustomerPhone.getText(), UserModel.Name,
+					customerForm.txtCustomerPhone.getText(), User.Name,
 					new Timestamp(new Date().getTime()));
 
 			customerDao.insertCustomer(customer);

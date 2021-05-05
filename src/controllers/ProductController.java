@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import dataAccess.ProductDao;
 import dataModels.ProductModel;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.AddProductVM;
 
 public class ProductController {
@@ -54,7 +54,7 @@ public class ProductController {
 
 	public static void addNewProduct(AddProductVM productForm) {
 		if (validateProduct(productForm)) {
-			ProductModel product = new ProductModel(productForm.txtTitle.getText(),productForm.txtDescription.getText(),productForm.txtUnit.getText(), UserModel.Name,
+			ProductModel product = new ProductModel(productForm.txtTitle.getText(),productForm.txtDescription.getText(),productForm.txtUnit.getText(), User.Name,
 					new Timestamp(new Date().getTime()), productForm.cbStatus.isSelected());
 			productDao.insertProduct(product);
 			JOptionPane.showMessageDialog(null, "Product Added Successfully!");

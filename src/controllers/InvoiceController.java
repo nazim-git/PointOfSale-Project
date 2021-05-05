@@ -14,7 +14,7 @@ import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
 import dataModels.ProductModel;
 import dataModels.RunningNumber;
-import dataModels.UserModel;
+import dataModels.User;
 import viewModels.AddItemVM;
 
 public class InvoiceController {
@@ -145,11 +145,10 @@ public class InvoiceController {
 		}
 		calculate(model);
 	}
-
 	
 	public static void cash(InvoiceModel invoice) {
 		invoice .setInvoiceNumber(generateInvoiceNumber());
-		invoice.setCreatedBy(UserModel.Name);
+		invoice.setCreatedBy(User.Name);
 		invoice.setCreatedAt(new Timestamp(new Date().getTime()));
 		
 		invoiceDao.insertInvoice(invoice);

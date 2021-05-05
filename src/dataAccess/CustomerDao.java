@@ -8,8 +8,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import dataModels.CustomerModel;
-import dataModels.ProductModel;
-import dataModels.UserModel;
+import dataModels.User;
 
 public class CustomerDao {
 	Connection con = DbConnection.getInstance();
@@ -94,7 +93,7 @@ public class CustomerDao {
 
 	public void deleteCustomer(int id, Timestamp deletedAt) {
 		try {
-			String query = "UPDATE Customers SET isDeleted = 1, deletedBy ='" + UserModel.Name + "', deletedAt = '"
+			String query = "UPDATE Customers SET isDeleted = 1, deletedBy ='" + User.Name + "', deletedAt = '"
 					+ deletedAt + "' WHERE id = " + id;
 			pst = con.prepareStatement(query);
 

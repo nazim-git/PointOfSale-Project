@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 import dataModels.CustomerModel;
 import dataModels.ExpenseModel;
-import dataModels.UserModel;
+import dataModels.User;
 
 public class ExpenseDao {
 	Connection con = DbConnection.getInstance();
@@ -65,7 +65,7 @@ public class ExpenseDao {
 
 	public void deleteExpense(int id, Timestamp deletedAt) {
 		try {
-			String query = "UPDATE Expenses SET isDeleted = 1, deletedBy ='" + UserModel.Name + "', deletedAt = '"
+			String query = "UPDATE Expenses SET isDeleted = 1, deletedBy ='" + User.Name + "', deletedAt = '"
 					+ deletedAt + "' WHERE id = " + id;
 			pst = con.prepareStatement(query);
 
