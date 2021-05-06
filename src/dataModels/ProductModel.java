@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 public class ProductModel {
-	private int id;
 	private String title;
 	private String description;
 	private String unit;
@@ -22,31 +21,27 @@ public class ProductModel {
 		super();
 	}
 
-	public ProductModel(String title, String description, String unit, String createdBy, Timestamp createdAt, boolean status) {
+	public ProductModel(String title, String description, String unit, float salePrice, String createdBy,
+			Timestamp createdAt, boolean status) {
 		super();
-		this.title=title;
-		this.description=description;
-		this.unit=unit;
-		this.createdBy=createdBy;
-		this.createdAt=createdAt;
-		this.status=status;
+		this.title = title;
+		this.description = description;
+		this.unit = unit;
+		this.createdBy = createdBy;
+		this.createdAt = createdAt;
+		this.status = status;
+		this.salePrice = salePrice;
 	}
 
-	public ProductModel(String title, String description, String unit, boolean status) {
+	public ProductModel(String title, String description, String unit, boolean status, float salePrice) {
 		super();
-		this.title=title;
-		this.description=description;
-		this.unit=unit;
-		this.status=status;
+		this.title = title;
+		this.description = description;
+		this.unit = unit;
+		this.status = status;
+		this.salePrice = salePrice;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public String getTitle() {
 		return title;

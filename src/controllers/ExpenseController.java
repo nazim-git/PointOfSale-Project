@@ -27,7 +27,7 @@ public class ExpenseController {
 			JOptionPane.showMessageDialog(null, "Expense Description can't be Empty!");
 			expenseForm.txtDescriptionExpense.requestFocus();
 			return false;
-		} else if (!InputValidation.validateNumbers(expenseForm.txtAmountExpense.getText())) {
+		} else if (!InputValidation.validateDecimal(expenseForm.txtAmountExpense.getText())) {
 			JOptionPane.showMessageDialog(null, "Expense Amount must be Numeric only!");
 			expenseForm.txtAmountExpense.requestFocus();
 			return false;

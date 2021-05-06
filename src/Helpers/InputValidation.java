@@ -34,4 +34,14 @@ public class InputValidation {
         return pat.matcher(input).matches(); 
     } 
 
+	public static boolean validateDecimal(String input) 
+    { 
+		String regex = "^[1-9]\\d*(\\.\\d+)?$";
+                              
+        Pattern pat = Pattern.compile(regex); 
+        if (input == null) 
+            return false; 
+        return pat.matcher(input).matches(); 
+    } 
+	
 }

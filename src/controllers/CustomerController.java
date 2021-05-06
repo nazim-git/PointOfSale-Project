@@ -35,7 +35,6 @@ public class CustomerController {
 	}
 
 	public static void resetFields(AddCustomerVM customerForm) {
-		customerForm.txtIdCustomer.setText(null);
 		customerForm.txtCustomerName.setText(null);
 		customerForm.txtCustomerPhone.setText(null);
 	}
@@ -43,8 +42,7 @@ public class CustomerController {
 	public static void addNewCustomer(AddCustomerVM customerForm) {
 		if (validateCustomer(customerForm)) {
 			CustomerModel customer = new CustomerModel(customerForm.txtCustomerName.getText(),
-					customerForm.txtCustomerPhone.getText(), User.Name,
-					new Timestamp(new Date().getTime()));
+					customerForm.txtCustomerPhone.getText(), User.Username, new Timestamp(new Date().getTime()));
 
 			customerDao.insertCustomer(customer);
 
@@ -72,7 +70,7 @@ public class CustomerController {
 
 		for (int i = 0; i < customers.size(); i++) {
 
-			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone()};
+			Object[] object = { customers.get(i).getName(), customers.get(i).getPhone() };
 			customersTableModel.addRow(object);
 		}
 		return customers;
@@ -81,7 +79,7 @@ public class CustomerController {
 	public static boolean deleteCustomer(CustomerModel customer) {
 		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			customerDao.deleteCustomer(customer.getId(), new Timestamp(new Date().getTime()));
+			customerDao.deleteCustomer(customer.getPhone(), new Timestamp(new Date().getTime()));
 			return true;
 		} else {
 			return false;
@@ -92,13 +90,13 @@ public class CustomerController {
 	public static boolean updateCustomer(CustomerModel selectedCustomer, AddCustomerVM customerForm) {
 		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			if (validateCustomer(customerForm) || selectedCustomer.getPhone().equals(customerForm.txtCustomerPhone.getText())) {
+			if (validateCustomer(customerForm)
+					|| selectedCustomer.getPhone().equals(customerForm.txtCustomerPhone.getText())) {
 				CustomerModel newDetails = new CustomerModel(customerForm.txtCustomerName.getText(),
 						customerForm.txtCustomerPhone.getText());
-				customerDao.updateCustomer(selectedCustomer.getId(), newDetails);
+				customerDao.updateCustomer(selectedCustomer.getPhone(), newDetails);
 				return true;
-			}
-			else {
+			} else {
 				JOptionPane.showMessageDialog(null, "Customer with given Phone already exists!");
 				return false;
 			}

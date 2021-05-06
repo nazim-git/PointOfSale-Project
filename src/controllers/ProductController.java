@@ -6,6 +6,8 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
+import Helpers.InputValidation;
 import dataAccess.ProductDao;
 import dataModels.ProductModel;
 import dataModels.User;
@@ -22,9 +24,9 @@ public class ProductController {
 
 		for (int i = 0; i < products.size(); i++) {
 
-			Object[] object = { products.get(i).getTitle(),	products.get(i).getPurchasePrice(), 
-					products.get(i).getSalePrice(), products.get(i).getUnit(),
-					products.get(i).getStock(), products.get(i).getStatus() };
+			Object[] object = { products.get(i).getTitle(), products.get(i).getPurchasePrice(),
+					products.get(i).getSalePrice(), products.get(i).getUnit(), products.get(i).getStock(),
+					products.get(i).getStatus() };
 			productsTableModel.addRow(object);
 		}
 		return products;
@@ -39,23 +41,33 @@ public class ProductController {
 			JOptionPane.showMessageDialog(null, "Product Unit can't be Empty!");
 			productForm.txtUnit.requestFocus();
 			return false;
+		} else if (productForm.txtSalePrice.getText().isEmpty()) {
+			JOptionPane.showMessageDialog(null, "Sale Price can't be Empty!");
+			productForm.txtSalePrice.requestFocus();
+			return false;
+		} else if (!InputValidation.validateDecimal(productForm.txtSalePrice.getText())) {
+			JOptionPane.showMessageDialog(null, "Sale Price must be numeric!");
+			productForm.txtSalePrice.requestFocus();
+			return false;
 		} else {
 			return true;
 		}
 	}
 
 	public static void resetFields(AddProductVM productForm) {
-		productForm.txtId.setText(null);
 		productForm.txtTitle.setText(null);
 		productForm.txtUnit.setText(null);
 		productForm.cbStatus.setSelected(true);
 		productForm.txtDescription.setText(null);
+		productForm.txtSalePrice.setText(null);
 	}
 
 	public static void addNewProduct(AddProductVM productForm) {
 		if (validateProduct(productForm)) {
-			ProductModel product = new ProductModel(productForm.txtTitle.getText(),productForm.txtDescription.getText(),productForm.txtUnit.getText(), User.Name,
-					new Timestamp(new Date().getTime()), productForm.cbStatus.isSelected());
+			ProductModel product = new ProductModel(productForm.txtTitle.getText(),
+					productForm.txtDescription.getText(), productForm.txtUnit.getText(),
+					Float.parseFloat(productForm.txtSalePrice.getText()), User.Username, new Timestamp(new Date().getTime()),
+					productForm.cbStatus.isSelected());
 			productDao.insertProduct(product);
 			JOptionPane.showMessageDialog(null, "Product Added Successfully!");
 			resetFields(productForm);
@@ -73,10 +85,10 @@ public class ProductController {
 		}
 	}
 
-	public static boolean deleteCustomer(ProductModel selectedProduct) {
+	public static boolean deleteProduct(ProductModel selectedProduct) {
 		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			productDao.deleteCustomer(selectedProduct.getId(), new Timestamp(new Date().getTime()));
+			productDao.deleteCustomer(selectedProduct.getTitle(), new Timestamp(new Date().getTime()));
 			return true;
 		} else {
 			return false;
@@ -88,13 +100,11 @@ public class ProductController {
 				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			if (validateProduct(productForm) || selectedProduct.getTitle().equals(productForm.txtTitle.getText())) {
 				ProductModel newDetails = new ProductModel(productForm.txtTitle.getText(),
-														   productForm.txtDescription.getText(),
-														   productForm.txtUnit.getText(),
-														   productForm.cbStatus.isSelected());
-				productDao.updateProduct(selectedProduct.getId(), newDetails);
+						productForm.txtDescription.getText(), productForm.txtUnit.getText(), 
+						productForm.cbStatus.isSelected(),Float.parseFloat(productForm.txtSalePrice.getText()));
+				productDao.updateProduct(selectedProduct.getTitle(), newDetails);
 				return true;
-			}
-			else {
+			} else {
 				JOptionPane.showMessageDialog(null, "Product with given title already exists!");
 				return false;
 			}

@@ -17,8 +17,7 @@ public class CustomerDao {
 
 	public void insertCustomer(CustomerModel customer) {
 		try {
-			String query = "insert into Customers" + "(name,phone,createdBy,createdAt) values"
-					+ "(?,?,?,?)";
+			String query = "insert into Customers" + "(name,phone,createdBy,createdAt) values" + "(?,?,?,?)";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, customer.getName());
@@ -45,14 +44,13 @@ public class CustomerDao {
 			while (rs.next()) {
 				customer = new CustomerModel();
 
-				customer.setId(rs.getInt(1));
-				customer.setName(rs.getString(2));
-				customer.setPhone(rs.getString(3));
-				customer.setCreatedBy(rs.getString(4));
-				customer.setCreatedAt(rs.getTimestamp(5));
-				customer.setDeleted(rs.getBoolean(6));
-				customer.setDeletedBy(rs.getString(7));
-				customer.setDeletedAt(rs.getTimestamp(8));
+				customer.setName(rs.getString(1));
+				customer.setPhone(rs.getString(2));
+				customer.setCreatedBy(rs.getString(3));
+				customer.setCreatedAt(rs.getTimestamp(4));
+				customer.setDeleted(rs.getBoolean(5));
+				customer.setDeletedBy(rs.getString(6));
+				customer.setDeletedAt(rs.getTimestamp(7));
 			}
 
 		} catch (SQLException e) {
@@ -73,7 +71,6 @@ public class CustomerDao {
 
 			while (rs.next()) {
 
-				customer.setId(Integer.parseInt(rs.getString("id")));
 				customer.setName(rs.getString("name"));
 				customer.setPhone(rs.getString("phone"));
 				customer.setCreatedBy(rs.getString("createdBy"));
@@ -91,10 +88,10 @@ public class CustomerDao {
 		return customers;
 	}
 
-	public void deleteCustomer(int id, Timestamp deletedAt) {
+	public void deleteCustomer(String phone, Timestamp deletedAt) {
 		try {
 			String query = "UPDATE Customers SET isDeleted = 1, deletedBy ='" + User.Name + "', deletedAt = '"
-					+ deletedAt + "' WHERE id = " + id;
+					+ deletedAt + "' WHERE phone = '" + phone + "'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();
@@ -103,10 +100,10 @@ public class CustomerDao {
 		}
 	}
 
-	public void updateCustomer(int id, CustomerModel newDetails) {
+	public void updateCustomer(String phone, CustomerModel newDetails) {
 		try {
 			String query = "UPDATE Customers SET name ='" + newDetails.getName() + "',phone ='" + newDetails.getPhone()
-					+ "' WHERE id = " + id;
+					+ "' WHERE phone = '" + phone + "'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();

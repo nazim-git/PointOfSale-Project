@@ -7,11 +7,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
 import Helpers.Frame;
 import Helpers.InputValidation;
 import controllers.InvoiceController;
+import controllers.SalesController;
 import dataAccess.CustomerDao;
 import dataAccess.ProductDao;
 import dataModels.CustomerModel;
@@ -47,10 +50,10 @@ public class SaleInvoice extends JFrame {
 
 	// UI
 	private JPanel contentPane;
-	private JLabel lblSaleInvoice, lblProductName, lblProductId, lblMeasuringUnit, lblUnitPrice;
-	private JComboBox cmbProductName, cmbProductID, cmbCustomerName;
+	private JLabel lblSaleInvoice, lblProductName, lblMeasuringUnit, lblUnitPrice;
+	private JComboBox cmbProductName, cmbCustomerName;
 	private JTextField txtMeasuringUnit, txtUnitPrice;
-	
+
 	private JScrollPane scrollPane;
 	private JTable table;
 
@@ -79,6 +82,8 @@ public class SaleInvoice extends JFrame {
 	private JTextField txtReceived;
 	private JTextField txtChange;
 	private JButton btnCash;
+	private JTextField txtStock;
+	private JLabel lblStock;
 
 	public SaleInvoice() {
 		setMaximizedBounds(Frame.getScreenBounds());
@@ -114,9 +119,8 @@ public class SaleInvoice extends JFrame {
 				return false;
 			}
 		};
-		
+
 		selectedCustomer = customers.get(0);
-		invoice.setCustomerId(selectedCustomer.getId());
 		invoice.setCustomer(selectedCustomer.getName());
 	}
 
@@ -143,10 +147,6 @@ public class SaleInvoice extends JFrame {
 		lblProductName.setBounds(142, 65, 102, 14);
 		contentPane.add(lblProductName);
 
-		lblProductId = new JLabel("Product ID");
-		lblProductId.setBounds(10, 65, 86, 14);
-		contentPane.add(lblProductId);
-
 		cmbProductName = new JComboBox();
 		cmbProductName.setMaximumRowCount(5);
 		cmbProductName.setToolTipText("Select Product By Name.....");
@@ -159,29 +159,9 @@ public class SaleInvoice extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cmbProductID.setSelectedIndex(cmbProductName.getSelectedIndex());
-
 				selectedProduct = products.get(cmbProductName.getSelectedIndex());
 
 				fillWithSelectedProduct(false);
-			}
-		});
-
-		cmbProductID = new JComboBox();
-		cmbProductID.setToolTipText("Select Product By Code");
-		cmbProductID.setMaximumRowCount(5);
-		cmbProductID.setBounds(6, 78, 120, 30);
-		contentPane.add(cmbProductID);
-		for (int i = 0; i < products.size(); i++) {
-			cmbProductID.addItem(products.get(i).getId());
-		}
-		cmbProductID.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				cmbProductName.setSelectedIndex(cmbProductID.getSelectedIndex());
-
-				selectedProduct = products.get(cmbProductID.getSelectedIndex());
 			}
 		});
 
@@ -214,35 +194,37 @@ public class SaleInvoice extends JFrame {
 
 		table = new JTable(tableModel);
 		scrollPane.setViewportView(table);
-		
-		table.addMouseListener(new MouseAdapter() {
-		    @Override
-		    public void mouseReleased(MouseEvent e) {
-		        int r = table.rowAtPoint(e.getPoint());
-		        if (r >= 0 && r < table.getRowCount()) {
-		            table.setRowSelectionInterval(r, r);
-		        } else {
-		            table.clearSelection();
-		        }
 
-		        int rowindex = table.getSelectedRow();
-		        if (rowindex < 0)
-		            return;
-		        if (e.isPopupTrigger() && e.getComponent() instanceof JTable ) {
-		            JPopupMenu popup = new JPopupMenu();
-		            JMenuItem menuItem = new JMenuItem("Delete");
-		            menuItem.addActionListener( new ActionListener() {
-						
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				int r = table.rowAtPoint(e.getPoint());
+				if (r >= 0 && r < table.getRowCount()) {
+					table.setRowSelectionInterval(r, r);
+				} else {
+					table.clearSelection();
+				}
+
+				int rowindex = table.getSelectedRow();
+				if (rowindex < 0)
+					return;
+				if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
+					JPopupMenu popup = new JPopupMenu();
+					JMenuItem menuItem = new JMenuItem("Delete");
+					menuItem.addActionListener(new ActionListener() {
+
 						@Override
 						public void actionPerformed(ActionEvent arg0) {
 							invoice.getInvoiceItems().remove(rowindex);
-							InvoiceController.fillTableWithInvoiceItems(new AddItemVM(selectedProduct, Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal, txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
+							InvoiceController.fillTableWithInvoiceItems(new AddItemVM(selectedProduct,
+									Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal,
+									txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
 						}
-					} );
-		            popup.add( menuItem );
-		            popup.show(e.getComponent(), e.getX(), e.getY());
-		        }
-		    }
+					});
+					popup.add(menuItem);
+					popup.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
 		});
 
 		JLabel lblQuantity = new JLabel("Quantity");
@@ -260,9 +242,14 @@ public class SaleInvoice extends JFrame {
 		btnAddItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (InvoiceController.validateQuantity(txtQuantity)) {
-					InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct,
-							Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal, txtDiscountPercent,
-							txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
+					if (selectedProduct.getStock() >= Integer.parseInt(txtQuantity.getText())) {
+						InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct,
+								Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal,
+								txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
+						btnCash.setEnabled(false);
+					} else {
+						JOptionPane.showMessageDialog(null, "Not enough stock");
+					}
 				}
 
 				for (InvoiceItemModel item : invoice.getInvoiceItems()) {
@@ -335,6 +322,22 @@ public class SaleInvoice extends JFrame {
 		txtDiscountPercent.setBounds(238, 455, 120, 20);
 		contentPane.add(txtDiscountPercent);
 		txtDiscountPercent.setColumns(10);
+		txtDiscountPercent.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				btnCash.setEnabled(false);
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+			}
+		});
 
 		txtDiscountAmount = new JTextField();
 		txtDiscountAmount.setEditable(false);
@@ -369,19 +372,44 @@ public class SaleInvoice extends JFrame {
 
 				InvoiceController.calculate(new AddItemVM(invoice, txtTotal, txtDiscountPercent, txtDiscountAmount,
 						txtTotalToPay, txtReceived, txtChange));
+				btnCash.setEnabled(true);
 			}
 		});
 		btnCalculate.setBounds(269, 586, 89, 23);
 		contentPane.add(btnCalculate);
-		
+
 		btnCash = new JButton("Cash!");
+		btnCash.setEnabled(false);
 		btnCash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				InvoiceController.cash(invoice);
+				if(invoice.getInvoiceItems().size() == 0) {
+					JOptionPane.showMessageDialog(null, "No Product Added!");
+				} else {
+					if(Float.parseFloat(txtTotalToPay.getText()) <= Float.parseFloat(txtReceived.getText())) {
+						InvoiceController.cash(invoice);
+						JOptionPane.showMessageDialog(null, "Success!");
+						dispose();
+					} else {
+						JOptionPane.showMessageDialog(null, "Settle Received and Total to Pay!");
+					}
+				}
+				
 			}
 		});
 		btnCash.setBounds(368, 586, 89, 23);
 		contentPane.add(btnCash);
+
+		txtStock = new JTextField();
+		txtStock.setText("0.0");
+		txtStock.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtStock.setEditable(false);
+		txtStock.setColumns(10);
+		txtStock.setBounds(10, 78, 120, 30);
+		contentPane.add(txtStock);
+
+		lblStock = new JLabel("Stock");
+		lblStock.setBounds(14, 65, 89, 14);
+		contentPane.add(lblStock);
 		for (int i = 0; i < customers.size(); i++) {
 			cmbCustomerName.addItem(customers.get(i).getName());
 		}
@@ -393,8 +421,7 @@ public class SaleInvoice extends JFrame {
 
 				selectedCustomer = customers.get(cmbCustomerName.getSelectedIndex());
 				txtCustomerMobile.setText(selectedCustomer.getPhone());
-				
-				invoice.setCustomerId(selectedCustomer.getId());
+
 				invoice.setCustomer(selectedCustomer.getName());
 			}
 		});
@@ -406,6 +433,7 @@ public class SaleInvoice extends JFrame {
 			selectedProduct = products.get(0);
 		txtUnitPrice.setText(String.valueOf(selectedProduct.getSalePrice()));
 		txtMeasuringUnit.setText(selectedProduct.getUnit());
+		txtStock.setText(String.valueOf(selectedProduct.getStock()));
 	}
-	
+
 }

@@ -1,7 +1,10 @@
 package controllers;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -9,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 
 import Helpers.InputValidation;
 import dataAccess.InvoiceDao;
+import dataAccess.ProductDao;
 import dataAccess.RunningNumberDao;
 import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
@@ -18,8 +22,9 @@ import dataModels.User;
 import viewModels.AddItemVM;
 
 public class InvoiceController {
-	
+
 	static InvoiceDao invoiceDao = new InvoiceDao();
+	static ProductDao productDao = new ProductDao();
 
 	public static String generateInvoiceNumber() {
 		RunningNumberDao runningNumberDao = new RunningNumberDao();
@@ -68,7 +73,6 @@ public class InvoiceController {
 		if (!alreadyInInvoice) {
 			InvoiceItemModel item = new InvoiceItemModel();
 
-			item.setProductId(model.getProduct().getId());
 			item.setTitle(model.getProduct().getTitle());
 			item.setQuantity(model.getQuantity());
 			item.setUnit(model.getProduct().getUnit());
@@ -145,18 +149,19 @@ public class InvoiceController {
 		}
 		calculate(model);
 	}
-	
+
 	public static void cash(InvoiceModel invoice) {
-		invoice .setInvoiceNumber(generateInvoiceNumber());
-		invoice.setCreatedBy(User.Name);
+		invoice.setInvoiceNumber(generateInvoiceNumber());
+		invoice.setCreatedBy(User.Username);
 		invoice.setCreatedAt(new Timestamp(new Date().getTime()));
-		
+
 		invoiceDao.insertInvoice(invoice);
 		int invoiceId = invoiceDao.getInvoiceLastId(invoice.getCreatedAt());
-		invoiceDao.insertItems(invoiceId,invoice.getInvoiceItems());
-		
-		System.out.println(invoiceId);
-		
+		invoiceDao.insertItems(invoiceId, invoice.getInvoiceItems());
+		for(int i=0;i<invoice.getInvoiceItems().size();i++) {
+			productDao.updateStock(invoice.getInvoiceItems().get(i).getTitle(),invoice.getInvoiceItems().get(i).getQuantity());	
+		}
+
 	}
 
 }

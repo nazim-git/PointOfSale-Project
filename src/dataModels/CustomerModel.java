@@ -4,22 +4,20 @@ import java.sql.Timestamp;
 
 public class CustomerModel {
 
-	private int id;
 	private String name, phone, createdBy;
 	private Timestamp createdAt;
 	private boolean isDeleted;
 	private String deletedBy;
 	private Timestamp deletedAt;
 
-	public CustomerModel(String name, String phone, String createdBy,
-			Timestamp createdAt) {
+	public CustomerModel(String name, String phone, String createdBy, Timestamp createdAt) {
 		super();
 		this.name = name;
 		this.phone = phone;
 		this.createdBy = createdBy;
 		this.createdAt = createdAt;
 	}
-	
+
 	public CustomerModel(String name, String phone) {
 		super();
 		this.name = name;
@@ -27,14 +25,6 @@ public class CustomerModel {
 	}
 
 	public CustomerModel() {
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	public String getName() {
@@ -92,6 +82,5 @@ public class CustomerModel {
 	public void setDeletedAt(Timestamp deletedAt) {
 		this.deletedAt = deletedAt;
 	}
-
 
 }

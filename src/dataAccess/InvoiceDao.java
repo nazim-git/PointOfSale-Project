@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 
 import dataModels.CustomerModel;
 import dataModels.InvoiceItemModel;
 import dataModels.InvoiceModel;
+import dataModels.User;
 
 public class InvoiceDao {
 	Connection con = DbConnection.getInstance();
@@ -76,8 +78,8 @@ public class InvoiceDao {
 				pst.setFloat(6, invoiceItems.get(i).getSalePrice());
 				pst.setFloat(7, invoiceItems.get(i).getPurchasePrice());
 				pst.setFloat(8, invoiceItems.get(i).getSubTotal());
-				pst.setString(9, invoiceItems.get(i).getCreatedBy());
-				pst.setTimestamp(10, invoiceItems.get(i).getCreatedAt());
+				pst.setString(9, User.Username);
+				pst.setTimestamp(10, new Timestamp(new Date().getTime()));
 
 				pst.execute();
 			}

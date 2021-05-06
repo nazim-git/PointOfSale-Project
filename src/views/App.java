@@ -28,6 +28,7 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
@@ -68,14 +69,14 @@ public class App extends JFrame {
 
 	// Add Product
 	private JPanel Product, Customer;
-	JTextField txtID, txtTitle, txtUnit, txtDescription;
+	JTextField txtTitle, txtUnit, txtDescription;
 	JCheckBox cbStatus;
 	private ProductModel selectedProduct;
 	private JTable productTable;
 	private AddProductVM productForm;
 
 	// Add Customer
-	private JTextField txtIdCustomer, txtCustomerName, txtCustomerPhone;
+	private JTextField txtCustomerName, txtCustomerPhone;
 	private CustomerModel selectedCustomer;
 	private JTable customerTable;
 	private AddCustomerVM customerForm;
@@ -98,7 +99,7 @@ public class App extends JFrame {
 
 	// Other
 	private DefaultTableModel productsTableModel, customersTableModel, purchasesTableModel, expensesTableModel,
-			userTableModel,salesTableModel;
+			userTableModel, salesTableModel;
 
 	// Users
 	JPanel Users;
@@ -111,10 +112,11 @@ public class App extends JFrame {
 	private AddUserVM userForm;
 	private JCheckBox chkboxIsAdmin;
 	private JTable salesTable;
-	
-	//Sasles
+
+	// Sasles
 	JPanel Sales;
 	private JTextField txtSearchSales;
+	private JTextField txtSalePrice;
 
 	public void switchPanels(JPanel panel) {
 		layeredPane.removeAll();
@@ -138,7 +140,7 @@ public class App extends JFrame {
 		setLocationRelativeTo(null);
 
 		JPanel Header = new JPanel();
-		Header.setBounds(10, 11, 1024, 66);
+		Header.setBounds(0, 11, 1024, 66);
 		contentPane.add(Header);
 		Header.setLayout(null);
 
@@ -262,7 +264,7 @@ public class App extends JFrame {
 			}
 		};
 		users = UserController.fillTableWithUsers(users, userTableModel);
-		
+
 		String salesHeader[] = { "Invoice Number", "Customer", "Discount Percent", "Total" };
 
 		salesTableModel = new DefaultTableModel(salesHeader, 0) {
@@ -298,6 +300,7 @@ public class App extends JFrame {
 		JButton btnProducts = new JButton("Products");
 		btnProducts.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				products = ProductController.fillTableWithProducts(products, productsTableModel);
 				switchPanels(Product);
 			}
 		});
@@ -373,7 +376,7 @@ public class App extends JFrame {
 		JButton btnUpdateProduct = new JButton("Update!");
 		btnUpdateProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
+				productForm = new AddProductVM(txtTitle, txtUnit, txtSalePrice, cbStatus, txtDescription);
 				if (selectedProduct == null && productTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Product is selected to update!");
 				} else {
@@ -393,12 +396,12 @@ public class App extends JFrame {
 		JButton btnDeleteProduct = new JButton("Delete!");
 		btnDeleteProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
+				productForm = new AddProductVM(txtTitle, txtUnit, txtSalePrice, cbStatus, txtDescription);
 
 				if (selectedProduct == null && productTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Product is selected to delete!");
 				} else {
-					boolean isDeleted = ProductController.deleteCustomer(selectedProduct);
+					boolean isDeleted = ProductController.deleteProduct(selectedProduct);
 					if (isDeleted) {
 						JOptionPane.showMessageDialog(null,
 								"Product '" + selectedProduct.getTitle() + "' deleted successfully!");
@@ -409,13 +412,13 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnDeleteProduct.setBounds(172, 99, 150, 23);
+		btnDeleteProduct.setBounds(90, 99, 150, 23);
 		ProducDetails.add(btnDeleteProduct);
 
 		JButton btnAddProduct = new JButton("Add!");
 		btnAddProduct.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
+				productForm = new AddProductVM(txtTitle, txtUnit, txtSalePrice, cbStatus, txtDescription);
 				if (ProductController.validateAddProductInput(productForm)) {
 					ProductController.addNewProduct(productForm);
 					products = ProductController.fillTableWithProducts(products, productsTableModel);
@@ -425,16 +428,6 @@ public class App extends JFrame {
 
 		btnAddProduct.setBounds(10, 65, 152, 23);
 		ProducDetails.add(btnAddProduct);
-
-		JLabel lblID = new JLabel("ID");
-		lblID.setBounds(12, 87, 150, 14);
-		ProducDetails.add(lblID);
-
-		txtID = new JTextField();
-		txtID.setEditable(false);
-		txtID.setColumns(10);
-		txtID.setBounds(12, 101, 150, 20);
-		ProducDetails.add(txtID);
 
 		JLabel lblTitle = new JLabel("Product Title");
 		lblTitle.setBounds(12, 132, 150, 14);
@@ -464,14 +457,23 @@ public class App extends JFrame {
 		ProducDetails.add(txtDescription);
 
 		cbStatus = new JCheckBox("Active");
-		cbStatus.setBounds(172, 173, 150, 23);
+		cbStatus.setBounds(172, 198, 150, 13);
 		ProducDetails.add(cbStatus);
 		cbStatus.setSelected(true);
 
 		JLabel lblStatus = new JLabel("Status");
-		lblStatus.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblStatus.setBounds(12, 177, 150, 14);
+		lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
+		lblStatus.setBounds(172, 177, 150, 14);
 		ProducDetails.add(lblStatus);
+
+		txtSalePrice = new JTextField();
+		txtSalePrice.setColumns(10);
+		txtSalePrice.setBounds(12, 191, 150, 20);
+		ProducDetails.add(txtSalePrice);
+
+		JLabel lblSalePrice = new JLabel("Sale Price");
+		lblSalePrice.setBounds(12, 177, 150, 14);
+		ProducDetails.add(lblSalePrice);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(352, 53, 662, 369);
@@ -491,10 +493,10 @@ public class App extends JFrame {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				selectedProduct = products.get(productTable.getSelectedRow());
-				txtID.setText(String.valueOf(selectedProduct.getId()));
 				txtTitle.setText(selectedProduct.getTitle());
 				txtUnit.setText(selectedProduct.getUnit());
 				txtDescription.setText(selectedProduct.getDescription());
+				txtSalePrice.setText(String.valueOf(selectedProduct.getSalePrice()));
 				if (selectedProduct.getStatus()) {
 					cbStatus.setSelected(true);
 				} else {
@@ -547,7 +549,7 @@ public class App extends JFrame {
 		JButton btnUpdateCustomer = new JButton("Update!");
 		btnUpdateCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
+				customerForm = new AddCustomerVM(txtCustomerName, txtCustomerPhone);
 				if (selectedCustomer == null && customerTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Customer selected to update!");
 				} else {
@@ -561,13 +563,13 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnUpdateCustomer.setBounds(168, 143, 150, 23);
+		btnUpdateCustomer.setBounds(172, 94, 150, 23);
 		CustomerDetails.add(btnUpdateCustomer);
 
 		JButton btnDeleteCustomer = new JButton("Delete!");
 		btnDeleteCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
+				customerForm = new AddCustomerVM(txtCustomerName, txtCustomerPhone);
 
 				if (selectedCustomer == null && customerTable.getSelectedRow() == -1) {
 					JOptionPane.showMessageDialog(null, "No Customer selected to delete!");
@@ -583,13 +585,13 @@ public class App extends JFrame {
 				}
 			}
 		});
-		btnDeleteCustomer.setBounds(168, 94, 150, 23);
+		btnDeleteCustomer.setBounds(90, 128, 150, 23);
 		CustomerDetails.add(btnDeleteCustomer);
 
 		JButton btnAddCustomer = new JButton("Add!");
 		btnAddCustomer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
+				customerForm = new AddCustomerVM(txtCustomerName, txtCustomerPhone);
 				if (CustomerController.validateAddCustomerInput(customerForm)) {
 					CustomerController.addNewCustomer(customerForm);
 					customers = CustomerController.fillTableWithCustomers(customers, customersTableModel);
@@ -598,16 +600,6 @@ public class App extends JFrame {
 		});
 		btnAddCustomer.setBounds(10, 94, 152, 23);
 		CustomerDetails.add(btnAddCustomer);
-
-		JLabel lblIdCustomer = new JLabel("ID");
-		lblIdCustomer.setBounds(10, 128, 150, 14);
-		CustomerDetails.add(lblIdCustomer);
-
-		txtIdCustomer = new JTextField();
-		txtIdCustomer.setEditable(false);
-		txtIdCustomer.setColumns(10);
-		txtIdCustomer.setBounds(10, 144, 150, 20);
-		CustomerDetails.add(txtIdCustomer);
 
 		JLabel lblCustomerName = new JLabel("Customer Name");
 		lblCustomerName.setBounds(10, 175, 150, 14);
@@ -646,7 +638,6 @@ public class App extends JFrame {
 			public void mousePressed(MouseEvent arg0) {
 				selectedCustomer = customers.get(customerTable.getSelectedRow());
 
-				txtIdCustomer.setText(String.valueOf(selectedCustomer.getId()));
 				txtCustomerName.setText(selectedCustomer.getName());
 				txtCustomerPhone.setText(selectedCustomer.getPhone());
 			}
@@ -1052,36 +1043,36 @@ public class App extends JFrame {
 		Sales = new JPanel();
 		Sales.setLayout(null);
 		layeredPane.add(Sales, "name_2635393860615400");
-		
+
 		JLabel lblSalesHistory = new JLabel("Sales History");
 		lblSalesHistory.setFont(new Font("Calibri", Font.PLAIN, 25));
 		lblSalesHistory.setBounds(10, 10, 199, 32);
 		Sales.add(lblSalesHistory);
-		
+
 		JScrollPane scrollPaneSales = new JScrollPane();
 		scrollPaneSales.setBounds(10, 53, 1004, 369);
 		Sales.add(scrollPaneSales);
-		
+
 		salesTable = new JTable(salesTableModel);
 		scrollPaneSales.setViewportView(salesTable);
-		
+
 		txtSearchSales = new JTextField();
 		txtSearchSales.setBounds(814, 19, 200, 20);
 		Sales.add(txtSearchSales);
 		txtSearchSales.setColumns(10);
-		
+
 		txtSearchSales.getDocument().addDocumentListener(new DocumentListener() {
-			
+
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				SalesController.filterSales(txtSearchSales, sales, salesTableModel);
 			}
-			
+
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				SalesController.filterSales(txtSearchSales, sales, salesTableModel);
 			}
-			
+
 			@Override
 			public void changedUpdate(DocumentEvent arg0) {
 			}
@@ -1106,14 +1097,14 @@ public class App extends JFrame {
 	}
 
 	public void productDefaults() {
-		productForm = new AddProductVM(txtID, txtTitle, txtUnit, cbStatus, txtDescription);
+		productForm = new AddProductVM(txtTitle, txtUnit, txtSalePrice, cbStatus, txtDescription);
 		ProductController.resetFields(productForm);
 		selectedProduct = null;
 		productTable.clearSelection();
 	}
 
 	public void customerDefaults() {
-		customerForm = new AddCustomerVM(txtIdCustomer, txtCustomerName, txtCustomerPhone);
+		customerForm = new AddCustomerVM(txtCustomerName, txtCustomerPhone);
 		CustomerController.resetFields(customerForm);
 		selectedCustomer = null;
 		customerTable.clearSelection();

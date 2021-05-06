@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-import dataModels.CustomerModel;
 import dataModels.ProductModel;
 import dataModels.User;
 import viewModels.AddPurchaseVM;
@@ -29,7 +28,6 @@ public class ProductDao {
 
 			while (rs.next()) {
 
-				product.setId(Integer.parseInt(rs.getString("id")));
 				product.setTitle(rs.getString("title"));
 				product.setDescription(rs.getString("description"));
 				product.setUnit(rs.getString("unit"));
@@ -74,19 +72,18 @@ public class ProductDao {
 			while (rs.next()) {
 				product = new ProductModel();
 
-				product.setId(rs.getInt(1));
-				product.setTitle(rs.getString(2));
-				product.setDescription(rs.getString(3));
-				product.setUnit(rs.getString(4));
-				product.setSalePrice(rs.getFloat(5));
-				product.setPurchasePrice(rs.getFloat(6));
-				product.setStock(rs.getInt(7));
-				product.setCreatedBy(rs.getString(8));
-				product.setCreatedAt(rs.getTimestamp(9));
-				product.setStatus(rs.getBoolean(10));
-				product.setDeleted(rs.getBoolean(11));
-				product.setDeletedBy(rs.getString(12));
-				product.setDeletedAt(rs.getTimestamp(13));
+				product.setTitle(rs.getString(1));
+				product.setDescription(rs.getString(2));
+				product.setUnit(rs.getString(3));
+				product.setSalePrice(rs.getFloat(4));
+				product.setPurchasePrice(rs.getFloat(5));
+				product.setStock(rs.getInt(6));
+				product.setCreatedBy(rs.getString(7));
+				product.setCreatedAt(rs.getTimestamp(8));
+				product.setStatus(rs.getBoolean(9));
+				product.setDeleted(rs.getBoolean(10));
+				product.setDeletedBy(rs.getString(11));
+				product.setDeletedAt(rs.getTimestamp(12));
 			}
 
 		} catch (SQLException e) {
@@ -98,8 +95,8 @@ public class ProductDao {
 	public void insertProduct(ProductModel product) {
 		try {
 			String query = "insert into Products"
-					+ "(title,description,unit,createdBy,createdAt,status) values"
-					+ "(?,?,?,?,?,?)";
+					+ "(title,description,unit,createdBy,createdAt,status,salePrice) values"
+					+ "(?,?,?,?,?,?,?)";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, product.getTitle());
@@ -108,6 +105,7 @@ public class ProductDao {
 			pst.setString(4, product.getCreatedBy());
 			pst.setTimestamp(5, product.getCreatedAt());
 			pst.setBoolean(6, product.getStatus());
+			pst.setFloat(7, product.getSalePrice());
 
 			pst.execute();
 
@@ -116,10 +114,10 @@ public class ProductDao {
 		}
 	}
 
-	public void deleteCustomer(int id, Timestamp deletedAt) {
+	public void deleteCustomer(String title, Timestamp deletedAt) {
 		try {
-			String query = "UPDATE Products SET isDeleted = 1, deletedBy ='" + User.Name + "', deletedAt = '"
-					+ deletedAt + "' WHERE id = " + id;
+			String query = "UPDATE Products SET isDeleted = 1, deletedBy ='" + User.Username + "', deletedAt = '"
+					+ deletedAt + "' WHERE title = '" + title+"'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();
@@ -128,13 +126,14 @@ public class ProductDao {
 		}
 	}
 
-	public void updateProduct(int id, ProductModel newDetails) {
+	public void updateProduct(String title, ProductModel newDetails) {
 		try {
 			String query = "UPDATE Products SET title ='" + newDetails.getTitle() + 
 											 "',description ='" + newDetails.getDescription()+ 
 											 "',unit ='" + newDetails.getUnit() + 
 											 "',status ='"+ newDetails.getStatus() + 
-											 "' WHERE id = " + id;
+											 "',salePrice ='"+ newDetails.getSalePrice() + 
+											 "' WHERE title = '" + title+"'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();
@@ -158,4 +157,21 @@ public class ProductDao {
 			e.printStackTrace();
 		}
 	}
+
+	
+	public void updateStock(String title, int quantity) {
+		try {
+			String query = "UPDATE Products SET stock = stock - ? where title = ?";
+
+			pst = con.prepareStatement(query);
+			pst.setInt(1, quantity);
+			pst.setString(2, title);
+
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
+import Helpers.InputValidation;
 import dataAccess.ProductDao;
 import dataAccess.PurchasesDao;
 import dataModels.ProductModel;
@@ -44,16 +45,24 @@ public class PurchasesController {
 			JOptionPane.showMessageDialog(null, "Purchase Price can't be Empty!");
 			purchaseForm.txtPurchasePricePurchases.requestFocus();
 			return false;
+		} else if (!InputValidation.validateDecimal(purchaseForm.txtPurchasePricePurchases.getText())) {
+			JOptionPane.showMessageDialog(null, "Purchase Price must be numeric!");
+			purchaseForm.txtPurchasePricePurchases.requestFocus();
+			return false;
 		} else if (purchaseForm.txtSalePricePurchases.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Sale Price can't be Empty!");
 			purchaseForm.txtSalePricePurchases.requestFocus();
 			return false;
-		} else if (purchaseForm.txtUnitPurchases.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Unit can't be Empty!");
-			purchaseForm.txtUnitPurchases.requestFocus();
+		} else if (!InputValidation.validateDecimal(purchaseForm.txtSalePricePurchases.getText())) {
+			JOptionPane.showMessageDialog(null, "Sale Price must be numeric!");
+			purchaseForm.txtSalePricePurchases.requestFocus();
 			return false;
 		} else if (purchaseForm.txtQuantityPurchases.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(null, "Quantity can't be Empty!");
+			purchaseForm.txtQuantityPurchases.requestFocus();
+			return false;
+		}  else if (!InputValidation.validateNumbers(purchaseForm.txtQuantityPurchases.getText())) {
+			JOptionPane.showMessageDialog(null, "Quantity must be numeric!");
 			purchaseForm.txtQuantityPurchases.requestFocus();
 			return false;
 		} else {
@@ -67,7 +76,7 @@ public class PurchasesController {
 				purchaseForm.txtSupplierPurchases.getText(),
 				Float.parseFloat(purchaseForm.txtPurchasePricePurchases.getText()),
 				Float.parseFloat(purchaseForm.txtSalePricePurchases.getText()), purchaseForm.txtUnitPurchases.getText(),
-				Integer.parseInt(purchaseForm.txtQuantityPurchases.getText()), User.Name,
+				Integer.parseInt(purchaseForm.txtQuantityPurchases.getText()), User.Username,
 				new Timestamp(new Date().getTime()));
 		purchasesDao.insertPurchase(purchase);
 		productDao.updateStock(purchaseForm);
@@ -75,7 +84,7 @@ public class PurchasesController {
 		resetFields(purchaseForm);
 
 	}
-	
+
 	public static void resetFields(AddPurchaseVM purchaseForm) {
 		purchaseForm.cmbProductsPurchases.setSelectedIndex(0);
 		purchaseForm.txtSupplierPurchases.setText(null);
