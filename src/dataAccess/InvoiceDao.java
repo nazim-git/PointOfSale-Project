@@ -21,21 +21,21 @@ public class InvoiceDao {
 	public void insertInvoice(InvoiceModel invoice) {
 		try {
 			String query = "insert into Invoices"
-					+ "(invoiceNumber,customerId,customer,total,discountPercent,discountAmount,totalToPay,received,change,createdBy,createdAt) values"
-					+ "( 	   ?,          ?,       ?,		?,           ?,             ?,          ?,        ?,      ?,      ?,        ?)";
+					+ "(invoiceNumber,customer,total,discountPercent,discountAmount,totalToPay,received,change,createdBy,createdAt,customerPhone) values"
+					+ "( 	   ?,        ?,		?,           ?,             ?,          ?,        ?,      ?,      ?,        ?,?)";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, invoice.getInvoiceNumber());
-			pst.setInt(2, invoice.getCustomerId());
-			pst.setString(3, invoice.getCustomer());
-			pst.setFloat(4, invoice.getTotal());
-			pst.setFloat(5, invoice.getDiscountPercent());
-			pst.setFloat(6, invoice.getDiscountAmount());
-			pst.setFloat(7, invoice.getTotalToPay());
-			pst.setFloat(8, invoice.getReceived());
-			pst.setFloat(9, invoice.getChange());
-			pst.setString(10, invoice.getCreatedBy());
-			pst.setTimestamp(11, invoice.getCreatedAt());
+			pst.setString(2, invoice.getCustomer());
+			pst.setFloat(3, invoice.getTotal());
+			pst.setFloat(4, invoice.getDiscountPercent());
+			pst.setFloat(5, invoice.getDiscountAmount());
+			pst.setFloat(6, invoice.getTotalToPay());
+			pst.setFloat(7, invoice.getReceived());
+			pst.setFloat(8, invoice.getChange());
+			pst.setString(9, invoice.getCreatedBy());
+			pst.setTimestamp(10, invoice.getCreatedAt());
+			pst.setString(11, invoice.getCustomerPhone());
 
 			pst.execute();
 
@@ -65,21 +65,20 @@ public class InvoiceDao {
 	public void insertItems(int invoiceId, ArrayList<InvoiceItemModel> invoiceItems) {
 		try {
 			String query = "insert into InvoiceItems"
-					+ "(invoiceId,productId,title,quantity,unit,salePrice,purchasePrice,subTotal,createdBy,createdAt) values"
-					+ "( 	   ?,          ?,       ?,		?,           ?,             ?,          ?,        ?,      ?,      ?)";
+					+ "(invoiceId,title,quantity,unit,salePrice,purchasePrice,subTotal,createdBy,createdAt) values"
+					+ "( 	   ?,       ?,		?,           ?,             ?,          ?,        ?,      ?,      ?)";
 			for(int i=0;i<invoiceItems.size();i++) {
 				pst = con.prepareStatement(query);
 
 				pst.setInt(1, invoiceId);
-				pst.setInt(2, invoiceItems.get(i).getProductId());
-				pst.setString(3, invoiceItems.get(i).getTitle());
-				pst.setInt(4, invoiceItems.get(i).getQuantity());
-				pst.setString(5, invoiceItems.get(i).getUnit());
-				pst.setFloat(6, invoiceItems.get(i).getSalePrice());
-				pst.setFloat(7, invoiceItems.get(i).getPurchasePrice());
-				pst.setFloat(8, invoiceItems.get(i).getSubTotal());
-				pst.setString(9, User.Username);
-				pst.setTimestamp(10, new Timestamp(new Date().getTime()));
+				pst.setString(2, invoiceItems.get(i).getTitle());
+				pst.setInt(3, invoiceItems.get(i).getQuantity());
+				pst.setString(4, invoiceItems.get(i).getUnit());
+				pst.setFloat(5, invoiceItems.get(i).getSalePrice());
+				pst.setFloat(6, invoiceItems.get(i).getPurchasePrice());
+				pst.setFloat(7, invoiceItems.get(i).getSubTotal());
+				pst.setString(8, User.Username);
+				pst.setTimestamp(9, new Timestamp(new Date().getTime()));
 
 				pst.execute();
 			}
@@ -103,7 +102,7 @@ public class InvoiceDao {
 
 				sale.setId(rs.getInt("id"));
 				sale.setInvoiceNumber(rs.getString("invoiceNumber"));
-				sale.setCustomerId(rs.getInt("customerId"));
+				sale.setCustomerPhone(rs.getString("customerPhone"));
 				sale.setCustomer(rs.getString("customer"));
 				sale.setTotal(rs.getFloat("total"));
 				sale.setDiscountPercent(rs.getFloat("discountPercent"));

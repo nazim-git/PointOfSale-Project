@@ -122,6 +122,7 @@ public class SaleInvoice extends JFrame {
 
 		selectedCustomer = customers.get(0);
 		invoice.setCustomer(selectedCustomer.getName());
+		invoice.setCustomerPhone(selectedCustomer.getPhone());
 	}
 
 	public void setUI() {
@@ -251,12 +252,6 @@ public class SaleInvoice extends JFrame {
 						JOptionPane.showMessageDialog(null, "Not enough stock");
 					}
 				}
-
-				for (InvoiceItemModel item : invoice.getInvoiceItems()) {
-					System.out.println(" ID:" + item.getId() + " InvoiceId:" + item.getInvoiceId() + " ProductId:"
-							+ item.getProductId() + " Title:" + item.getTitle() + " SalePrice:" + item.getSalePrice()
-							+ " Quantity:" + item.getQuantity() + " InvoiceId:" + item.getSubTotal());
-				}
 			}
 
 		});
@@ -331,7 +326,7 @@ public class SaleInvoice extends JFrame {
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				
+
 			}
 
 			@Override
@@ -382,10 +377,12 @@ public class SaleInvoice extends JFrame {
 		btnCash.setEnabled(false);
 		btnCash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(invoice.getInvoiceItems().size() == 0) {
+				System.out.println(invoice.getCustomerPhone());
+				if (invoice.getInvoiceItems().size() == 0) {
 					JOptionPane.showMessageDialog(null, "No Product Added!");
 				} else {
-					if(Float.parseFloat(txtTotalToPay.getText()) <= Float.parseFloat(txtReceived.getText())) {
+					if (Float.parseFloat(txtTotalToPay.getText()) <= Float.parseFloat(txtReceived.getText())) {
+
 						InvoiceController.cash(invoice);
 						JOptionPane.showMessageDialog(null, "Success!");
 						dispose();
@@ -393,7 +390,7 @@ public class SaleInvoice extends JFrame {
 						JOptionPane.showMessageDialog(null, "Settle Received and Total to Pay!");
 					}
 				}
-				
+
 			}
 		});
 		btnCash.setBounds(368, 586, 89, 23);
@@ -423,6 +420,7 @@ public class SaleInvoice extends JFrame {
 				txtCustomerMobile.setText(selectedCustomer.getPhone());
 
 				invoice.setCustomer(selectedCustomer.getName());
+				invoice.setCustomerPhone(selectedCustomer.getPhone());
 			}
 		});
 

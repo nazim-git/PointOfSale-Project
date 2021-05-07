@@ -7,7 +7,7 @@ public class InvoiceModel {
 
 	private int id;
 	private String invoiceNumber;
-	private int customerId;
+	private String customerPhone;
 	private String customer;
 	private float total;
 	private float discountPercent;
@@ -22,22 +22,12 @@ public class InvoiceModel {
 	private Timestamp deletedAt;
 
 	
-	@Override
-	public String toString() {
-		return "InvoiceModel [id=" + id + ", invoiceNumber=" + invoiceNumber + ", customerId=" + customerId
-				+ ", customer=" + customer + ", total=" + total + ", discountPercent=" + discountPercent
-				+ ", discountAmount=" + discountAmount + ", totalToPay=" + totalToPay + ", received=" + received
-				+ ", change=" + change + ", createdBy=" + createdBy + ", createdAt=" + createdAt + ", isDeleted="
-				+ isDeleted + ", deletedBy=" + deletedBy + ", deletedAt=" + deletedAt + ", invoiceItems=" + invoiceItems
-				+ "]";
+	public String getCustomerPhone() {
+		return customerPhone;
 	}
 
-	public int getCustomerId() {
-		return customerId;
-	}
-
-	public void setCustomerId(int customerId) {
-		this.customerId = customerId;
+	public void setCustomerPhone(String customerPhone) {
+		this.customerPhone = customerPhone;
 	}
 
 	public String getCreatedBy() {

@@ -43,6 +43,7 @@ import controllers.UserController;
 
 import javax.swing.SwingConstants;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JCheckBox;
@@ -103,9 +104,7 @@ public class App extends JFrame {
 
 	// Users
 	JPanel Users;
-	private JTextField txtUserId;
-	private JTextField txtNameUser;
-	private JTextField txtUsername;
+	private JTextField txtUserId,txtNameUser,txtUsername;
 	private JPasswordField txtPassword;
 	private JTable usersTable;
 	private UserModel selectedUser;
@@ -292,8 +291,14 @@ public class App extends JFrame {
 		Navigation.add(btnSaleInvoiceHome);
 		btnSaleInvoiceHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JFrame frame = new SaleInvoice();
-				invoiceWindows.add(frame);
+				if (customers.size() < 1) {
+					JOptionPane.showMessageDialog(null, "No Customer Found. Add customer to generate invoice!");
+				} else if (products.size() < 1) {
+					JOptionPane.showMessageDialog(null, "No Customer Found. Add customer to generate invoice!");
+				} else {
+					JFrame frame = new SaleInvoice();
+					invoiceWindows.add(frame);
+				}
 			}
 		});
 
@@ -481,13 +486,22 @@ public class App extends JFrame {
 
 		productTable = new JTable(productsTableModel);
 		scrollPane.setViewportView(productTable);
-
+		productTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		productTable.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-
+				selectedProduct = products.get(productTable.getSelectedRow());
+				txtTitle.setText(selectedProduct.getTitle());
+				txtUnit.setText(selectedProduct.getUnit());
+				txtDescription.setText(selectedProduct.getDescription());
+				txtSalePrice.setText(String.valueOf(selectedProduct.getSalePrice()));
+				if (selectedProduct.getStatus()) {
+					cbStatus.setSelected(true);
+				} else {
+					cbStatus.setSelected(false);
+				}
 			}
 
 			@Override
@@ -625,13 +639,16 @@ public class App extends JFrame {
 
 		customerTable = new JTable(customersTableModel);
 		scrollPaneCustomers.setViewportView(customerTable);
+		customerTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		customerTable.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
+				selectedCustomer = customers.get(customerTable.getSelectedRow());
 
+				txtCustomerName.setText(selectedCustomer.getName());
+				txtCustomerPhone.setText(selectedCustomer.getPhone());
 			}
 
 			@Override
@@ -763,6 +780,7 @@ public class App extends JFrame {
 
 		purchasesTable = new JTable(purchasesTableModel);
 		scrollPanePurchases.setViewportView(purchasesTable);
+		purchasesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	}
 
 	public void ExpensesGUI() {
@@ -844,13 +862,15 @@ public class App extends JFrame {
 
 		expensesTable = new JTable(expensesTableModel);
 		scrollPaneExpenses.setViewportView(expensesTable);
-
+		expensesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		expensesTable.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
+				selectedExpense = expenses.get(expensesTable.getSelectedRow());
+				txtAmountExpense.setText(String.valueOf(selectedExpense.getAmount()));
+				txtDescriptionExpense.setText(selectedExpense.getDescription());
 			}
 
 			@Override
@@ -1001,13 +1021,17 @@ public class App extends JFrame {
 
 		usersTable = new JTable(userTableModel);
 		scrollPaneUsers.setViewportView(usersTable);
+		usersTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		usersTable.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
+				selectedUser = users.get(usersTable.getSelectedRow());
+				txtUserId.setText(String.valueOf(selectedUser.getID()));
+				txtNameUser.setText(selectedUser.getName());
+				txtUsername.setText(selectedUser.getUsername());
+				chkboxIsAdmin.setSelected(selectedUser.isIsAdmin());
 			}
 
 			@Override
@@ -1055,6 +1079,7 @@ public class App extends JFrame {
 
 		salesTable = new JTable(salesTableModel);
 		scrollPaneSales.setViewportView(salesTable);
+		salesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		txtSearchSales = new JTextField();
 		txtSearchSales.setBounds(814, 19, 200, 20);

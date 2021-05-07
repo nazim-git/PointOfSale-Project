@@ -6,7 +6,6 @@ public class InvoiceItemModel {
 
 	private int id;
 	private int invoiceId;
-	private int productId;
 	private String title;
 	private int quantity;
 	private String unit;
@@ -73,14 +72,6 @@ public class InvoiceItemModel {
 
 	public void setInvoiceId(int invoiceId) {
 		this.invoiceId = invoiceId;
-	}
-
-	public int getProductId() {
-		return productId;
-	}
-
-	public void setProductId(int productId) {
-		this.productId = productId;
 	}
 
 	public int getQuantity() {

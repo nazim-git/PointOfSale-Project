@@ -19,7 +19,8 @@ public class SalesController {
 
 		for (int i = 0; i < sales.size(); i++) {
 
-			Object[] object = { sales.get(i).getInvoiceNumber(), sales.get(i).getCustomer(), sales.get(i).getDiscountPercent(),sales.get(i).getTotal() };
+			Object[] object = { sales.get(i).getInvoiceNumber(), sales.get(i).getCustomer(),
+					sales.get(i).getDiscountPercent(), sales.get(i).getTotal() };
 			salesTableModel.addRow(object);
 		}
 		return sales;
@@ -31,9 +32,12 @@ public class SalesController {
 		sales = invoiceDao.getInvoices();
 
 		for (int i = 0; i < sales.size(); i++) {
-			if(sales.get(i).getCustomer().contains(txtSearchSales.getText())) {
-				Object[] object = { sales.get(i).getInvoiceNumber(), sales.get(i).getCustomer(), sales.get(i).getDiscountPercent(),sales.get(i).getTotal() };
-				salesTableModel.addRow(object);	
+			if (sales.get(i).getCustomer().contains(txtSearchSales.getText())
+					|| sales.get(i).getCustomerPhone().contains(txtSearchSales.getText())
+					|| sales.get(i).getInvoiceNumber().toLowerCase().contains(txtSearchSales.getText().toLowerCase())) {
+				Object[] object = { sales.get(i).getInvoiceNumber(), sales.get(i).getCustomer(),
+						sales.get(i).getDiscountPercent(), sales.get(i).getTotal() };
+				salesTableModel.addRow(object);
 			}
 		}
 //		return sales;
