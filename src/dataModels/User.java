@@ -1,6 +1,7 @@
 package dataModels;
 
 public class User {
+	//properties
 	public static int ID;
 	public static String Name;
 	public static String Username;
