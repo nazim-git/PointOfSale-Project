@@ -1,6 +1,16 @@
 package controllers;
 
+import java.awt.Desktop;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,6 +19,10 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
 
 import Helpers.InputValidation;
 import dataAccess.InvoiceDao;
@@ -174,5 +188,135 @@ public class InvoiceController {
 		returnAll(invoice.getId());
 		invoice.setRefInvoiceNumber(invoiceDao.getInvoiceLastNumber(invoice.getCreatedAt()));
 		cash(invoice);
+
+		printInvoice(invoice);
 	}
+	
+	public static void printInvoice(InvoiceModel invoice) {
+		try {
+			String RESULT_FOLDER = "invoices\\";
+			String outputName = "invoice" + invoice.getInvoiceNumber() + ".pdf";
+			String invoiceHtml = PrepareHtmlPageFromInvoice(invoice);
+			
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			Document document = new Document();
+			PdfWriter writer = PdfWriter.getInstance(document, baos);
+			document.open();
+			InputStream is = new ByteArrayInputStream(invoiceHtml.getBytes());
+			XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+			document.close();
+			baos.writeTo(new FileOutputStream(new File(RESULT_FOLDER, outputName)));
+
+			File myFile = new File(RESULT_FOLDER + outputName);
+			Desktop.getDesktop().open(myFile);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String InvoiceHeader(InvoiceModel invoice) {
+		String invoiceNumbCol     = "Invoice Number: " + invoice.getInvoiceNumber();
+		String invoiceTypeColumn  = "Type: Cash";
+		String invoiceDateCol     = "Date: " + DateTimeToDateString(invoice.getCreatedAt());
+		String invoiceCustCol     = "Customer: " + invoice.getCustomer();
+		String customerContactCol = "Customer Phone: " + invoice.getCustomerPhone();
+
+		String invoiceMainHeader = "<table>	<tr><td>" + invoiceNumbCol   + "</td>" 
+											+ "<td>" + invoiceTypeColumn+ "</td>" 
+											+ "<td>" + invoiceDateCol   + "</td>" +
+											"</tr>"
+											+"<tr><td>" + invoiceCustCol + "</td>" 
+											+ "<td>"	+ customerContactCol + "</td>"
+											+ "</tr></table>";
+
+		return invoiceMainHeader;
+	}
+
+	private static String DateTimeToDateString(Timestamp timestamp) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+		return dateFormat.format(timestamp);
+	}
+
+	public static String invoiceItemHeader() {
+		String invoiceItemHeader = "<table><tbody><tr>" + "<th>	Serial # 	</th>" + "<th>	Item Name	</th>"
+				+ "<th>	Quanity		</th>" + "<th>	Unit Price	</th>" + "<th>	Total Price </th></tr>";
+
+		return invoiceItemHeader;
+	}
+
+	public static String PrepareHtmlPageFromInvoice(InvoiceModel invoice) {
+		int invoiceItemsPerPage = 10;
+		int serialNumber = 1;
+		int pageitemsCounter = 0;
+
+		double invoiceTotalPerPage = 0;		
+		StringBuilder sb = new StringBuilder();
+		boolean isFirstPage = true, pageBodyClosed = false;
+
+		for (InvoiceItemModel item : invoice.getInvoiceItems()) {
+			if (isFirstPage || pageitemsCounter >= invoiceItemsPerPage) {
+				pageitemsCounter = 0;
+				invoiceTotalPerPage = 0;
+				pageBodyClosed = false;
+				sb.append("<!--?xml version=\"1.0\" encoding=\"UTF-8\"?-->");
+				sb.append("<html><body>");
+				sb.append("<style> table {width:100%;border-collapse: separate;border-bottom: 1px solid black;}th {color: #4287f5;border: 1px solid black;}th, td {width: 150px;text-align: center;border-bottom: 1px solid black;padding: 5px;}h2 {color: #4287f5;}"
+								+ ".footer { position: fixed; left: 0; bottom: 0; width: 100%; color: black; text-align: center;}</style>");
+				sb.append("<table><tr><td><h2>Sale Invoice</h2></td></tr></table>");				
+				sb.append(InvoiceHeader(invoice));
+				sb.append(invoiceItemHeader());
+				isFirstPage = false;
+			}
+
+			String serialCol = "<td>" + serialNumber + "</td>";
+			String itemCol = "<td>" + item.getTitle() + "</td>";
+			String quantityCol = "<td>" + item.getQuantity() + "</td>";
+			String unitPrice = "<td>" + item.getSalePrice() + "</td>";
+			String totalCol = "<td>" + (item.getSalePrice() * item.getQuantity()) + "</td>";
+
+			sb.append("<tr>");
+			sb.append(serialCol);
+			sb.append(itemCol);
+			sb.append(quantityCol);
+			sb.append(unitPrice);
+			sb.append(totalCol);
+			sb.append("</tr>");
+
+			invoiceTotalPerPage = invoiceTotalPerPage + item.getSubTotal();
+			pageitemsCounter++;
+			serialNumber++;
+
+			if (pageitemsCounter >= invoiceItemsPerPage) {
+				sb.append("</tbody></table><table class=\"footer\"><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Page Wise Sum</td><td>" + invoiceTotalPerPage +" </td></tr>");
+				sb.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Total</td><td>" + invoice.getTotal() + "</td></tr></table>");	 
+				sb.append("<div style=\"page-break-before:always\">&nbsp;</div>");
+				sb.append("</body></html>");
+				pageBodyClosed = true;
+			}
+		}
+		if (!pageBodyClosed) {
+			sb.append("</tbody></table><table class=\"footer\"><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Page Wise Sum</td><td>" + invoiceTotalPerPage +" </td></tr>");
+			sb.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Total</td><td>" + invoice.getTotal() + "</td></tr></table>");	
+			
+			sb.append("</body></html>");
+			pageBodyClosed = true;
+		}
+		writefile(sb.toString());
+		return sb.toString();
+	}
+
+	public static void writefile(String data) {
+		try {
+			FileWriter myWriter = new FileWriter("invoicehtml.txt");
+			myWriter.write(data);
+			myWriter.close();
+			System.out.println("Successfully wrote to the file.");
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+			e.printStackTrace();
+		}
+	}
+
+	
 }
