@@ -19,6 +19,8 @@ public class SalesController {
 
 		for (int i = 0; i < sales.size(); i++) {
 
+			sales.get(i).setInvoiceItems(invoiceDao.getInvoiceItems(sales.get(i).getId()));
+			
 			Object[] object = { sales.get(i).getInvoiceNumber(), sales.get(i).getCustomer(),
 					sales.get(i).getDiscountPercent(), sales.get(i).getTotal() };
 			salesTableModel.addRow(object);
@@ -26,21 +28,23 @@ public class SalesController {
 		return sales;
 	}
 
-	public static void filterSales(JTextField txtSearchSales, ArrayList<InvoiceModel> sales,
+	public static ArrayList<InvoiceModel> filterSales(JTextField txtSearchSales, ArrayList<InvoiceModel> sales,
 			DefaultTableModel salesTableModel) {
+		ArrayList<InvoiceModel> filteredSales = new ArrayList<InvoiceModel>();
 		salesTableModel.setRowCount(0);
 		sales = invoiceDao.getInvoices();
 
 		for (int i = 0; i < sales.size(); i++) {
-			if (sales.get(i).getCustomer().contains(txtSearchSales.getText())
+			if (sales.get(i).getCustomer().toLowerCase().contains(txtSearchSales.getText().toLowerCase())
 					|| sales.get(i).getCustomerPhone().contains(txtSearchSales.getText())
 					|| sales.get(i).getInvoiceNumber().toLowerCase().contains(txtSearchSales.getText().toLowerCase())) {
+				filteredSales.add(sales.get(i));
 				Object[] object = { sales.get(i).getInvoiceNumber(), sales.get(i).getCustomer(),
 						sales.get(i).getDiscountPercent(), sales.get(i).getTotal() };
 				salesTableModel.addRow(object);
 			}
 		}
-//		return sales;
+		return filteredSales;
 	}
 
 }

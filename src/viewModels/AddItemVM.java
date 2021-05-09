@@ -48,6 +48,19 @@ public class AddItemVM {
 		this.txtChange = txtChange;
 	}
 
+	public AddItemVM(InvoiceModel invoice, DefaultTableModel tableModel, JTextField txtTotal,
+			JTextField txtDiscountPercent, JTextField txtDiscountAmount, JTextField txtTotalToPay,
+			JTextField txtReceived, JTextField txtChange) {
+		this.invoice = invoice;
+		this.tableModel = tableModel;
+		this.txtTotal = txtTotal;
+		this.txtDiscountPercent = txtDiscountPercent;
+		this.txtDiscountAmount = txtDiscountAmount;
+		this.txtTotalToPay = txtTotalToPay;
+		this.txtReceived = txtReceived;
+		this.txtChange = txtChange;
+	}
+
 	public JTextField getTxtTotal() {
 		return txtTotal;
 	}

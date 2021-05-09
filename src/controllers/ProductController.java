@@ -41,11 +41,7 @@ public class ProductController {
 			JOptionPane.showMessageDialog(null, "Product Unit can't be Empty!");
 			productForm.txtUnit.requestFocus();
 			return false;
-		} else if (productForm.txtSalePrice.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Sale Price can't be Empty!");
-			productForm.txtSalePrice.requestFocus();
-			return false;
-		} else if (!InputValidation.validateDecimal(productForm.txtSalePrice.getText())) {
+		} else if (!productForm.txtSalePrice.getText().isEmpty() && !InputValidation.validateDecimal(productForm.txtSalePrice.getText())) {
 			JOptionPane.showMessageDialog(null, "Sale Price must be numeric!");
 			productForm.txtSalePrice.requestFocus();
 			return false;
@@ -66,7 +62,7 @@ public class ProductController {
 		if (validateProduct(productForm)) {
 			ProductModel product = new ProductModel(productForm.txtTitle.getText(),
 					productForm.txtDescription.getText(), productForm.txtUnit.getText(),
-					Float.parseFloat(productForm.txtSalePrice.getText()), User.Username, new Timestamp(new Date().getTime()),
+					Float.parseFloat(productForm.txtSalePrice.getText() == null?productForm.txtSalePrice.getText():"0"), User.Username, new Timestamp(new Date().getTime()),
 					productForm.cbStatus.isSelected());
 			productDao.insertProduct(product);
 			JOptionPane.showMessageDialog(null, "Product Added Successfully!");

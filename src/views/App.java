@@ -64,6 +64,7 @@ public class App extends JFrame {
 	private ArrayList<ExpenseModel> expenses;
 	private ArrayList<UserModel> users;
 	private ArrayList<InvoiceModel> sales;
+	private ArrayList<InvoiceModel> filteredSales;
 
 	// Home
 	JPanel Home;
@@ -104,7 +105,7 @@ public class App extends JFrame {
 
 	// Users
 	JPanel Users;
-	private JTextField txtUserId,txtNameUser,txtUsername;
+	private JTextField txtUserId, txtNameUser, txtUsername;
 	private JPasswordField txtPassword;
 	private JTable usersTable;
 	private UserModel selectedUser;
@@ -116,6 +117,7 @@ public class App extends JFrame {
 	JPanel Sales;
 	private JTextField txtSearchSales;
 	private JTextField txtSalePrice;
+	private InvoiceModel selectedInvoice;
 
 	public void switchPanels(JPanel panel) {
 		layeredPane.removeAll();
@@ -139,7 +141,7 @@ public class App extends JFrame {
 		setLocationRelativeTo(null);
 
 		JPanel Header = new JPanel();
-		Header.setBounds(0, 11, 1024, 66);
+		Header.setBounds(10, 11, 1024, 66);
 		contentPane.add(Header);
 		Header.setLayout(null);
 
@@ -200,6 +202,7 @@ public class App extends JFrame {
 		btnAddUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				switchPanels(Users);
+				users = UserController.fillTableWithUsers(users, userTableModel);
 			}
 		});
 		btnAddUser.setBounds(25, 33, 100, 23);
@@ -273,6 +276,8 @@ public class App extends JFrame {
 			}
 		};
 		sales = SalesController.fillTableWithSales(sales, salesTableModel);
+
+		filteredSales = sales;
 	}
 
 	public void HomeGUI() {
@@ -324,6 +329,7 @@ public class App extends JFrame {
 		JButton btnPurchasesHome = new JButton("Purchases");
 		btnPurchasesHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				products = ProductController.fillTableWithProducts(products, productsTableModel);
 				switchPanels(Purchases);
 			}
 		});
@@ -342,7 +348,10 @@ public class App extends JFrame {
 		JButton btnAllSalesHome = new JButton("All Sales");
 		btnAllSalesHome.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sales = SalesController.fillTableWithSales(sales, salesTableModel);
 				switchPanels(Sales);
+
+				filteredSales = sales;
 			}
 		});
 		btnAllSalesHome.setBounds(0, 240, 200, 50);
@@ -487,7 +496,7 @@ public class App extends JFrame {
 		productTable = new JTable(productsTableModel);
 		scrollPane.setViewportView(productTable);
 		productTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
 		productTable.addMouseListener(new MouseListener() {
 
 			@Override
@@ -749,7 +758,8 @@ public class App extends JFrame {
 		txtUnitPurchase.setColumns(10);
 		txtUnitPurchase.setBounds(10, 175, 150, 20);
 		ProducDetails.add(txtUnitPurchase);
-		txtUnitPurchase.setText(products.get(0).getUnit());
+		if (products.size() > 0)
+			txtUnitPurchase.setText(products.get(0).getUnit());
 
 		JLabel lblQuantityPurchase = new JLabel("Quantity");
 		lblQuantityPurchase.setBounds(170, 161, 150, 14);
@@ -863,7 +873,7 @@ public class App extends JFrame {
 		expensesTable = new JTable(expensesTableModel);
 		scrollPaneExpenses.setViewportView(expensesTable);
 		expensesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
 		expensesTable.addMouseListener(new MouseListener() {
 
 			@Override
@@ -1081,21 +1091,72 @@ public class App extends JFrame {
 		scrollPaneSales.setViewportView(salesTable);
 		salesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+		salesTable.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				selectedInvoice = filteredSales.get(salesTable.getSelectedRow());
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				selectedInvoice = filteredSales.get(salesTable.getSelectedRow());
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 		txtSearchSales = new JTextField();
 		txtSearchSales.setBounds(814, 19, 200, 20);
 		Sales.add(txtSearchSales);
 		txtSearchSales.setColumns(10);
 
+		JButton btnRefund = new JButton("Refund");
+		btnRefund.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (selectedInvoice == null && salesTable.getSelectedRow() == -1) {
+					JOptionPane.showMessageDialog(null, "No Row Selected!");
+				} else {
+					JFrame frame = new SaleInvoice(selectedInvoice);
+					invoiceWindows.add(frame);
+					switchPanels(Home);
+				}
+
+			}
+		});
+		btnRefund.setBounds(715, 18, 89, 23);
+		Sales.add(btnRefund);
+
 		txtSearchSales.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				SalesController.filterSales(txtSearchSales, sales, salesTableModel);
+				filteredSales = SalesController.filterSales(txtSearchSales, sales, salesTableModel);
+				selectedInvoice = null;
+				salesTable.clearSelection();
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				SalesController.filterSales(txtSearchSales, sales, salesTableModel);
+				filteredSales = SalesController.filterSales(txtSearchSales, sales, salesTableModel);
+				selectedInvoice = null;
+				salesTable.clearSelection();
 			}
 
 			@Override
@@ -1119,6 +1180,8 @@ public class App extends JFrame {
 
 		productDefaults();
 		customerDefaults();
+		expenseDefaults();
+		userDefaults();
 	}
 
 	public void productDefaults() {
@@ -1148,5 +1211,10 @@ public class App extends JFrame {
 		selectedUser = null;
 		usersTable.clearSelection();
 	}
-
+	
+	public void salesDefaults() {
+		selectedInvoice = null;
+		salesTable.clearSelection();
+		txtSearchSales.setText(null);
+	}
 }

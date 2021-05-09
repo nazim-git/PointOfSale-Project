@@ -95,8 +95,7 @@ public class ProductDao {
 	public void insertProduct(ProductModel product) {
 		try {
 			String query = "insert into Products"
-					+ "(title,description,unit,createdBy,createdAt,status,salePrice) values"
-					+ "(?,?,?,?,?,?,?)";
+					+ "(title,description,unit,createdBy,createdAt,status,salePrice) values" + "(?,?,?,?,?,?,?)";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, product.getTitle());
@@ -117,7 +116,7 @@ public class ProductDao {
 	public void deleteCustomer(String title, Timestamp deletedAt) {
 		try {
 			String query = "UPDATE Products SET isDeleted = 1, deletedBy ='" + User.Username + "', deletedAt = '"
-					+ deletedAt + "' WHERE title = '" + title+"'";
+					+ deletedAt + "' WHERE title = '" + title + "'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();
@@ -128,12 +127,10 @@ public class ProductDao {
 
 	public void updateProduct(String title, ProductModel newDetails) {
 		try {
-			String query = "UPDATE Products SET title ='" + newDetails.getTitle() + 
-											 "',description ='" + newDetails.getDescription()+ 
-											 "',unit ='" + newDetails.getUnit() + 
-											 "',status ='"+ newDetails.getStatus() + 
-											 "',salePrice ='"+ newDetails.getSalePrice() + 
-											 "' WHERE title = '" + title+"'";
+			String query = "UPDATE Products SET title ='" + newDetails.getTitle() + "',description ='"
+					+ newDetails.getDescription() + "',unit ='" + newDetails.getUnit() + "',status ='"
+					+ newDetails.getStatus() + "',salePrice ='" + newDetails.getSalePrice() + "' WHERE title = '"
+					+ title + "'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();
@@ -158,7 +155,6 @@ public class ProductDao {
 		}
 	}
 
-	
 	public void updateStock(String title, int quantity) {
 		try {
 			String query = "UPDATE Products SET stock = stock - ? where title = ?";
@@ -173,5 +169,17 @@ public class ProductDao {
 		}
 	}
 
-	
+	public void updateStockRefund(int invoiceId) {
+		try {
+			String query = "UPDATE pr SET pr.stock = pr.stock + ii.quantity FROM Products pr JOIN InvoiceItems ii ON LOWER(pr.title) = LOWER(ii.title) WHERE ii.invoiceId = "
+					+ invoiceId;
+
+			pst = con.prepareStatement(query);
+
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

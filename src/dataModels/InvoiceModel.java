@@ -7,6 +7,7 @@ public class InvoiceModel {
 
 	private int id;
 	private String invoiceNumber;
+	private String refInvoiceNumber;
 	private String customerPhone;
 	private String customer;
 	private float total;
@@ -22,6 +23,24 @@ public class InvoiceModel {
 	private Timestamp deletedAt;
 
 	
+	@Override
+	public String toString() {
+		return "InvoiceModel [id=" + id + ", invoiceNumber=" + invoiceNumber + ", refInvoiceNumber=" + refInvoiceNumber
+				+ ", customerPhone=" + customerPhone + ", customer=" + customer + ", total=" + total
+				+ ", discountPercent=" + discountPercent + ", discountAmount=" + discountAmount + ", totalToPay="
+				+ totalToPay + ", received=" + received + ", change=" + change + ", createdBy=" + createdBy
+				+ ", createdAt=" + createdAt + ", isDeleted=" + isDeleted + ", deletedBy=" + deletedBy + ", deletedAt="
+				+ deletedAt + "]";
+	}
+
+	public String getRefInvoiceNumber() {
+		return refInvoiceNumber;
+	}
+
+	public void setRefInvoiceNumber(String refInvoiceNumber) {
+		this.refInvoiceNumber = refInvoiceNumber;
+	}
+
 	public String getCustomerPhone() {
 		return customerPhone;
 	}

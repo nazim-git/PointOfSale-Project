@@ -16,6 +16,7 @@ import Helpers.InputValidation;
 import controllers.InvoiceController;
 import controllers.SalesController;
 import dataAccess.CustomerDao;
+import dataAccess.InvoiceDao;
 import dataAccess.ProductDao;
 import dataModels.CustomerModel;
 import dataModels.InvoiceItemModel;
@@ -61,6 +62,7 @@ public class SaleInvoice extends JFrame {
 
 	private ProductDao productDao;
 	private CustomerDao customerDao;
+	private InvoiceDao invoiceDao;
 
 	private ArrayList<ProductModel> products;
 	private ArrayList<CustomerModel> customers;
@@ -68,7 +70,7 @@ public class SaleInvoice extends JFrame {
 	private ProductModel selectedProduct;
 	private CustomerModel selectedCustomer;
 
-	private InvoiceModel invoice;
+	private InvoiceModel invoice = new InvoiceModel();
 	private ArrayList<InvoiceItemModel> items;
 
 	String header[] = { "Product", "Unit", "Unit Price", "Quantity", "Sub-Total" };
@@ -95,9 +97,29 @@ public class SaleInvoice extends JFrame {
 		revalidate();
 	}
 
+	public SaleInvoice(InvoiceModel selectedInvoice) {
+		setMaximizedBounds(Frame.getScreenBounds());
+		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		Initializations();
+		setUI();
+		fillWithSelectedProduct(true);
+		repaint();
+		revalidate();
+		System.out.println(selectedInvoice.getId());
+		this.invoice = invoiceDao.getInvoice(selectedInvoice.getId());
+		this.invoice.setInvoiceItems(invoiceDao.getInvoiceItems(this.invoice.getId()));
+		populateInvoice();
+	}
+
+	private void populateInvoice() {
+		cmbCustomerName.setSelectedItem(invoice.getCustomer());
+		InvoiceController.fillTableWithInvoiceItems(new AddItemVM(invoice, tableModel,txtTotal,txtDiscountPercent,txtDiscountAmount,txtTotalToPay,txtReceived,txtChange));
+	}
+
 	public void Initializations() {
 		productDao = new ProductDao();
 		customerDao = new CustomerDao();
+		invoiceDao = new InvoiceDao();
 
 		products = new ArrayList<ProductModel>();
 		customers = new ArrayList<CustomerModel>();
@@ -154,7 +176,9 @@ public class SaleInvoice extends JFrame {
 		cmbProductName.setBounds(138, 78, 250, 30);
 		contentPane.add(cmbProductName);
 		for (int i = 0; i < products.size(); i++) {
-			cmbProductName.addItem(products.get(i).getTitle());
+			if(products.get(i).getStatus() && products.get(i).getStock() > 0) {
+				cmbProductName.addItem(products.get(i).getTitle());	
+			}
 		}
 		cmbProductName.addActionListener(new ActionListener() {
 
@@ -218,7 +242,7 @@ public class SaleInvoice extends JFrame {
 						public void actionPerformed(ActionEvent arg0) {
 							invoice.getInvoiceItems().remove(rowindex);
 							InvoiceController.fillTableWithInvoiceItems(new AddItemVM(selectedProduct,
-									Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal,
+									Integer.parseInt(txtQuantity.getText().isEmpty()?txtQuantity.getText():"0"), invoice, tableModel, txtTotal,
 									txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
 						}
 					});
@@ -237,7 +261,9 @@ public class SaleInvoice extends JFrame {
 		txtQuantity.setText((String) null);
 		txtQuantity.setColumns(10);
 		txtQuantity.setBounds(400, 78, 120, 30);
+		txtQuantity.setText("0");
 		contentPane.add(txtQuantity);
+		
 
 		JButton btnAddItem = new JButton("Add Item!");
 		btnAddItem.addActionListener(new ActionListener() {
@@ -377,13 +403,17 @@ public class SaleInvoice extends JFrame {
 		btnCash.setEnabled(false);
 		btnCash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println(invoice.getCustomerPhone());
-				if (invoice.getInvoiceItems().size() == 0) {
+				System.out.println(invoice.getId());
+				if (invoice.getInvoiceItems().size() == 0 && invoice.getId() == 0) {
 					JOptionPane.showMessageDialog(null, "No Product Added!");
 				} else {
 					if (Float.parseFloat(txtTotalToPay.getText()) <= Float.parseFloat(txtReceived.getText())) {
-
-						InvoiceController.cash(invoice);
+						if(invoice.getId() != 0) {
+							InvoiceController.refund(invoice);
+						} else {
+							InvoiceController.cash(invoice);
+						}
+						
 						JOptionPane.showMessageDialog(null, "Success!");
 						dispose();
 					} else {

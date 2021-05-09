@@ -164,4 +164,15 @@ public class InvoiceController {
 
 	}
 
+	public static void returnAll(int invoiceId) {
+		invoiceDao.deleteInvocie(invoiceId);
+		invoiceDao.deleteInvocieItems(invoiceId);
+		productDao.updateStockRefund(invoiceId);
+	}
+
+	public static void refund(InvoiceModel invoice) {
+		returnAll(invoice.getId());
+		invoice.setRefInvoiceNumber(invoiceDao.getInvoiceLastNumber(invoice.getCreatedAt()));
+		cash(invoice);
+	}
 }
