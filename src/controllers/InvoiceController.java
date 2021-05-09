@@ -175,7 +175,7 @@ public class InvoiceController {
 		for(int i=0;i<invoice.getInvoiceItems().size();i++) {
 			productDao.updateStock(invoice.getInvoiceItems().get(i).getTitle(),invoice.getInvoiceItems().get(i).getQuantity());	
 		}
-
+		printInvoice(invoice);
 	}
 
 	public static void returnAll(int invoiceId) {
@@ -188,8 +188,6 @@ public class InvoiceController {
 		returnAll(invoice.getId());
 		invoice.setRefInvoiceNumber(invoiceDao.getInvoiceLastNumber(invoice.getCreatedAt()));
 		cash(invoice);
-
-		printInvoice(invoice);
 	}
 	
 	public static void printInvoice(InvoiceModel invoice) {
