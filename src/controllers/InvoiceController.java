@@ -172,10 +172,12 @@ public class InvoiceController {
 		invoiceDao.insertInvoice(invoice);
 		int invoiceId = invoiceDao.getInvoiceLastId(invoice.getCreatedAt());
 		invoiceDao.insertItems(invoiceId, invoice.getInvoiceItems());
-		for(int i=0;i<invoice.getInvoiceItems().size();i++) {
-			productDao.updateStock(invoice.getInvoiceItems().get(i).getTitle(),invoice.getInvoiceItems().get(i).getQuantity());	
+		for (int i = 0; i < invoice.getInvoiceItems().size(); i++) {
+			productDao.updateStock(invoice.getInvoiceItems().get(i).getTitle(),
+					invoice.getInvoiceItems().get(i).getQuantity());
 		}
 
+		printInvoice(invoice);
 	}
 
 	public static void returnAll(int invoiceId) {
@@ -188,16 +190,14 @@ public class InvoiceController {
 		returnAll(invoice.getId());
 		invoice.setRefInvoiceNumber(invoiceDao.getInvoiceLastNumber(invoice.getCreatedAt()));
 		cash(invoice);
-
-		printInvoice(invoice);
 	}
-	
+
 	public static void printInvoice(InvoiceModel invoice) {
 		try {
 			String RESULT_FOLDER = "invoices\\";
 			String outputName = "invoice" + invoice.getInvoiceNumber() + ".pdf";
 			String invoiceHtml = PrepareHtmlPageFromInvoice(invoice);
-			
+
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			Document document = new Document();
 			PdfWriter writer = PdfWriter.getInstance(document, baos);
@@ -209,26 +209,24 @@ public class InvoiceController {
 
 			File myFile = new File(RESULT_FOLDER + outputName);
 			Desktop.getDesktop().open(myFile);
-			
+			//myFile.canRead();
+			myFile.setReadOnly();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static String InvoiceHeader(InvoiceModel invoice) {
-		String invoiceNumbCol     = "Invoice Number: " + invoice.getInvoiceNumber();
-		String invoiceTypeColumn  = "Type: Cash";
-		String invoiceDateCol     = "Date: " + DateTimeToDateString(invoice.getCreatedAt());
-		String invoiceCustCol     = "Customer: " + invoice.getCustomer();
+		String invoiceNumbCol = "Invoice Number: " + invoice.getInvoiceNumber();
+		String invoiceTypeColumn = "Type: Cash";
+		String invoiceDateCol = "Date: " + DateTimeToDateString(invoice.getCreatedAt());
+		String invoiceCustCol = "Customer: " + invoice.getCustomer();
 		String customerContactCol = "Customer Phone: " + invoice.getCustomerPhone();
 
-		String invoiceMainHeader = "<table>	<tr><td>" + invoiceNumbCol   + "</td>" 
-											+ "<td>" + invoiceTypeColumn+ "</td>" 
-											+ "<td>" + invoiceDateCol   + "</td>" +
-											"</tr>"
-											+"<tr><td>" + invoiceCustCol + "</td>" 
-											+ "<td>"	+ customerContactCol + "</td>"
-											+ "</tr></table>";
+		String invoiceMainHeader = "<table>	<tr><td>" + invoiceNumbCol + "</td>" + "<td>" + invoiceTypeColumn + "</td>"
+				+ "<td>" + invoiceDateCol + "</td>" + "</tr>" + "<tr><td>" + invoiceCustCol + "</td>" + "<td>"
+				+ customerContactCol + "</td>" + "</tr></table>";
 
 		return invoiceMainHeader;
 	}
@@ -250,7 +248,7 @@ public class InvoiceController {
 		int serialNumber = 1;
 		int pageitemsCounter = 0;
 
-		double invoiceTotalPerPage = 0;		
+		double invoiceTotalPerPage = 0;
 		StringBuilder sb = new StringBuilder();
 		boolean isFirstPage = true, pageBodyClosed = false;
 
@@ -261,9 +259,10 @@ public class InvoiceController {
 				pageBodyClosed = false;
 				sb.append("<!--?xml version=\"1.0\" encoding=\"UTF-8\"?-->");
 				sb.append("<html><body>");
-				sb.append("<style> table {width:100%;border-collapse: separate;border-bottom: 1px solid black;}th {color: #4287f5;border: 1px solid black;}th, td {width: 150px;text-align: center;border-bottom: 1px solid black;padding: 5px;}h2 {color: #4287f5;}"
+				sb.append(
+						"<style> table {width:100%;border-collapse: separate;border-bottom: 1px solid black;}th {color: #4287f5;border: 1px solid black;}th, td {width: 150px;text-align: center;border-bottom: 1px solid black;padding: 5px;}h2 {color: #4287f5;}"
 								+ ".footer { position: fixed; left: 0; bottom: 0; width: 100%; color: black; text-align: center;}</style>");
-				sb.append("<table><tr><td><h2>Sale Invoice</h2></td></tr></table>");				
+				sb.append("<table><tr><td><h2>Sale Invoice</h2></td></tr></table>");
 				sb.append(InvoiceHeader(invoice));
 				sb.append(invoiceItemHeader());
 				isFirstPage = false;
@@ -288,17 +287,23 @@ public class InvoiceController {
 			serialNumber++;
 
 			if (pageitemsCounter >= invoiceItemsPerPage) {
-				sb.append("</tbody></table><table class=\"footer\"><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Page Wise Sum</td><td>" + invoiceTotalPerPage +" </td></tr>");
-				sb.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Total</td><td>" + invoice.getTotal() + "</td></tr></table>");	 
+				sb.append(
+						"</tbody></table><table class=\"footer\"><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Page Wise Sum</td><td>"
+								+ invoiceTotalPerPage + " </td></tr>");
+				sb.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Total</td><td>" + invoice.getTotal()
+						+ "</td></tr></table>");
 				sb.append("<div style=\"page-break-before:always\">&nbsp;</div>");
 				sb.append("</body></html>");
 				pageBodyClosed = true;
 			}
 		}
 		if (!pageBodyClosed) {
-			sb.append("</tbody></table><table class=\"footer\"><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Page Wise Sum</td><td>" + invoiceTotalPerPage +" </td></tr>");
-			sb.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Total</td><td>" + invoice.getTotal() + "</td></tr></table>");	
-			
+			sb.append(
+					"</tbody></table><table class=\"footer\"><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Page Wise Sum</td><td>"
+							+ invoiceTotalPerPage + " </td></tr>");
+			sb.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>Total</td><td>" + invoice.getTotal()
+					+ "</td></tr></table>");
+
 			sb.append("</body></html>");
 			pageBodyClosed = true;
 		}
@@ -308,7 +313,7 @@ public class InvoiceController {
 
 	public static void writefile(String data) {
 		try {
-			FileWriter myWriter = new FileWriter("invoicehtml.txt");
+			FileWriter myWriter = new FileWriter("invoicehtml.txt", true);
 			myWriter.write(data);
 			myWriter.close();
 			System.out.println("Successfully wrote to the file.");
@@ -318,5 +323,4 @@ public class InvoiceController {
 		}
 	}
 
-	
 }

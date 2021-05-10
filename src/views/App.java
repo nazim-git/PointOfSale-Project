@@ -39,6 +39,7 @@ import controllers.ExpenseController;
 import controllers.ProductController;
 import controllers.PurchasesController;
 import controllers.SalesController;
+import controllers.SyncController;
 import controllers.UserController;
 
 import javax.swing.SwingConstants;
@@ -207,6 +208,15 @@ public class App extends JFrame {
 		});
 		btnAddUser.setBounds(25, 33, 100, 23);
 		UserDetailsPanelHome.add(btnAddUser);
+		
+		JButton btnSyncData = new JButton("Sync Data");
+		btnSyncData.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				SyncController.Sync();
+			}
+		});
+		btnSyncData.setBounds(570, 32, 89, 23);
+		Header.add(btnSyncData);
 		if (!User.IsAdmin) {
 			btnAddUser.setVisible(false);
 		}
