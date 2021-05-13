@@ -66,7 +66,7 @@ public class ExpenseDao {
 	public void deleteExpense(int id, Timestamp deletedAt) {
 		try {
 			String query = "UPDATE Expenses SET isDeleted = 1, deletedBy ='" + User.Name + "', deletedAt = '"
-					+ deletedAt + "' WHERE id = " + id;
+					+ deletedAt + "', isSynced = 0 WHERE id = " + id;
 			pst = con.prepareStatement(query);
 
 			pst.execute();

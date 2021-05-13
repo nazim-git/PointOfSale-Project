@@ -9,6 +9,15 @@ public class CustomerModel {
 	private boolean isDeleted;
 	private String deletedBy;
 	private Timestamp deletedAt;
+	private String oldPhone;
+
+	public String getOldPhone() {
+		return oldPhone;
+	}
+
+	public void setOldPhone(String oldPhone) {
+		this.oldPhone = oldPhone;
+	}
 
 	public CustomerModel(String name, String phone, String createdBy, Timestamp createdAt) {
 		super();

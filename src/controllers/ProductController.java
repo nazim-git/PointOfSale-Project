@@ -62,7 +62,7 @@ public class ProductController {
 		if (validateProduct(productForm)) {
 			ProductModel product = new ProductModel(productForm.txtTitle.getText(),
 					productForm.txtDescription.getText(), productForm.txtUnit.getText(),
-					Float.parseFloat(productForm.txtSalePrice.getText() == null?productForm.txtSalePrice.getText():"0"), User.Username, new Timestamp(new Date().getTime()),
+					Float.parseFloat(productForm.txtSalePrice.getText() != null?productForm.txtSalePrice.getText():"0"), User.Username, new Timestamp(new Date().getTime()),
 					productForm.cbStatus.isSelected());
 			productDao.insertProduct(product);
 			JOptionPane.showMessageDialog(null, "Product Added Successfully!");

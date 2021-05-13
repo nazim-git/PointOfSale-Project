@@ -144,7 +144,7 @@ public class UserDao {
 		try {
 			String query = "UPDATE Users SET name ='" + newDetails.getName() + "',username ='" + newDetails.getUsername()
 			+ "',password ='" + newDetails.getPassword()+ "',isAdmin ='" + newDetails.isIsAdmin()
-					+ "' WHERE id = " + id;
+					+ "', isSynced = 0 WHERE id = " + id;
 			pst = con.prepareStatement(query);
 
 			pst.execute();

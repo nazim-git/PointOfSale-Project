@@ -33,6 +33,7 @@ import dataModels.InvoiceModel;
 import dataModels.ProductModel;
 import dataModels.RunningNumber;
 import dataModels.User;
+import viewModels.AddCustomerVM;
 import viewModels.AddItemVM;
 
 public class InvoiceController {
@@ -121,32 +122,68 @@ public class InvoiceController {
 		}
 	}
 
-	public static void calculate(AddItemVM model) {
-		float total = 0;
+	public static boolean validateCalculateInput(AddItemVM model) {
+		boolean isValid = true;
+		Float discountPercentage;
+		try {
+			
+			discountPercentage = Float.parseFloat(model.getTxtDiscountPercent().getText());
+			if (discountPercentage < 0 || discountPercentage > 100) {
+				isValid = false;
+				JOptionPane.showMessageDialog(null, "Enter valid value for Discount!");
+				return isValid;
+			}
+		} catch (NumberFormatException ex) {
+			discountPercentage = (float) 0;
+			JOptionPane.showMessageDialog(null, "Enter valid value for Discount!");
+			isValid = false;
+			return isValid;
+		}
+		
+		Float received;
+		try {
+			
+			received = Float.parseFloat(model.getTxtReceived().getText());
 
-		for (InvoiceItemModel item : model.getInvoice().getInvoiceItems()) {
-			total = total + item.getSubTotal();
+		} catch (NumberFormatException ex) {
+			discountPercentage = (float) 0;
+			JOptionPane.showMessageDialog(null, "Enter valid value for Received!");
+			isValid = false;
+			return isValid;
 		}
 
-		float discountPercent = Float.parseFloat(model.getTxtDiscountPercent().getText());
-		float discountAmount = (total / 100) * discountPercent;
-		float totalToPay = total - discountAmount;
-		float received = Float.parseFloat(model.getTxtReceived().getText());
-		float change = received - totalToPay;
+		return isValid;
 
-		model.getInvoice().setTotal(total);
-		model.getInvoice().setDiscountPercent(discountPercent);
-		model.getInvoice().setDiscountAmount(discountAmount);
-		model.getInvoice().setTotalToPay(totalToPay);
-		model.getInvoice().setReceived(received);
-		model.getInvoice().setChange(change);
+	}
 
-		model.getTxtTotal().setText(String.valueOf(total));
-		model.getTxtDiscountPercent().setText(String.valueOf(discountPercent));
-		model.getTxtDiscountAmount().setText(String.valueOf(discountAmount));
-		model.getTxtTotalToPay().setText(String.valueOf(totalToPay));
-		model.getTxtReceived().setText(String.valueOf(received));
-		model.getTxtChange().setText(String.valueOf(change));
+	public static void calculate(AddItemVM model) {
+		if (validateCalculateInput(model)) {
+			float total = 0;
+
+			for (InvoiceItemModel item : model.getInvoice().getInvoiceItems()) {
+				total = total + item.getSubTotal();
+			}
+
+			float discountPercent = Float.parseFloat(model.getTxtDiscountPercent().getText());
+			float discountAmount = (total / 100) * discountPercent;
+			float totalToPay = total - discountAmount;
+			float received = Float.parseFloat(model.getTxtReceived().getText());
+			float change = received - totalToPay;
+
+			model.getInvoice().setTotal(total);
+			model.getInvoice().setDiscountPercent(discountPercent);
+			model.getInvoice().setDiscountAmount(discountAmount);
+			model.getInvoice().setTotalToPay(totalToPay);
+			model.getInvoice().setReceived(received);
+			model.getInvoice().setChange(change);
+
+			model.getTxtTotal().setText(String.valueOf(total));
+			model.getTxtDiscountPercent().setText(String.valueOf(discountPercent));
+			model.getTxtDiscountAmount().setText(String.valueOf(discountAmount));
+			model.getTxtTotalToPay().setText(String.valueOf(totalToPay));
+			model.getTxtReceived().setText(String.valueOf(received));
+			model.getTxtChange().setText(String.valueOf(change));
+		}
 	}
 
 	public static void fillTableWithInvoiceItems(AddItemVM model) {
@@ -209,7 +246,7 @@ public class InvoiceController {
 
 			File myFile = new File(RESULT_FOLDER + outputName);
 			Desktop.getDesktop().open(myFile);
-			//myFile.canRead();
+			// myFile.canRead();
 			myFile.setReadOnly();
 
 		} catch (Exception e) {
@@ -232,7 +269,7 @@ public class InvoiceController {
 	}
 
 	private static String DateTimeToDateString(Timestamp timestamp) {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		return dateFormat.format(timestamp);
 	}
 

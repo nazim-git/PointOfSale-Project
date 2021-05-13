@@ -88,8 +88,9 @@ public class SaleInvoice extends JFrame {
 	private JLabel lblStock;
 
 	public SaleInvoice() {
-		setMaximizedBounds(Frame.getScreenBounds());
-		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+		setResizable(false);
+//		setMaximizedBounds(Frame.getScreenBounds());
+//		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		Initializations();
 		setUI();
 		fillWithSelectedProduct(true);
@@ -98,8 +99,8 @@ public class SaleInvoice extends JFrame {
 	}
 
 	public SaleInvoice(InvoiceModel selectedInvoice) {
-		setMaximizedBounds(Frame.getScreenBounds());
-		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+//		setMaximizedBounds(Frame.getScreenBounds());
+//		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		Initializations();
 		setUI();
 		fillWithSelectedProduct(true);
@@ -113,7 +114,8 @@ public class SaleInvoice extends JFrame {
 
 	private void populateInvoice() {
 		cmbCustomerName.setSelectedItem(invoice.getCustomer());
-		InvoiceController.fillTableWithInvoiceItems(new AddItemVM(invoice, tableModel,txtTotal,txtDiscountPercent,txtDiscountAmount,txtTotalToPay,txtReceived,txtChange));
+		InvoiceController.fillTableWithInvoiceItems(new AddItemVM(invoice, tableModel, txtTotal, txtDiscountPercent,
+				txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
 	}
 
 	public void Initializations() {
@@ -155,29 +157,72 @@ public class SaleInvoice extends JFrame {
 		setVisible(true);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		setBounds(0, 0, screenSize.width, screenSize.height);
+		setBounds(0, 0, 963, 607);
 
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
 		lblSaleInvoice = new JLabel("Sale Invoice");
-		lblSaleInvoice.setFont(new Font("Times New Roman", Font.BOLD, 30));
-		lblSaleInvoice.setBounds(10, 11, 156, 30);
+		lblSaleInvoice.setFont(new Font("Cambria Math", Font.BOLD, 24));
+		lblSaleInvoice.setBounds(405, 11, 156, 30);
 		contentPane.add(lblSaleInvoice);
 
+		JLabel lblCustomerName = new JLabel("Customer Name");
+		lblCustomerName.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblCustomerName.setBounds(47, 52, 235, 14);
+		contentPane.add(lblCustomerName);
+
+		cmbCustomerName = new JComboBox();
+		cmbCustomerName.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		cmbCustomerName.setToolTipText("Select Product By Name.....");
+		cmbCustomerName.setMaximumRowCount(5);
+		cmbCustomerName.setBounds(47, 65, 235, 30);
+		contentPane.add(cmbCustomerName);
+		cmbCustomerName.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				cmbProductName.setSelectedIndex(cmbProductID.getSelectedIndex());
+
+				selectedCustomer = customers.get(cmbCustomerName.getSelectedIndex());
+				txtCustomerMobile.setText(selectedCustomer.getPhone());
+
+				invoice.setCustomer(selectedCustomer.getName());
+				invoice.setCustomerPhone(selectedCustomer.getPhone());
+			}
+		});
+
+		JLabel lblCustomerMobile = new JLabel("Customer Mobile");
+		lblCustomerMobile.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblCustomerMobile.setBounds(294, 52, 163, 14);
+		contentPane.add(lblCustomerMobile);
+
+		txtCustomerMobile = new JTextField();
+		txtCustomerMobile.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtCustomerMobile.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtCustomerMobile.setToolTipText("Enter Customer Mobile Here.....");
+		txtCustomerMobile.setText((String) null);
+		txtCustomerMobile.setEditable(false);
+		txtCustomerMobile.setColumns(10);
+		txtCustomerMobile.setBounds(294, 65, 163, 30);
+		contentPane.add(txtCustomerMobile);
+		txtCustomerMobile.setText(customers.get(0).getPhone());
+
 		lblProductName = new JLabel("Product Name");
-		lblProductName.setBounds(142, 65, 102, 14);
+		lblProductName.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblProductName.setBounds(47, 106, 235, 14);
 		contentPane.add(lblProductName);
 
 		cmbProductName = new JComboBox();
+		cmbProductName.setFont(new Font("Cambria Math", Font.PLAIN, 13));
 		cmbProductName.setMaximumRowCount(5);
 		cmbProductName.setToolTipText("Select Product By Name.....");
-		cmbProductName.setBounds(138, 78, 250, 30);
+		cmbProductName.setBounds(47, 119, 235, 30);
 		contentPane.add(cmbProductName);
 		for (int i = 0; i < products.size(); i++) {
-			if(products.get(i).getStatus() && products.get(i).getStock() > 0) {
-				cmbProductName.addItem(products.get(i).getTitle());	
+			if (products.get(i).getStatus() && products.get(i).getStock() > 0) {
+				cmbProductName.addItem(products.get(i).getTitle());
 			}
 		}
 		cmbProductName.addActionListener(new ActionListener() {
@@ -190,31 +235,84 @@ public class SaleInvoice extends JFrame {
 			}
 		});
 
-		lblMeasuringUnit = new JLabel("Measuring Unit");
-		lblMeasuringUnit.setBounds(14, 175, 89, 14);
-		contentPane.add(lblMeasuringUnit);
+		JLabel lblQuantity = new JLabel("Quantity");
+		lblQuantity.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblQuantity.setBounds(292, 106, 165, 14);
+		contentPane.add(lblQuantity);
 
-		txtMeasuringUnit = new JTextField();
-		txtMeasuringUnit.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtMeasuringUnit.setToolTipText("Measuring Unit of the Selected Product.....");
-		txtMeasuringUnit.setEditable(false);
-		txtMeasuringUnit.setBounds(10, 190, 120, 30);
-		contentPane.add(txtMeasuringUnit);
-		txtMeasuringUnit.setColumns(10);
+		txtQuantity = new JTextField();
+		txtQuantity.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtQuantity.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtQuantity.setToolTipText("Enter quantity of the item here....");
+		txtQuantity.setText((String) null);
+		txtQuantity.setColumns(10);
+		txtQuantity.setBounds(292, 119, 165, 30);
+		txtQuantity.setText("0");
+		contentPane.add(txtQuantity);
+
+		lblStock = new JLabel("Stock");
+		lblStock.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblStock.setBounds(467, 106, 85, 14);
+		contentPane.add(lblStock);
+
+		txtStock = new JTextField();
+		txtStock.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtStock.setText("0.0");
+		txtStock.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtStock.setEditable(false);
+		txtStock.setColumns(10);
+		txtStock.setBounds(467, 119, 85, 30);
+		contentPane.add(txtStock);
 
 		lblUnitPrice = new JLabel("Unit Price");
-		lblUnitPrice.setBounds(14, 120, 89, 14);
+		lblUnitPrice.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblUnitPrice.setBounds(562, 106, 85, 14);
 		contentPane.add(lblUnitPrice);
 
 		txtUnitPrice = new JTextField();
+		txtUnitPrice.setFont(new Font("Cambria Math", Font.PLAIN, 13));
 		txtUnitPrice.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtUnitPrice.setEditable(false);
 		txtUnitPrice.setColumns(10);
-		txtUnitPrice.setBounds(10, 133, 120, 30);
+		txtUnitPrice.setBounds(562, 119, 85, 30);
 		contentPane.add(txtUnitPrice);
 
+		lblMeasuringUnit = new JLabel("Unit");
+		lblMeasuringUnit.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblMeasuringUnit.setBounds(657, 106, 85, 14);
+		contentPane.add(lblMeasuringUnit);
+
+		txtMeasuringUnit = new JTextField();
+		txtMeasuringUnit.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtMeasuringUnit.setHorizontalAlignment(SwingConstants.RIGHT);
+		txtMeasuringUnit.setToolTipText("Measuring Unit of the Selected Product.....");
+		txtMeasuringUnit.setEditable(false);
+		txtMeasuringUnit.setBounds(657, 119, 85, 30);
+		contentPane.add(txtMeasuringUnit);
+		txtMeasuringUnit.setColumns(10);
+
+		JButton btnAddItem = new JButton("Add Item!");
+		btnAddItem.setFont(new Font("Cambria Math", Font.BOLD, 22));
+		btnAddItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (InvoiceController.validateQuantity(txtQuantity)) {
+					if (selectedProduct.getStock() >= Integer.parseInt(txtQuantity.getText())) {
+						InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct,
+								Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal,
+								txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
+						btnCash.setEnabled(false);
+					} else {
+						JOptionPane.showMessageDialog(null, "Not enough stock");
+					}
+				}
+			}
+
+		});
+		btnAddItem.setBounds(752, 52, 143, 97);
+		contentPane.add(btnAddItem);
+
 		scrollPane = new JScrollPane();
-		scrollPane.setBounds(140, 120, 1199, 300);
+		scrollPane.setBounds(47, 160, 848, 300);
 		contentPane.add(scrollPane);
 
 		table = new JTable(tableModel);
@@ -242,8 +340,9 @@ public class SaleInvoice extends JFrame {
 						public void actionPerformed(ActionEvent arg0) {
 							invoice.getInvoiceItems().remove(rowindex);
 							InvoiceController.fillTableWithInvoiceItems(new AddItemVM(selectedProduct,
-									Integer.parseInt(txtQuantity.getText().isEmpty()?txtQuantity.getText():"0"), invoice, tableModel, txtTotal,
-									txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
+									Integer.parseInt(txtQuantity.getText().isEmpty() ? txtQuantity.getText() : "0"),
+									invoice, tableModel, txtTotal, txtDiscountPercent, txtDiscountAmount, txtTotalToPay,
+									txtReceived, txtChange));
 						}
 					});
 					popup.add(menuItem);
@@ -252,95 +351,32 @@ public class SaleInvoice extends JFrame {
 			}
 		});
 
-		JLabel lblQuantity = new JLabel("Quantity");
-		lblQuantity.setBounds(402, 65, 89, 14);
-		contentPane.add(lblQuantity);
-
-		txtQuantity = new JTextField();
-		txtQuantity.setToolTipText("Enter quantity of the item here....");
-		txtQuantity.setText((String) null);
-		txtQuantity.setColumns(10);
-		txtQuantity.setBounds(400, 78, 120, 30);
-		txtQuantity.setText("0");
-		contentPane.add(txtQuantity);
-		
-
-		JButton btnAddItem = new JButton("Add Item!");
-		btnAddItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (InvoiceController.validateQuantity(txtQuantity)) {
-					if (selectedProduct.getStock() >= Integer.parseInt(txtQuantity.getText())) {
-						InvoiceController.addItemToInvoice(new AddItemVM(selectedProduct,
-								Integer.parseInt(txtQuantity.getText()), invoice, tableModel, txtTotal,
-								txtDiscountPercent, txtDiscountAmount, txtTotalToPay, txtReceived, txtChange));
-						btnCash.setEnabled(false);
-					} else {
-						JOptionPane.showMessageDialog(null, "Not enough stock");
-					}
-				}
-			}
-
-		});
-		btnAddItem.setBounds(10, 232, 120, 30);
-		contentPane.add(btnAddItem);
-
-		txtCustomerMobile = new JTextField();
-		txtCustomerMobile.setToolTipText("Enter Customer Mobile Here.....");
-		txtCustomerMobile.setText((String) null);
-		txtCustomerMobile.setEditable(false);
-		txtCustomerMobile.setColumns(10);
-		txtCustomerMobile.setBounds(781, 78, 150, 30);
-		contentPane.add(txtCustomerMobile);
-		txtCustomerMobile.setText(customers.get(0).getPhone());
-
-		JLabel lblCustomerMobile = new JLabel("Customer Mobile");
-		lblCustomerMobile.setBounds(785, 65, 120, 14);
-		contentPane.add(lblCustomerMobile);
-
-		JLabel lblCustomerName = new JLabel("Customer Name");
-		lblCustomerName.setBounds(535, 65, 117, 14);
-		contentPane.add(lblCustomerName);
-
-		cmbCustomerName = new JComboBox();
-		cmbCustomerName.setToolTipText("Select Product By Name.....");
-		cmbCustomerName.setMaximumRowCount(5);
-		cmbCustomerName.setBounds(530, 78, 241, 30);
-		contentPane.add(cmbCustomerName);
-
 		JLabel lblTotalAmount = new JLabel("Total Amount");
-		lblTotalAmount.setBounds(142, 433, 86, 14);
+		lblTotalAmount.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblTotalAmount.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTotalAmount.setBounds(47, 471, 100, 14);
 		contentPane.add(lblTotalAmount);
 
-		JLabel lblDiscount = new JLabel("Discount %");
-		lblDiscount.setBounds(142, 458, 86, 14);
-		contentPane.add(lblDiscount);
-
-		JLabel lblDiscountAmount = new JLabel("Discount Amount");
-		lblDiscountAmount.setBounds(142, 483, 86, 14);
-		contentPane.add(lblDiscountAmount);
-
-		JLabel lblTotalToPay = new JLabel("Total To Pay");
-		lblTotalToPay.setBounds(142, 508, 86, 14);
-		contentPane.add(lblTotalToPay);
-
-		JLabel lblReceived = new JLabel("Received");
-		lblReceived.setBounds(142, 533, 86, 14);
-		contentPane.add(lblReceived);
-
-		JLabel lblChange = new JLabel("Change");
-		lblChange.setBounds(142, 558, 86, 14);
-		contentPane.add(lblChange);
-
 		txtTotal = new JTextField();
+		txtTotal.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtTotal.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtTotal.setEditable(false);
 		txtTotal.setText("0");
-		txtTotal.setBounds(238, 430, 120, 20);
+		txtTotal.setBounds(47, 489, 100, 20);
 		contentPane.add(txtTotal);
 		txtTotal.setColumns(10);
 
+		JLabel lblDiscount = new JLabel("Discount %");
+		lblDiscount.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblDiscount.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblDiscount.setBounds(157, 471, 100, 14);
+		contentPane.add(lblDiscount);
+
 		txtDiscountPercent = new JTextField();
+		txtDiscountPercent.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtDiscountPercent.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtDiscountPercent.setText("0");
-		txtDiscountPercent.setBounds(238, 455, 120, 20);
+		txtDiscountPercent.setBounds(157, 489, 100, 20);
 		contentPane.add(txtDiscountPercent);
 		txtDiscountPercent.setColumns(10);
 		txtDiscountPercent.getDocument().addDocumentListener(new DocumentListener() {
@@ -360,34 +396,67 @@ public class SaleInvoice extends JFrame {
 			}
 		});
 
+		JLabel lblDiscountAmount = new JLabel("Discount Amount");
+		lblDiscountAmount.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblDiscountAmount.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblDiscountAmount.setBounds(267, 471, 100, 14);
+		contentPane.add(lblDiscountAmount);
+
 		txtDiscountAmount = new JTextField();
+		txtDiscountAmount.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtDiscountAmount.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtDiscountAmount.setEditable(false);
 		txtDiscountAmount.setText("0");
-		txtDiscountAmount.setBounds(238, 480, 120, 20);
+		txtDiscountAmount.setBounds(267, 489, 100, 20);
 		contentPane.add(txtDiscountAmount);
 		txtDiscountAmount.setColumns(10);
 
+		JLabel lblTotalToPay = new JLabel("Total To Pay");
+		lblTotalToPay.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblTotalToPay.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTotalToPay.setBounds(377, 471, 100, 14);
+		contentPane.add(lblTotalToPay);
+
 		txtTotalToPay = new JTextField();
+		txtTotalToPay.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtTotalToPay.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtTotalToPay.setEditable(false);
 		txtTotalToPay.setText("0");
-		txtTotalToPay.setBounds(238, 505, 120, 20);
+		txtTotalToPay.setBounds(377, 489, 100, 20);
 		contentPane.add(txtTotalToPay);
 		txtTotalToPay.setColumns(10);
 
+		JLabel lblReceived = new JLabel("Received");
+		lblReceived.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblReceived.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblReceived.setBounds(487, 471, 100, 14);
+		contentPane.add(lblReceived);
+
 		txtReceived = new JTextField();
+		txtReceived.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtReceived.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtReceived.setText("0");
-		txtReceived.setBounds(238, 530, 120, 20);
+		txtReceived.setBounds(487, 489, 100, 20);
 		contentPane.add(txtReceived);
 		txtReceived.setColumns(10);
 
+		JLabel lblChange = new JLabel("Change");
+		lblChange.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		lblChange.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblChange.setBounds(597, 471, 100, 14);
+		contentPane.add(lblChange);
+
 		txtChange = new JTextField();
+		txtChange.setFont(new Font("Cambria Math", Font.PLAIN, 13));
+		txtChange.setHorizontalAlignment(SwingConstants.RIGHT);
 		txtChange.setEditable(false);
 		txtChange.setText("0");
-		txtChange.setBounds(238, 555, 120, 20);
+		txtChange.setBounds(597, 489, 100, 20);
 		contentPane.add(txtChange);
 		txtChange.setColumns(10);
 
 		JButton btnCalculate = new JButton("Calculate");
+		btnCalculate.setFont(new Font("Cambria Math", Font.PLAIN, 14));
 		btnCalculate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -396,10 +465,11 @@ public class SaleInvoice extends JFrame {
 				btnCash.setEnabled(true);
 			}
 		});
-		btnCalculate.setBounds(269, 586, 89, 23);
+		btnCalculate.setBounds(707, 471, 89, 42);
 		contentPane.add(btnCalculate);
 
 		btnCash = new JButton("Cash!");
+		btnCash.setFont(new Font("Cambria Math", Font.BOLD, 20));
 		btnCash.setEnabled(false);
 		btnCash.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -408,12 +478,12 @@ public class SaleInvoice extends JFrame {
 					JOptionPane.showMessageDialog(null, "No Product Added!");
 				} else {
 					if (Float.parseFloat(txtTotalToPay.getText()) <= Float.parseFloat(txtReceived.getText())) {
-						if(invoice.getId() != 0) {
+						if (invoice.getId() != 0) {
 							InvoiceController.refund(invoice);
 						} else {
 							InvoiceController.cash(invoice);
 						}
-						
+
 						JOptionPane.showMessageDialog(null, "Success!");
 						dispose();
 					} else {
@@ -423,36 +493,11 @@ public class SaleInvoice extends JFrame {
 
 			}
 		});
-		btnCash.setBounds(368, 586, 89, 23);
+		btnCash.setBounds(806, 471, 89, 42);
 		contentPane.add(btnCash);
-
-		txtStock = new JTextField();
-		txtStock.setText("0.0");
-		txtStock.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtStock.setEditable(false);
-		txtStock.setColumns(10);
-		txtStock.setBounds(10, 78, 120, 30);
-		contentPane.add(txtStock);
-
-		lblStock = new JLabel("Stock");
-		lblStock.setBounds(14, 65, 89, 14);
-		contentPane.add(lblStock);
 		for (int i = 0; i < customers.size(); i++) {
 			cmbCustomerName.addItem(customers.get(i).getName());
 		}
-		cmbCustomerName.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-//				cmbProductName.setSelectedIndex(cmbProductID.getSelectedIndex());
-
-				selectedCustomer = customers.get(cmbCustomerName.getSelectedIndex());
-				txtCustomerMobile.setText(selectedCustomer.getPhone());
-
-				invoice.setCustomer(selectedCustomer.getName());
-				invoice.setCustomerPhone(selectedCustomer.getPhone());
-			}
-		});
 
 	}
 

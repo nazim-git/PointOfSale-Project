@@ -129,7 +129,7 @@ public class ProductDao {
 		try {
 			String query = "UPDATE Products SET title ='" + newDetails.getTitle() + "',description ='"
 					+ newDetails.getDescription() + "',unit ='" + newDetails.getUnit() + "',status ='"
-					+ newDetails.getStatus() + "',salePrice ='" + newDetails.getSalePrice() + "' WHERE title = '"
+					+ newDetails.getStatus() + "',salePrice ='" + newDetails.getSalePrice() + "', isSynced = 0 WHERE title = '"
 					+ title + "'";
 			pst = con.prepareStatement(query);
 
@@ -141,7 +141,7 @@ public class ProductDao {
 
 	public void updateStock(AddPurchaseVM purchaseForm) {
 		try {
-			String query = "UPDATE Products SET stock = stock + ?,purchasePrice = ?, salePrice = ? where title = ?";
+			String query = "UPDATE Products SET stock = stock + ?,purchasePrice = ?, salePrice = ?, isSynced = 0 where title = ?";
 
 			pst = con.prepareStatement(query);
 			pst.setInt(1, Integer.parseInt(purchaseForm.txtQuantityPurchases.getText()));
@@ -157,7 +157,7 @@ public class ProductDao {
 
 	public void updateStock(String title, int quantity) {
 		try {
-			String query = "UPDATE Products SET stock = stock - ? where title = ?";
+			String query = "UPDATE Products SET stock = stock - ?, isSynced = 0 where title = ?";
 
 			pst = con.prepareStatement(query);
 			pst.setInt(1, quantity);
@@ -171,7 +171,7 @@ public class ProductDao {
 
 	public void updateStockRefund(int invoiceId) {
 		try {
-			String query = "UPDATE pr SET pr.stock = pr.stock + ii.quantity FROM Products pr JOIN InvoiceItems ii ON LOWER(pr.title) = LOWER(ii.title) WHERE ii.invoiceId = "
+			String query = "UPDATE pr SET pr.stock = pr.stock + ii.quantity FROM Products pr JOIN InvoiceItems ii ON LOWER(pr.title) = LOWER(ii.title), isSynced = 0 WHERE ii.invoiceId = "
 					+ invoiceId;
 
 			pst = con.prepareStatement(query);

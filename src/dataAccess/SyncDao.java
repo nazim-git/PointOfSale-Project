@@ -172,6 +172,7 @@ public class SyncDao {
 				customer.setDeleted(Boolean.parseBoolean(rs.getString("isDeleted")));
 				customer.setDeletedBy(rs.getString("deletedBy"));
 				customer.setDeletedAt(rs.getTimestamp("deletedAt"));
+				customer.setOldPhone(rs.getString("oldPhone"));
 
 				customers.add(customer);
 				customer = new CustomerModel();

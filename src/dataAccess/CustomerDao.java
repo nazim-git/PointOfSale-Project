@@ -103,7 +103,7 @@ public class CustomerDao {
 	public void updateCustomer(String phone, CustomerModel newDetails) {
 		try {
 			String query = "UPDATE Customers SET name ='" + newDetails.getName() + "',phone ='" + newDetails.getPhone()
-					+ "' WHERE phone = '" + phone + "'";
+			+ "',oldPhone = '"+ phone +"',isSynced = 0 WHERE phone = '" + phone + "'";
 			pst = con.prepareStatement(query);
 
 			pst.execute();

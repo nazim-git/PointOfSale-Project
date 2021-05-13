@@ -94,4 +94,14 @@ public class PurchasesController {
 		purchaseForm.txtQuantityPurchases.setText(null);
 	}
 
+	public static boolean deletePurchase(int id) {
+		if (JOptionPane.showConfirmDialog(null, "Are you sure?", "WARNING",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			purchasesDao.deletePurchase(id);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }

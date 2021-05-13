@@ -184,7 +184,7 @@ public class SyncController {
 			updateSb.append("update Customers set isSynced = 1 where phone in (");
 			for (CustomerModel items : customers) {
 				sb = new StringBuilder();
-				delSb.append("'" + items.getPhone() + "',");
+				delSb.append("'" + items.getOldPhone() + "',");
 				updateSb.append("'" + items.getPhone() + "',");
 
 				sb.append("INSERT INTO Customers(phone ,name ,createdBy ,createdAt) VALUES ");

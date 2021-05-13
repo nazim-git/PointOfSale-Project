@@ -23,11 +23,12 @@ import javax.swing.UIManager;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
 import javax.swing.JPasswordField;
+import javax.swing.border.BevelBorder;
 
 public class Login extends JFrame {
 
 	private JPanel contentPane, panel;
-	private JLabel lblLogin, lblUsername, lblPassword;
+	private JLabel lblUsername, lblPassword;
 	private JTextField usernameField;
 	private JPasswordField passwordField;
 	private JButton btnLogin;
@@ -42,45 +43,42 @@ public class Login extends JFrame {
 	public void UI() {
 		setTitle("Login-Point Of Sale");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(550,50,508,268);
+		setBounds(550,50,500,300);
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		setLocationRelativeTo(null);
 
 		panel = new JPanel();
 		panel.setLayout(null);
-		panel.setBounds(10, 11, 482, 216);
+		panel.setBounds(10, 11, 464, 240);
 		contentPane.add(panel);
 
-		lblLogin = new JLabel("Login");
-		lblLogin.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLogin.setFont(new Font("Tahoma", Font.BOLD, 26));
-		lblLogin.setBounds(10, 11, 85, 32);
-		panel.add(lblLogin);
-
 		lblUsername = new JLabel("Username");
-		lblUsername.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		lblUsername.setBounds(20, 54, 90, 20);
+		lblUsername.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblUsername.setFont(new Font("Cambria Math", Font.PLAIN, 18));
+		lblUsername.setBounds(80, 88, 90, 20);
 		panel.add(lblUsername);
 
 		lblPassword = new JLabel("Password");
-		lblPassword.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-		lblPassword.setBounds(20, 116, 90, 20);
+		lblPassword.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblPassword.setFont(new Font("Cambria Math", Font.PLAIN, 18));
+		lblPassword.setBounds(80, 118, 90, 20);
 		panel.add(lblPassword);
 
 		usernameField = new JTextField();
+		usernameField.setFont(new Font("Cambria Math", Font.PLAIN, 14));
 		usernameField.setColumns(10);
-		usernameField.setBounds(30, 85, 200, 20);
+		usernameField.setBounds(180, 88, 200, 20);
 		panel.add(usernameField);
 
 		passwordField = new JPasswordField();
-		passwordField.setBounds(30, 147, 200, 20);
+		passwordField.setFont(new Font("Cambria Math", Font.PLAIN, 14));
+		passwordField.setBounds(180, 119, 200, 20);
 		panel.add(passwordField);
 
 		btnLogin = new JButton("Login!");
-		btnLogin.setFont(new Font("Times New Roman", Font.BOLD, 14));
+		btnLogin.setFont(new Font("Cambria Math", Font.BOLD, 18));
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (usernameField.getText().isEmpty() || passwordField.getText().isEmpty()) {
@@ -100,27 +98,14 @@ public class Login extends JFrame {
 				}
 			}
 		});
-		btnLogin.setBounds(140, 178, 90, 23);
+		btnLogin.setBounds(290, 169, 90, 40);
 		panel.add(btnLogin);
-
-		JPanel LogoPanel = new JPanel();
-		LogoPanel.setLayout(null);
-		LogoPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "",
-
-				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		LogoPanel.setBounds(240, 11, 232, 95);
-		panel.add(LogoPanel);
-
-		JLabel lblPointOfSale = new JLabel("Point Of Sale");
-		lblPointOfSale.setHorizontalAlignment(SwingConstants.CENTER);
-		lblPointOfSale.setFont(new Font("Segoe Script", Font.BOLD, 30));
-		lblPointOfSale.setBounds(6, 16, 220, 49);
-		LogoPanel.add(lblPointOfSale);
-
-		JLabel label_1 = new JLabel("Dublin.");
-		label_1.setFont(new Font("Segoe Print", Font.PLAIN, 14));
-		label_1.setBounds(177, 62, 49, 26);
-		LogoPanel.add(label_1);
+		
+				JLabel lblPointOfSale = new JLabel("Point Of Sale");
+				lblPointOfSale.setBounds(128, 11, 220, 49);
+				panel.add(lblPointOfSale);
+				lblPointOfSale.setHorizontalAlignment(SwingConstants.CENTER);
+				lblPointOfSale.setFont(new Font("Segoe Script", Font.BOLD, 30));
 
 		setVisible(true);
 	}

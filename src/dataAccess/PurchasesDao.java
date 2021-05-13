@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 
 import dataModels.PurchasesModel;
+import dataModels.User;
 
 public class PurchasesDao {
 
@@ -64,6 +66,18 @@ public class PurchasesDao {
 
 			pst.execute();
 
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void deletePurchase(int id) {
+		try {
+			String query = "UPDATE Purchases SET isDeleted = 1, deletedBy ='" + User.Username + "', deletedAt = '"
+					+ new Timestamp(new Date().getTime()) + "' WHERE id = " + id;
+			pst = con.prepareStatement(query);
+
+			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
