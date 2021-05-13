@@ -298,7 +298,7 @@ public class App extends JFrame {
 				if (customers.size() < 1) {
 					JOptionPane.showMessageDialog(null, "No Customer Found. Add customer to generate invoice!");
 				} else if (products.size() < 1) {
-					JOptionPane.showMessageDialog(null, "No Customer Found. Add customer to generate invoice!");
+					JOptionPane.showMessageDialog(null, "No Products Found. Add products to generate invoice!");
 				} else {
 					JFrame frame = new SaleInvoice();
 					invoiceWindows.add(frame);
