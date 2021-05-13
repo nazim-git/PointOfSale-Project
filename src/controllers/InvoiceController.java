@@ -213,7 +213,6 @@ public class InvoiceController {
 			productDao.updateStock(invoice.getInvoiceItems().get(i).getTitle(),
 					invoice.getInvoiceItems().get(i).getQuantity());
 		}
-
 		printInvoice(invoice);
 	}
 
