@@ -90,7 +90,7 @@ public class PurchasesController {
 		purchaseForm.txtSupplierPurchases.setText(null);
 		purchaseForm.txtPurchasePricePurchases.setText(null);
 		purchaseForm.txtSalePricePurchases.setText(null);
-		purchaseForm.txtUnitPurchases.setText(null);
+//		purchaseForm.txtUnitPurchases.setText(null);
 		purchaseForm.txtQuantityPurchases.setText(null);
 	}
 

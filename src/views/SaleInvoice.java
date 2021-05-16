@@ -89,8 +89,6 @@ public class SaleInvoice extends JFrame {
 
 	public SaleInvoice() {
 		setResizable(false);
-//		setMaximizedBounds(Frame.getScreenBounds());
-//		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		Initializations();
 		setUI();
 		fillWithSelectedProduct(true);
@@ -99,8 +97,6 @@ public class SaleInvoice extends JFrame {
 	}
 
 	public SaleInvoice(InvoiceModel selectedInvoice) {
-//		setMaximizedBounds(Frame.getScreenBounds());
-//		setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 		Initializations();
 		setUI();
 		fillWithSelectedProduct(true);

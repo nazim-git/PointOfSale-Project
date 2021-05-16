@@ -57,7 +57,7 @@ public class UserController {
 
 			userDao.insertUser(user);
 
-			JOptionPane.showMessageDialog(null, "Customer Added Successfully!");
+			JOptionPane.showMessageDialog(null, "User Added Successfully!");
 			resetFields(userForm);
 		} else {
 			JOptionPane.showMessageDialog(null, "Username already exists!");

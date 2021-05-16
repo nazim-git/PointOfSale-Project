@@ -59,6 +59,8 @@ public class App extends JFrame {
 	private JPanel contentPane;
 	private JLayeredPane layeredPane;
 
+	JButton btnAddUser;
+
 	// Models
 	ArrayList<JFrame> invoiceWindows = new ArrayList<JFrame>();
 	private ArrayList<ProductModel> products;
@@ -138,9 +140,7 @@ public class App extends JFrame {
 		setBounds(100, 100, 931, 550);
 		setResizable(false);
 		setVisible(true);
-		
-		System.out.println(new Timestamp(new Date().getTime()));
-		
+
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -195,7 +195,7 @@ public class App extends JFrame {
 		btnLogoutHome.setBounds(245, 21, 100, 23);
 		UserDetailsPanelHome.add(btnLogoutHome);
 
-		JButton btnAddUser = new JButton("Users");
+		btnAddUser = new JButton("Users");
 		btnAddUser.setFont(new Font("Cambria Math", Font.PLAIN, 14));
 		btnAddUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -205,7 +205,9 @@ public class App extends JFrame {
 		});
 		btnAddUser.setBounds(25, 21, 100, 23);
 		UserDetailsPanelHome.add(btnAddUser);
-		if (!User.IsAdmin) {
+		if (User.IsAdmin) {
+			btnAddUser.setVisible(true);
+		} else {
 			btnAddUser.setVisible(false);
 		}
 
@@ -381,34 +383,33 @@ public class App extends JFrame {
 		lblTime.setFont(new Font("Cambria Math", Font.PLAIN, 20));
 		lblTime.setBounds(662, 141, 235, 26);
 		Home.add(lblTime);
-		
 
 		lblTime.setText((new Timestamp(new Date().getTime())).toLocaleString());
-		
-				JLabel lblActiveUserNameHome = new JLabel("User Not Found!");
-				lblActiveUserNameHome.setBounds(687, 93, 210, 22);
-				Home.add(lblActiveUserNameHome);
-				lblActiveUserNameHome.setHorizontalAlignment(SwingConstants.RIGHT);
-				lblActiveUserNameHome.setFont(new Font("Cambria Math", Font.PLAIN, 18));
-				lblActiveUserNameHome.setText(User.Name);
-				
-				JLabel lblCurrentUser = new JLabel("Current User");
-				lblCurrentUser.setHorizontalAlignment(SwingConstants.RIGHT);
-				lblCurrentUser.setFont(new Font("Cambria Math", Font.BOLD, 16));
-				lblCurrentUser.setBounds(696, 66, 201, 26);
-				Home.add(lblCurrentUser);
-				
-						JButton btnSyncData = new JButton("Sync Data");
-						btnSyncData.setBounds(672, 24, 102, 23);
-						Home.add(btnSyncData);
-						btnSyncData.setFont(new Font("Cambria Math", Font.PLAIN, 14));
-						btnSyncData.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent arg0) {
-								JOptionPane.showMessageDialog(null, "Syncing!....");
-								SyncController.Sync();
-								JOptionPane.showMessageDialog(null, "Syncing Done!....");
-							}
-						});
+
+		JLabel lblActiveUserNameHome = new JLabel("User Not Found!");
+		lblActiveUserNameHome.setBounds(687, 93, 210, 22);
+		Home.add(lblActiveUserNameHome);
+		lblActiveUserNameHome.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblActiveUserNameHome.setFont(new Font("Cambria Math", Font.PLAIN, 18));
+		lblActiveUserNameHome.setText(User.Name);
+
+		JLabel lblCurrentUser = new JLabel("Current User");
+		lblCurrentUser.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCurrentUser.setFont(new Font("Cambria Math", Font.BOLD, 16));
+		lblCurrentUser.setBounds(696, 66, 201, 26);
+		Home.add(lblCurrentUser);
+
+		JButton btnSyncData = new JButton("Sync Data");
+		btnSyncData.setBounds(672, 24, 102, 23);
+		Home.add(btnSyncData);
+		btnSyncData.setFont(new Font("Cambria Math", Font.PLAIN, 14));
+		btnSyncData.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JOptionPane.showMessageDialog(null, "Syncing!....");
+				SyncController.Sync();
+				JOptionPane.showMessageDialog(null, "Syncing Done!....");
+			}
+		});
 
 	}
 
@@ -527,6 +528,7 @@ public class App extends JFrame {
 		ProducDetails.add(lblStatus);
 
 		txtSalePrice = new JTextField();
+		txtSalePrice.setText("0");
 		txtSalePrice.setFont(new Font("Cambria Math", Font.PLAIN, 14));
 		txtSalePrice.setColumns(10);
 		txtSalePrice.setBounds(330, 25, 150, 20);
@@ -762,7 +764,7 @@ public class App extends JFrame {
 				if (PurchasesController.validateAddPurchaseInput(purchaseForm)) {
 					PurchasesController.addNewPurchase(purchaseForm);
 					purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
-					products = ProductController.fillTableWithProducts(products, productsTableModel);
+//					products = ProductController.fillTableWithProducts(products, productsTableModel);
 				}
 			}
 		});
@@ -836,7 +838,7 @@ public class App extends JFrame {
 		cmbProductsPurchases.setFont(new Font("Cambria Math", Font.PLAIN, 14));
 		cmbProductsPurchases.setBounds(22, 25, 150, 20);
 		ProducDetails.add(cmbProductsPurchases);
-		
+
 		JButton btnDeletePurchase = new JButton("Delete");
 		btnDeletePurchase.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -846,8 +848,7 @@ public class App extends JFrame {
 				} else {
 					boolean isDeleted = PurchasesController.deletePurchase(selectedPurchase.getId());
 					if (isDeleted) {
-						JOptionPane.showMessageDialog(null,
-								"Deletion successfully!");
+						JOptionPane.showMessageDialog(null, "Deletion successfully!");
 						selectedPurchase = null;
 						purchasesTable.clearSelection();
 						purchases = PurchasesController.fillTableWithPurchases(purchases, purchasesTableModel);
@@ -867,7 +868,8 @@ public class App extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				txtUnitPurchase.setText(products.get(cmbProductsPurchases.getSelectedIndex()).getUnit());
-				txtSalePricePurchase.setText(String.valueOf(products.get(cmbProductsPurchases.getSelectedIndex()).getSalePrice()));
+				txtSalePricePurchase
+						.setText(String.valueOf(products.get(cmbProductsPurchases.getSelectedIndex()).getSalePrice()));
 			}
 		});
 
@@ -877,7 +879,7 @@ public class App extends JFrame {
 
 		purchasesTable = new JTable(purchasesTableModel);
 		scrollPanePurchases.setViewportView(purchasesTable);
-		
+
 		purchasesTable.addMouseListener(new MouseListener() {
 
 			@Override

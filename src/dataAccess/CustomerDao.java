@@ -35,7 +35,7 @@ public class CustomerDao {
 	public CustomerModel getCustomer(String phone) {
 		CustomerModel customer = null;
 		try {
-			String query = "select * from Customers where phone = ? and isDeleted = 0";
+			String query = "select * from Customers where phone = ?";
 			pst = con.prepareStatement(query);
 
 			pst.setString(1, phone);

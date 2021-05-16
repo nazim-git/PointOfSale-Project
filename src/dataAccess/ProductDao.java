@@ -171,8 +171,7 @@ public class ProductDao {
 
 	public void updateStockRefund(int invoiceId) {
 		try {
-			String query = "UPDATE pr SET pr.stock = pr.stock + ii.quantity FROM Products pr JOIN InvoiceItems ii ON LOWER(pr.title) = LOWER(ii.title), isSynced = 0 WHERE ii.invoiceId = "
-					+ invoiceId;
+			String query = "UPDATE pr SET pr.stock = pr.stock + ii.quantity, pr.isSynced = 0 FROM Products pr JOIN InvoiceItems ii ON LOWER(pr.title) = LOWER(ii.title) WHERE ii.invoiceId = "+ invoiceId;
 
 			pst = con.prepareStatement(query);
 
